@@ -324,42 +324,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // PRELOADER ANIMATION - RUNS IMMEDIATELY
   if (isMobile()) {
-    // MOBILE TIMELINE
-    // console.log("Initializing mobile preloader timeline");
-
-    // Mobile-specific initial states
-    gsap.set(".preloader_image_wrap img", {
-      scale: 1,
-      opacity: 1,
-    });
-
+    // MOBILE TIMELINE — no sheep image; close preloader quickly into hero
     const mobileTimeline = createPreloaderTimeline();
 
     mobileTimeline
-      // 1. Animate the image from scale 1 to 1.1
-      .to(".preloader_image_wrap img", {
-        scale: 1.1,
-        duration: 1.5,
+      .to({}, { duration: 0.15 })
+      .to(".preloader_wrap", {
+        height: "0svh",
+        duration: 1,
         ease: "power4.out",
-      })
-      // 3. Hold for a moment
-      .to({}, { duration: 1 })
-
-      // 5. Animate preloader out (starts while title is exiting)
-      .to(
-        ".preloader_wrap",
-        {
-          height: "0svh",
-          duration: 1.5,
-          ease: "power4.out",
-          onComplete: function () {
-            gsap.set(".preloader_wrap", { display: "none" });
-          },
+        onComplete: function () {
+          gsap.set(".preloader_wrap", { display: "none" });
         },
-        "-=0.1"
-      ) // Start before title chars finish exiting
-
-      // 6. Animate on-load elements (starts 0.5s before preloader finishes)
+      })
       .to(
         headingSplit ? headingSplit.words : [],
         {
@@ -371,7 +348,6 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         "-=0.65"
       )
-
       .to(
         textSplit ? textSplit.lines : [],
         {
@@ -383,7 +359,6 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         "-=0.85"
       )
-
       .to(
         ".loader_video",
         {
@@ -393,8 +368,6 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         "-=2.25"
       )
-
-      // 7. Animate navigation component at the very end
       .to(
         ".nav_component",
         {
@@ -404,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ease: "power2.out",
         },
         "-=1"
-      ); // Start slightly before video animation completes
+      );
   } else {
     // DESKTOP TIMELINE
     // console.log("Initializing desktop preloader timeline");
