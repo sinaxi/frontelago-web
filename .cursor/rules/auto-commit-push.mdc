@@ -1,0 +1,14 @@
+---
+description: Always commit and push after every code change
+alwaysApply: true
+---
+
+# Auto commit and push
+
+After every modification to the project (code, assets, config, or content), always:
+
+1. Stage the relevant changed files
+2. Create a git commit with a concise message focused on the why
+3. Push to `origin` on the current branch
+
+Do this without waiting for the user to ask. Follow the existing git safety protocol (no force push to main/master, no config changes, no secrets, use HEREDOC for commit messages).

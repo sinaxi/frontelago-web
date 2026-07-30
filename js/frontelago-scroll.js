@@ -1340,31 +1340,22 @@ document.addEventListener("DOMContentLoaded", function () {
     /* PARTNERS LIST ANIMATION */
     /////////////////////////////////
 
-    // Get all partner items
-    const partnerItems = gsap.utils.toArray(".partners_cms_item");
+    // Get all partner items — fade in only (no scale / slide)
     gsap.set(".partners_cms_item", {
-      scale: 0.75,
       opacity: 0,
-      transformOrigin: "top left",
     });
 
     ScrollTrigger.batch(".partners_cms_item", {
-      // When items enter the viewport - ANIMATE ONCE
       onEnter: (elements) => {
         gsap.to(elements, {
-          scale: 1,
           opacity: 1,
-          duration: 0.6,
-          // ease: "power2.out",
-          stagger: 0.15, // Stagger effect between items in the same batch
-          // overwrite: true,
+          duration: 0.7,
+          ease: "power2.out",
+          stagger: 0.1,
         });
       },
-
-      // Trigger settings
-      start: "top 85%", // When item hits 85% from top of viewport
-      once: true, // THIS IS KEY! Animation only happens once
-      // markers: false, // Uncomment to see trigger points during development
+      start: "top 85%",
+      once: true,
     });
 
     /////////////////////////////////
@@ -1895,16 +1886,23 @@ document.addEventListener("DOMContentLoaded", function () {
         scrub: !isMobile() ? true : 1,
         onUpdate: (self) => {
           const progress = self.progress;
+          const isWhiteScroll =
+            longScrollSection.getAttribute("data-long-scroll") === "white";
           // console.log(`Long scroll section ${index + 1} progress:`, progress);
-          // Calculate progress values
-          const progress1 = Math.min(progress / 0.6, 1);
+          // Calculate progress values — white section finishes wipe at end (less dead white)
+          const progress1 = Math.min(
+            progress / (isWhiteScroll ? 0.5 : 0.6),
+            1
+          );
           const progress2 = !isMobile()
-            ? progress >= 0.3
-              ? (progress - 0.3) / 0.55
-              : 0 // Desktop: start at 30%, finish at 85%
-            : progress >= 0.45
-            ? (progress - 0.45) / 0.2
-            : 0; // Mobile: start at 45%, finish at 75%
+            ? progress >= (isWhiteScroll ? 0.25 : 0.3)
+              ? (progress - (isWhiteScroll ? 0.25 : 0.3)) /
+                (isWhiteScroll ? 0.75 : 0.55)
+              : 0 // Desktop: white finishes at 100%, pink at 85%
+            : progress >= (isWhiteScroll ? 0.35 : 0.45)
+            ? (progress - (isWhiteScroll ? 0.35 : 0.45)) /
+              (isWhiteScroll ? 0.65 : 0.2)
+            : 0; // Mobile: white finishes at 100%, pink at 75%
 
           const progress3 =
             progress >= 0.4 && progress <= 0.55

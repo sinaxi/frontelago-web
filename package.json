@@ -1,8 +1,8 @@
 {
-  "name": "horeca-social-clone",
+  "name": "frontelago-web",
   "private": true,
   "version": "1.0.0",
-  "description": "Local clone of horeca-social.com with GSAP/Lenis scroll effects",
+  "description": "Frontelago website with GSAP/Lenis scroll effects",
   "scripts": {
     "dev": "npx --yes serve -l 5173 .",
     "start": "npx --yes serve -l 5173 ."
