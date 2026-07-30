@@ -1,0 +1,10 @@
+{
+  "name": "horeca-social-clone",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local clone of horeca-social.com with GSAP/Lenis scroll effects",
+  "scripts": {
+    "dev": "npx --yes serve -l 5173 .",
+    "start": "npx --yes serve -l 5173 ."
+  }
+}
