@@ -1412,6 +1412,150 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeStickyFeatures();
 
     /////////////////////////////////
+    /* STICKY IMAGE WAVE OVERLAY (NILS-style) */
+    /////////////////////////////////
+
+    function initializeStickyWaves() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      const canvas = document.querySelector("[data-sticky-waves]");
+      if (!canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const waves = [
+        {
+          baseAmplitude: 20,
+          amplitude: 20,
+          wavelength: 150,
+          speed: 2,
+          color: "white",
+          phase: 0,
+          verticalOffset: -50,
+        },
+        {
+          baseAmplitude: 30,
+          amplitude: 30,
+          wavelength: 300,
+          speed: 1,
+          color: "white",
+          phase: Math.PI / 2,
+          verticalOffset: 0,
+        },
+        {
+          baseAmplitude: 15,
+          amplitude: 15,
+          wavelength: 200,
+          speed: 1.5,
+          color: "white",
+          phase: Math.PI,
+          verticalOffset: 50,
+        },
+        {
+          baseAmplitude: 25,
+          amplitude: 25,
+          wavelength: 250,
+          speed: 1.2,
+          color: "white",
+          phase: Math.PI / 4,
+          verticalOffset: 100,
+        },
+      ];
+
+      let time = 0;
+      let rafId = 0;
+      let running = false;
+
+      function calculateCanvasHeight() {
+        let max = 0;
+        waves.forEach((wave) => {
+          const extent =
+            Math.abs(wave.verticalOffset) + wave.baseAmplitude + 5;
+          if (extent > max) max = extent;
+        });
+        return 2 * max + 20;
+      }
+
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight || calculateCanvasHeight();
+        canvas.width = Math.max(1, Math.floor(width * dpr));
+        canvas.height = Math.max(1, Math.floor(height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function drawWave(wave, cssWidth, cssHeight) {
+        ctx.beginPath();
+        ctx.moveTo(0, cssHeight / 2 + wave.verticalOffset);
+        for (let x = 0; x < cssWidth; x++) {
+          const y =
+            Math.sin(x / wave.wavelength + time * wave.speed + wave.phase) *
+            wave.amplitude;
+          ctx.lineTo(x, cssHeight / 2 + wave.verticalOffset + y);
+        }
+        ctx.strokeStyle = wave.color;
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.globalAlpha = 0.55;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      function animate() {
+        if (!running) return;
+        const cssWidth = canvas.clientWidth;
+        const cssHeight = canvas.clientHeight;
+        ctx.clearRect(0, 0, cssWidth, cssHeight);
+        waves.forEach((wave, index) => {
+          wave.amplitude =
+            wave.baseAmplitude + 5 * Math.sin(time * (0.5 + 0.2 * index));
+          drawWave(wave, cssWidth, cssHeight);
+        });
+        time += 0.01;
+        rafId = requestAnimationFrame(animate);
+      }
+
+      function start() {
+        if (running) return;
+        running = true;
+        resizeCanvas();
+        animate();
+      }
+
+      function stop() {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+      }
+
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      // Only animate while the sticky section is near the viewport
+      const section = canvas.closest("[data-sticky-features]");
+      if ("IntersectionObserver" in window && section) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) start();
+              else stop();
+            });
+          },
+          { rootMargin: "10% 0px" }
+        );
+        observer.observe(section);
+      } else {
+        start();
+      }
+    }
+
+    initializeStickyWaves();
+
+    /////////////////////////////////
     /* H2 PINNED WITHOUT GRAVITY */
     /////////////////////////////////
     // Find all containers with the data attribute
