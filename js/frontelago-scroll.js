@@ -1332,6 +1332,86 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     /////////////////////////////////
+    /* STICKY FEATURES (Bend Club style) */
+    /////////////////////////////////
+
+    function initializeStickyFeatures() {
+      const section = document.querySelector("[data-sticky-features]");
+      if (!section) return;
+
+      const pin = section.querySelector(".sticky-features_pin");
+      const visuals = gsap.utils.toArray(
+        section.querySelectorAll("[data-sticky-feature-visual]")
+      );
+      const texts = gsap.utils.toArray(
+        section.querySelectorAll("[data-sticky-feature-item]")
+      );
+      const progressBar = section.querySelector(
+        "[data-sticky-feature-progress]"
+      );
+      const count = Math.min(visuals.length, texts.length);
+      if (!pin || count < 2) return;
+
+      const clipOpen = "inset(0% round 0.75em)";
+      const clipClosed = "inset(50% round 0.75em)";
+
+      visuals.forEach((el, i) => {
+        gsap.set(el, {
+          clipPath: i === 0 ? clipOpen : clipClosed,
+          zIndex: i + 1,
+        });
+      });
+
+      texts.forEach((el, i) => {
+        gsap.set(el, {
+          autoAlpha: i === 0 ? 1 : 0,
+          y: i === 0 ? 0 : 30,
+        });
+      });
+
+      if (progressBar) gsap.set(progressBar, { scaleX: 0 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pin,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
+        },
+      });
+
+      if (progressBar) {
+        tl.to(progressBar, { scaleX: 1, ease: "none" }, 0);
+      }
+
+      for (let i = 0; i < count - 1; i++) {
+        const next = i + 1;
+        const at = i;
+
+        tl.to(
+          visuals[next],
+          { clipPath: clipOpen, ease: "none", duration: 1 },
+          at
+        );
+
+        tl.to(
+          texts[i],
+          { autoAlpha: 0, y: -30, ease: "none", duration: 0.5 },
+          at
+        );
+
+        tl.fromTo(
+          texts[next],
+          { autoAlpha: 0, y: 30 },
+          { autoAlpha: 1, y: 0, ease: "none", duration: 0.5 },
+          at + 0.35
+        );
+      }
+    }
+
+    initializeStickyFeatures();
+
+    /////////////////////////////////
     /* H2 PINNED WITHOUT GRAVITY */
     /////////////////////////////////
     // Find all containers with the data attribute
