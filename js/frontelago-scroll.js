@@ -1242,31 +1242,68 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // Image fade-in for all cards (already at final size — no zoom / slide)
+    // Service card images: pure fade-in every time they enter view (no zoom / slide)
     const allCardsWrappers = gsap.utils.toArray(".slide-wrapper");
 
     allCardsWrappers.forEach((wrapper) => {
-      const imageElement = wrapper.querySelector("[data-gsap-image]");
+      const imageWrap = wrapper.querySelector("[data-gsap-image]");
+      if (!imageWrap) return;
 
-      if (imageElement) {
-        gsap.set(imageElement, {
-          opacity: 0,
-          scale: 1,
-          x: 0,
-          xPercent: 0,
-        });
+      const fadeTargets = gsap.utils.toArray(
+        [
+          imageWrap,
+          imageWrap.querySelector(".g_visual_wrap"),
+          imageWrap.querySelector("img"),
+          imageWrap.querySelector("video"),
+        ].filter(Boolean)
+      );
 
-        gsap.to(imageElement, {
-          opacity: 1,
-          duration: 0.9,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: wrapper,
-            start: "top 80%",
-            once: true,
-          },
-        });
-      }
+      gsap.set(imageWrap, {
+        transformOrigin: "50% 50%",
+        scale: 1,
+        x: 0,
+        y: 0,
+        xPercent: 0,
+        yPercent: 0,
+        rotate: 0,
+        clearProps: "perspective",
+      });
+      gsap.set(fadeTargets, {
+        opacity: 0,
+        scale: 1,
+        x: 0,
+        y: 0,
+        xPercent: 0,
+        yPercent: 0,
+      });
+
+      ScrollTrigger.create({
+        trigger: imageWrap,
+        start: "top 85%",
+        end: "bottom 15%",
+        onEnter: () => {
+          gsap.to(fadeTargets, {
+            opacity: 1,
+            duration: 0.85,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        },
+        onEnterBack: () => {
+          gsap.to(fadeTargets, {
+            opacity: 1,
+            duration: 0.85,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        },
+        onLeave: () => {
+          gsap.set(fadeTargets, { opacity: 0 });
+        },
+        onLeaveBack: () => {
+          gsap.set(fadeTargets, { opacity: 0 });
+        },
+      });
     });
 
     /////////////////////////////////
