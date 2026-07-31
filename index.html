@@ -955,13 +955,37 @@
     align-items: stretch !important;
     /* dock ~5rem + gap — sit low but well above the bar */
     padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px));
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
     box-sizing: border-box;
     width: 100%;
+    max-width: 100%;
+  }
+
+  .section_loader .loader_layout {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .section_loader .loader_title {
+    margin-left: 0;
+    padding-inline: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 991px) {
+    .section_loader .loader_contain {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
   }
 
   @media (min-width: 992px) {
     .section_loader .loader_contain {
       padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+      padding-left: var(--site--margin, 1.5rem);
+      padding-right: var(--site--margin, 1.5rem);
     }
   }
 
