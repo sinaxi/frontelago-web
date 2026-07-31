@@ -802,8 +802,13 @@
     inset: 0;
     height: 100%;
     width: 100%;
-    clip-path: inset(50% round 0.75em);
-    will-change: clip-path;
+    /* Start fully masked from the left — cinematic wipe, not center iris */
+    clip-path: inset(0 0 0 100% round 0.75em);
+    will-change: clip-path, opacity;
+  }
+
+  .sticky-features_img-item.is-active {
+    clip-path: inset(0 round 0.75em);
   }
 
   .sticky-features_img {
@@ -811,6 +816,8 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    transform-origin: 50% 50%;
+    will-change: transform;
   }
 
   .sticky-features_waves {

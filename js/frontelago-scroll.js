@@ -1504,14 +1504,27 @@ document.addEventListener("DOMContentLoaded", function () {
       const count = Math.min(visuals.length, texts.length);
       if (!pin || count < 2) return;
 
-      const clipOpen = "inset(0% round 0.75em)";
-      const clipClosed = "inset(50% round 0.75em)";
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      // Cinematic L→R wipe + soft Ken Burns (not the center iris open)
+      const clipOpen = "inset(0 0 0 0 round 0.75em)";
+      const clipClosed = "inset(0 0 0 100% round 0.75em)";
 
       visuals.forEach((el, i) => {
+        const img = el.querySelector(".sticky-features_img");
         gsap.set(el, {
           clipPath: i === 0 ? clipOpen : clipClosed,
+          opacity: 1,
           zIndex: i + 1,
         });
+        if (img) {
+          gsap.set(img, {
+            scale: i === 0 ? 1 : 1.12,
+            xPercent: i === 0 ? 0 : -4,
+          });
+        }
       });
 
       texts.forEach((el, i) => {
@@ -1522,6 +1535,18 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (progressBar) gsap.set(progressBar, { scaleX: 0 });
+
+      if (reducedMotion) {
+        // Instant crossfades only
+        visuals.forEach((el, i) => {
+          gsap.set(el, {
+            clipPath: clipOpen,
+            autoAlpha: i === 0 ? 1 : 0,
+          });
+          const img = el.querySelector(".sticky-features_img");
+          if (img) gsap.set(img, { scale: 1, xPercent: 0 });
+        });
+      }
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -1539,12 +1564,48 @@ document.addEventListener("DOMContentLoaded", function () {
       for (let i = 0; i < count - 1; i++) {
         const next = i + 1;
         const at = i;
+        const nextImg = visuals[next].querySelector(".sticky-features_img");
+        const prevImg = visuals[i].querySelector(".sticky-features_img");
 
-        tl.to(
-          visuals[next],
-          { clipPath: clipOpen, ease: "none", duration: 1 },
-          at
-        );
+        if (reducedMotion) {
+          tl.to(visuals[i], { autoAlpha: 0, ease: "none", duration: 0.5 }, at);
+          tl.to(
+            visuals[next],
+            { autoAlpha: 1, ease: "none", duration: 0.5 },
+            at
+          );
+        } else {
+          // Incoming: wipe in from the left while settling from a mild drift
+          tl.fromTo(
+            visuals[next],
+            { clipPath: clipClosed },
+            { clipPath: clipOpen, ease: "none", duration: 1 },
+            at
+          );
+
+          if (nextImg) {
+            tl.fromTo(
+              nextImg,
+              { scale: 1.12, xPercent: -4 },
+              { scale: 1, xPercent: 0, ease: "none", duration: 1 },
+              at
+            );
+          }
+
+          // Outgoing: slow drift + dim so the cut feels layered, not a hard iris
+          if (prevImg) {
+            tl.to(
+              prevImg,
+              { scale: 1.06, xPercent: 3, ease: "none", duration: 1 },
+              at
+            );
+          }
+          tl.to(
+            visuals[i],
+            { opacity: 0.35, ease: "none", duration: 1 },
+            at
+          );
+        }
 
         tl.to(
           texts[i],
