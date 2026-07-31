@@ -1937,6 +1937,12 @@ body:has(.nav_component[data-wave-menu="open"])::before {
   display: block;
   width: 100%;
   height: auto;
+  transition: filter 0.35s ease;
+}
+/* White/light page themes: flip the white mark to black */
+html[data-page-theme="light"] .float-logo img,
+html[data-page-theme="grey"] .float-logo img {
+  filter: invert(1);
 }
 
 /* Brand mark block just before LET’S WORK TOGETHER */

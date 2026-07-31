@@ -3815,7 +3815,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function animateBackground() {
     const backgroundElement = document.querySelector("[data-animate-bg]");
+    const setPageTheme = (theme) => {
+      if (!theme) return;
+      document.documentElement.setAttribute("data-page-theme", theme);
+    };
+
     document.addEventListener("colorThemesReady", () => {
+      // Default: first theme section on the page (usually light/hero)
+      const firstTheme = document
+        .querySelector("[data-animate-theme-to]")
+        ?.getAttribute("data-animate-theme-to");
+      setPageTheme(firstTheme || "light");
+
       $("[data-animate-theme-to]").each(function () {
         let theme = $(this).attr("data-animate-theme-to");
 
@@ -3825,7 +3836,10 @@ document.addEventListener("DOMContentLoaded", function () {
           markers: false,
           end: "bottom center",
           onToggle: ({ self, isActive }) => {
-            if (isActive) gsap.to("body", { ...colorThemes.getTheme(theme) });
+            if (isActive) {
+              gsap.to("body", { ...colorThemes.getTheme(theme) });
+              setPageTheme(theme);
+            }
           },
         });
       });
