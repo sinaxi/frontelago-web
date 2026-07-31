@@ -1303,23 +1303,24 @@
 
   .sticky-features_eyebrow {
     font-family: var(--_typography---font--primary-family, "Inter Variable", Arial, sans-serif);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #ffffff;
+    font-size: clamp(0.9375rem, 1.1vw, 1.125rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.72);
     margin: 0;
   }
 
   .sticky-features_title {
-    font-family: var(--_typography---font--secondary-family, Monologue, Arial, sans-serif);
-    font-size: clamp(2.25rem, 5vw, 4.25rem);
-    font-weight: 400;
-    line-height: 0.9;
-    letter-spacing: 0;
-    text-transform: uppercase;
+    font-family: var(--_typography---font--primary-family, "Inter Variable", Arial, sans-serif) !important;
+    font-size: var(--_typography---font-size--h1, clamp(3.125rem, 6vw, 6.25rem)) !important;
+    font-weight: var(--_typography---font--primary-semibold, 600) !important;
+    line-height: 0.9 !important;
+    letter-spacing: -0.03em !important;
+    text-transform: none !important;
     margin: 0;
-    color: #fff;
+    color: #fff !important;
+    text-wrap: balance;
   }
 
   @media (max-width: 991px) {
@@ -1347,7 +1348,7 @@
     }
 
     .sticky-features_title {
-      font-size: clamp(1.75rem, 8vw, 2.5rem);
+      font-size: clamp(2rem, 9vw, 3.25rem) !important;
     }
   }
 
@@ -2967,15 +2968,15 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
           <div class="sticky-features_text-list">
             <div class="sticky-features_text-item is-active" data-sticky-feature-item="">
               <p class="sticky-features_eyebrow">Create</p>
-              <h3 class="sticky-features_title">Content der performt.</h3>
+              <h3 class="sticky-features_title u-text-style-h1">Content der performt.</h3>
             </div>
             <div class="sticky-features_text-item" data-sticky-feature-item="">
               <p class="sticky-features_eyebrow">Amplify</p>
-              <h3 class="sticky-features_title">Influencer die wirken.</h3>
+              <h3 class="sticky-features_title u-text-style-h1">Influencer die wirken.</h3>
             </div>
             <div class="sticky-features_text-item" data-sticky-feature-item="">
               <p class="sticky-features_eyebrow">Grow</p>
-              <h3 class="sticky-features_title">Strategien die skalieren.</h3>
+              <h3 class="sticky-features_title u-text-style-h1">Strategien die skalieren.</h3>
             </div>
           </div>
         </div>
