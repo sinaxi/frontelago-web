@@ -197,15 +197,20 @@
     color: var(--palette-nero) !important;
   }
 
-  /* Young / Gold Vibes / Minds: mustard field + white type */
-  [data-long-scroll="pink"][data-gsap-section="long-scroll"],
+  /* Young / Gold Vibes / Minds — match original Pink Vibes pattern:
+     light field + brand-colored middle word; white Young/Minds on mustard wipe */
+  [data-long-scroll="pink"][data-gsap-section="long-scroll"] {
+    background-color: var(--swatch--pink-secondary, #f0e6d0) !important;
+  }
   [data-long-scroll="pink"] [data-gsap-state="pinned"]::after {
     background-color: var(--palette-senape) !important;
   }
-  [data-long-scroll="pink"] .text_scroll_title,
-  [data-long-scroll="pink"] .text_scroll_title.u-color-white,
-  [data-long-scroll="pink"] .text_scroll_title .pivot {
+  [data-long-scroll="pink"] .text_scroll_title.u-color-white {
     color: #ffffff !important;
+  }
+  [data-long-scroll="pink"] .g_title_wrap.is-2 .text_scroll_title,
+  [data-long-scroll="pink"] .g_title_wrap.is-2 .text_scroll_title .pivot {
+    color: var(--palette-senape) !important;
   }
   [data-long-scroll="white"] [data-gsap-state="pinned"]::after {
     background-color: var(--palette-avorio) !important;
@@ -1072,9 +1077,9 @@
     position: relative;
     z-index: 2;
   }
-  /* Solid wipe colors — mustard for pink scroll, ivory for white scroll */
+  /* Solid wipe colors — light field + mustard wipe (original pink pattern) */
   [data-long-scroll="pink"][data-gsap-section="long-scroll"] {
-    background-color: var(--palette-senape);
+    background-color: var(--swatch--pink-secondary, #f0e6d0);
   }
   [data-long-scroll="pink"] [data-gsap-state="pinned"]::after {
     background-color: var(--palette-senape);
@@ -2984,7 +2989,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
     </div>
   </div>
 </section>
-<section data-long-scroll="pink" data-gsap-section="long-scroll" data-animate-theme-to="pink" class="section_long-scroll"><div data-gsap-state="pinned" data-gsap-flap="bottom" class="section_inner"><div class="site-wave-lines" aria-hidden="true"><canvas class="site-wave-lines__canvas" data-wave-lines=""></canvas></div><div class="section_contain u-container cc-long"><div data-gsap-wrapper="text-wrapper" class="text_scroll_layout u-container-inline-size"><div class="g_title_wrap is-1"><h2 data-gsap-text="top" class="text_scroll_title u-text-style-display u-color-white">Young</h2></div><div class="g_title_wrap is-2"><h2 data-gsap-text="middle" class="text_scroll_title u-text-style-display"><span data-gsap-pivot="before" class="pivot">Gold V</span><span data-gsap-offset="7.5" data-gsap-pivot="pivot" class="pivot">i</span><span data-gsap-pivot="after" class="pivot">bes</span></h2></div><div class="g_title_wrap is-3"><h2 data-gsap-text="bottom" class="text_scroll_title u-text-style-display u-color-white">Minds</h2></div></div></div></div></section><section data-animate-theme-to="pink" class="section_partners"><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="section_contain u-container-full"><div class="g_title_wrap u-container-inline-size"><h2 data-gsap-squeeze="" class="partners_title u-text-style-display">UNSERE PARTNER</h2></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="grid-lines"></div><div class="w-embed"><!-- Letztes Item bei Desktop ausblendet, damit bei Desktop 15 und bei mobile 16 angzeigt werden - und nicht ein einzelnes Logo alleine in einer Reihe steht -->
+<section data-long-scroll="pink" data-gsap-section="long-scroll" data-animate-theme-to="babypink" class="section_long-scroll"><div data-gsap-state="pinned" data-gsap-flap="bottom" class="section_inner"><div class="site-wave-lines" aria-hidden="true"><canvas class="site-wave-lines__canvas" data-wave-lines=""></canvas></div><div class="section_contain u-container cc-long"><div data-gsap-wrapper="text-wrapper" class="text_scroll_layout u-container-inline-size"><div class="g_title_wrap is-1"><h2 data-gsap-text="top" class="text_scroll_title u-text-style-display u-color-white">Young</h2></div><div class="g_title_wrap is-2"><h2 data-gsap-text="middle" class="text_scroll_title u-text-style-display"><span data-gsap-pivot="before" class="pivot">Gold V</span><span data-gsap-offset="7.5" data-gsap-pivot="pivot" class="pivot">i</span><span data-gsap-pivot="after" class="pivot">bes</span></h2></div><div class="g_title_wrap is-3"><h2 data-gsap-text="bottom" class="text_scroll_title u-text-style-display u-color-white">Minds</h2></div></div></div></div></section><section data-animate-theme-to="pink" class="section_partners"><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="section_contain u-container-full"><div class="g_title_wrap u-container-inline-size"><h2 data-gsap-squeeze="" class="partners_title u-text-style-display">UNSERE PARTNER</h2></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="grid-lines"></div><div class="w-embed"><!-- Letztes Item bei Desktop ausblendet, damit bei Desktop 15 und bei mobile 16 angzeigt werden - und nicht ein einzelnes Logo alleine in einer Reihe steht -->
 <style>
   @media (min-width: 992px){
     .partners_cms_list .partners_cms_item:last-child{
