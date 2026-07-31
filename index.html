@@ -1436,6 +1436,19 @@ body {
 .hero_slider > .hero_slide:not(:first-child) {
   position: absolute;
 }
+
+/* Stats after first scroll — white outline on numbers + captions */
+.section_hero .hero_title,
+.section_hero .g_paragraph,
+.section_hero .g_paragraph p {
+  -webkit-text-stroke: 0.045em #fff;
+  paint-order: stroke fill;
+  text-shadow:
+    -1px -1px 0 #fff,
+     1px -1px 0 #fff,
+    -1px  1px 0 #fff,
+     1px  1px 0 #fff;
+}
 .feed_cms_item:nth-of-type(odd) {
 	grid-column: 1;
   grid-row: 1;
