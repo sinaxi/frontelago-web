@@ -2181,6 +2181,41 @@ document.addEventListener("DOMContentLoaded", function () {
       let allRange = 0;
       let timeStart = 0;
       let rafMorph = 0;
+      let lockedScrollY = 0;
+
+      function lockPageScroll() {
+        lockedScrollY =
+          window.scrollY ||
+          window.pageYOffset ||
+          document.documentElement.scrollTop ||
+          0;
+        document.documentElement.classList.add("menu-scroll-lock");
+        document.body.style.top = `-${lockedScrollY}px`;
+        if (lenis && typeof lenis.stop === "function") {
+          lenis.stop();
+        }
+      }
+
+      function unlockPageScroll() {
+        document.documentElement.classList.remove("menu-scroll-lock");
+        document.body.style.top = "";
+        window.scrollTo(0, lockedScrollY);
+        if (lenis && typeof lenis.start === "function") {
+          lenis.start();
+        }
+      }
+
+      // Block page touch-scroll while menu is open (iOS); allow menu list only
+      const preventPageTouchScroll = (event) => {
+        if (!isOpened && !isAnimating) return;
+        const scrollRoot = event.target.closest?.(".nav_1_menu_scroll");
+        if (scrollRoot) return;
+        if (event.target.closest?.("[data-float-dock]")) return;
+        event.preventDefault();
+      };
+      document.addEventListener("touchmove", preventPageTouchScroll, {
+        passive: false,
+      });
 
       function cubicInOut(t) {
         return t < 0.5
@@ -2244,9 +2279,7 @@ document.addEventListener("DOMContentLoaded", function () {
               waveSvg.classList.remove("is-active", "is-open");
               navRoot.setAttribute("data-wave-menu", "closed");
               stopMenuWaves();
-              if (lenis && typeof lenis.start === "function") {
-                lenis.start();
-              }
+              unlockPageScroll();
             } else {
               // Snap wipe to full cover, show solid pink menu UNDER it, then
               // drop the SVG — avoids a frame where neither layer is opaque.
@@ -2299,9 +2332,7 @@ document.addEventListener("DOMContentLoaded", function () {
           waveSvg.classList.add("is-active");
           waveSvg.classList.remove("is-open");
           navRoot.setAttribute("data-wave-menu", "opening");
-          if (lenis && typeof lenis.stop === "function") {
-            lenis.stop();
-          }
+          lockPageScroll();
         } else {
           // Cover with solid wipe BEFORE dropping menu opacity — no page flash
           paths.forEach((path) => path.setAttribute("d", fullCover));
@@ -2465,6 +2496,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "M 0 0 V 100 C 50 100 50 100 100 100 V 0 H 0"
               )
             );
+            lockPageScroll();
             startMenuWaves();
             revealMobileNavLinks();
             return;
@@ -2482,6 +2514,7 @@ document.addEventListener("DOMContentLoaded", function () {
               )
             );
             stopMenuWaves();
+            unlockPageScroll();
             return;
           }
           toggleMenu(false);

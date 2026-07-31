@@ -1592,16 +1592,46 @@ html.wf-design-mode .styleguide_guide_wrap {
 	left: 0 !important;
 	right: 0 !important;
 	top: 0 !important;
+	bottom: 0 !important;
 	height: 100vh !important;
 	height: 100dvh !important;
+	height: 100svh !important;
+	min-height: 100vh !important;
+	min-height: 100dvh !important;
+	min-height: 100svh !important;
+	max-height: none !important;
 	box-sizing: border-box !important;
+	background-color: var(--swatch--pink) !important;
+	overflow: hidden !important;
 }
 .nav_component[data-wave-menu="opening"] .nav_1_menu_scroll,
 .nav_component[data-wave-menu="open"] .nav_1_menu_scroll,
 .nav_component[data-wave-menu="closing"] .nav_1_menu_scroll {
 	width: 100% !important;
-	min-height: 100%;
+	height: 100% !important;
+	min-height: 100% !important;
+	max-height: none !important;
 	box-sizing: border-box;
+	overflow-y: auto !important;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
+}
+html.menu-scroll-lock,
+html.menu-scroll-lock body {
+	overflow: hidden !important;
+	overscroll-behavior: none !important;
+	touch-action: none;
+}
+html.menu-scroll-lock body {
+	position: fixed !important;
+	left: 0;
+	right: 0;
+	width: 100%;
+}
+/* Menu panel may still scroll its own links */
+html.menu-scroll-lock .nav_1_menu_scroll,
+html.menu-scroll-lock .nav_1_menu_wrap {
+	touch-action: pan-y;
 }
 body:has(.nav_component[data-wave-menu="opening"]),
 body:has(.nav_component[data-wave-menu="open"]),
@@ -1669,6 +1699,7 @@ body:has(.nav_component[data-wave-menu="closing"]) {
 	width: 100% !important;
 	height: 100vh !important;
 	height: 100dvh !important;
+	height: 100svh !important;
 	z-index: 10050;
 }
 .nav_component[data-wave-menu="opening"] .w-nav-overlay,
@@ -1683,11 +1714,35 @@ body:has(.nav_component[data-wave-menu="closing"]) {
 	left: 0 !important;
 	right: 0 !important;
 	bottom: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	min-height: 100% !important;
+}
+/* Full-bleed pink under the menu so no page peeks through at the bottom */
+body:has(.nav_component[data-wave-menu="open"])::before,
+body:has(.nav_component[data-wave-menu="closing"])::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	width: 100vw;
+	height: 100vh;
+	height: 100dvh;
+	height: 100svh;
+	background: var(--swatch--pink);
+	z-index: 10048;
+	pointer-events: none;
 }
 .nav_1_wrap.is-mobile .w-nav-button,
 .nav_1_wrap.is-mobile .nav_1_logo_wrap {
 	position: relative;
 	z-index: 10060;
+}
+/* While open, wrap must stay fixed full-screen (overrides later relative rule) */
+.nav_component[data-wave-menu="opening"] .nav_1_menu_wrap,
+.nav_component[data-wave-menu="open"] .nav_1_menu_wrap,
+.nav_component[data-wave-menu="closing"] .nav_1_menu_wrap {
+	position: fixed !important;
+	overflow: hidden !important;
 }
 .nav_wave_anim__path:nth-of-type(1) { fill: color-mix(in srgb, var(--swatch--pink) 20%, transparent); }
 .nav_wave_anim__path:nth-of-type(2) { fill: color-mix(in srgb, var(--swatch--pink) 12%, transparent); }
