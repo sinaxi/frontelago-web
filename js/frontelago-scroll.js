@@ -1840,15 +1840,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const contactBtn = document.querySelector("[data-float-contact]");
       if (contactBtn) {
-        contactBtn.addEventListener("click", () => {
-          const existing = document.querySelector(
-            ".ix-open-modal:not([data-float-contact])"
-          );
-          if (existing && existing !== contactBtn) {
-            // Prefer the original Webflow trigger if present
-            existing.click();
-          }
-        });
+        // Webflow IX opens .g_modal via .ix-open-modal class on click
+        contactBtn.classList.add("ix-open-modal");
       }
 
       if (burger || navRoot) {
