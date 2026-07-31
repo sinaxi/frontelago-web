@@ -338,28 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
           gsap.set(".preloader_wrap", { display: "none" });
         },
       })
-      .to(
-        headingSplit ? headingSplit.words : [],
-        {
-          opacity: 1,
-          yPercent: 0,
-          duration: 1,
-          ease: "power4.out",
-          stagger: 0.05,
-        },
-        "-=0.65"
-      )
-      .to(
-        textSplit ? textSplit.lines : [],
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power4.out",
-          stagger: 0.1,
-        },
-        "-=0.85"
-      )
+      // Headline/subtitle wait for the video scene (see initializeHeroWaves)
       .to(
         ".loader_media_img, .loader_video",
         {
@@ -367,7 +346,7 @@ document.addEventListener("DOMContentLoaded", function () {
           duration: 2,
           ease: "power4.out",
         },
-        "-=2.25"
+        "-=0.85"
       )
       .to(
         ".nav_component",
@@ -429,31 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "<+" + (titleSplit ? (titleSplit.chars.length - 1) * 0.03 + 0.5 : 0.7)
       )
 
-      // 5. Animate on-load elements (starts 0.5s before preloader finishes)
-      .to(
-        headingSplit ? headingSplit.words : [],
-        {
-          opacity: 1,
-          yPercent: 0,
-          duration: 1,
-          ease: "power4.out",
-          stagger: 0.05,
-        },
-        "-=0.65"
-      )
-
-      .to(
-        textSplit ? textSplit.lines : [],
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power4.out",
-          stagger: 0.1,
-        },
-        "-=0.85"
-      )
-
+      // 5. Image/video settle — headline waits for the video scene
       .to(
         ".loader_media_img, .loader_video",
         {
@@ -461,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
           duration: 2,
           ease: "power4.out",
         },
-        "-=2.25"
+        "-=0.85"
       )
 
       // 6. Animate navigation component at the very end
@@ -474,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ease: "power2.out",
         },
         "-=1"
-      ); // Start slightly before video animation completes
+      ); // Start slightly before media settle completes
   }
 
     /////////////////////////////////
@@ -1766,7 +1721,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // Image first, then crossfade to video
+      // Image first (no headline), then crossfade to video + reveal copy
       if (mediaRoot) {
         const imageItem = mediaRoot.querySelector(
           '[data-hero-media-item="image"]'
@@ -1775,8 +1730,46 @@ document.addEventListener("DOMContentLoaded", function () {
           '[data-hero-media-item="video"]'
         );
         const video = videoItem?.querySelector("video");
+        const section =
+          mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
         let switched = false;
+        let copyRevealed = false;
+
+        const revealHeroCopy = () => {
+          if (copyRevealed) return;
+          copyRevealed = true;
+          if (section) section.setAttribute("data-hero-scene", "video");
+
+          if (reducedMotion) {
+            if (headingSplit) gsap.set(headingSplit.words, { opacity: 1, yPercent: 0 });
+            if (textSplit) gsap.set(textSplit.lines, { opacity: 1, y: 0 });
+            return;
+          }
+
+          const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+          if (headingSplit) {
+            tl.to(headingSplit.words, {
+              opacity: 1,
+              yPercent: 0,
+              duration: 1,
+              stagger: 0.05,
+            });
+          }
+          if (textSplit) {
+            tl.to(
+              textSplit.lines,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                stagger: 0.1,
+              },
+              headingSplit ? "-=0.75" : 0
+            );
+          }
+        };
+
         const showVideo = () => {
           if (switched || !videoItem || !imageItem) return;
           switched = true;
@@ -1786,7 +1779,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const play = video.play();
             if (play && typeof play.catch === "function") play.catch(() => {});
           }
+          revealHeroCopy();
         };
+
+        if (section) section.setAttribute("data-hero-scene", "image");
 
         if (reducedMotion) {
           showVideo();
