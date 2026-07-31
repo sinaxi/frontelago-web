@@ -1849,8 +1849,9 @@ document.addEventListener("DOMContentLoaded", function () {
             navRoot.getAttribute("data-wave-menu") || ""
           );
         const scrolled = y > SHOW_AT;
+        // No fixed logo while scrolling — only the hero mark at the top
         if (logo) {
-          logo.classList.toggle("is-visible", scrolled && !menuOpen);
+          logo.classList.remove("is-visible");
         }
         if (heroLogo) {
           heroLogo.classList.toggle("is-hidden", scrolled || menuOpen);
