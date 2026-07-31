@@ -201,18 +201,7 @@
        1.5px  1.5px 0 var(--palette-nero) !important;
   }
 
-  /* Invert white logo on light ivory/grey surfaces */
-  html[data-page-theme="light"] .float-logo img,
-  html[data-page-theme="grey"] .float-logo img,
-  html[data-page-theme="babypink"] .float-logo img,
-  html[data-page-theme="light"] .hero-brand-logo img,
-  html[data-page-theme="babypink"] .hero-brand-logo img {
-    filter: invert(1) sepia(0.15) hue-rotate(350deg) brightness(0.25);
-  }
-  html[data-page-theme="pink"] .hero-brand-logo img,
-  html[data-page-theme="dark"] .hero-brand-logo img {
-    filter: none;
-  }
+  /* Logo stays original (white mark) — no black invert */
 
   /* Soft paper grain atmosphere on main page */
   body.clone-local::before {
@@ -2272,11 +2261,6 @@ body:has(.nav_component[data-wave-menu="open"])::before {
   width: 100%;
   height: auto;
   transition: filter 0.35s ease;
-}
-/* White/light page themes: flip the white mark to black */
-html[data-page-theme="light"] .float-logo img,
-html[data-page-theme="grey"] .float-logo img {
-  filter: invert(1);
 }
 
 /* Brand mark block just before LET’S WORK TOGETHER */
