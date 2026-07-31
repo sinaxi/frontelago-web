@@ -1656,6 +1656,198 @@ body:has(.nav_component[data-wave-menu="closing"]) {
   
   
   
+
+/* ——— NILS-style floating dock + scroll logo ——— */
+:root {
+  --float-navy: #153149;
+  --float-slate: #81a1bc;
+}
+
+.float-logo {
+  position: fixed;
+  top: 1.2rem;
+  left: 50%;
+  z-index: 10055;
+  display: block;
+  width: 3.25rem;
+  height: auto;
+  transform: translateX(-50%) translateY(-0.5rem);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0.45s;
+}
+.float-logo.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.float-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.float-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 1.2rem;
+  z-index: 10055;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 1rem;
+}
+.float-dock__row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  pointer-events: auto;
+}
+.float-dock__cta {
+  display: flex;
+  align-items: stretch;
+  gap: 0.28rem;
+  padding: 0.28rem;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 8px 28px rgba(21, 49, 73, 0.18);
+}
+.float-dock__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 7.5rem;
+  height: 3rem;
+  padding: 0 1.15rem;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(.16,1,.3,1), filter 0.25s ease;
+}
+.float-dock__btn:hover {
+  transform: scale(0.98);
+}
+.float-dock__btn:focus-visible {
+  outline: 2px solid var(--float-navy);
+  outline-offset: 2px;
+}
+.float-dock__btn--contact {
+  background: var(--float-navy);
+  color: #fff;
+}
+.float-dock__btn--book {
+  background: var(--float-slate);
+  color: var(--float-navy);
+}
+.float-dock__menu {
+  position: relative;
+  flex: 0 0 auto;
+  width: 3.9rem;
+  height: 3.9rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--float-navy);
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(21, 49, 73, 0.18);
+  transition: transform 0.25s cubic-bezier(.16,1,.3,1), background 0.3s ease;
+}
+.float-dock__menu:hover {
+  transform: scale(0.97);
+}
+.float-dock__menu:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.float-dock__menu::before,
+.float-dock__menu::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform 0.35s ease, width 0.35s ease, top 0.35s ease;
+}
+.float-dock__menu::before {
+  width: 1.45rem;
+  transform: translate(-60%, -0.42rem);
+}
+.float-dock__menu::after {
+  width: 1.1rem;
+  transform: translate(-40%, 0.42rem);
+}
+.float-dock__menu.is-open::before {
+  width: 1.35rem;
+  transform: translate(-50%, 0) rotate(45deg);
+}
+.float-dock__menu.is-open::after {
+  width: 1.35rem;
+  transform: translate(-50%, 0) rotate(-45deg);
+}
+
+/* Hide legacy top-left FRONTELAGO wordmarks */
+.nav_1_logo_wrap,
+.nav_2_logo_wrap,
+.nav_fake_logo_wrap {
+  display: none !important;
+}
+
+/* Hide legacy mobile hamburger — dock menu replaces it */
+.nav_1_wrap.is-mobile .w-nav-button {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Hide dock while wave menu covers the screen */
+.nav_component[data-wave-menu="opening"] ~ .float-dock,
+.nav_component[data-wave-menu="open"] ~ .float-dock,
+.nav_component[data-wave-menu="closing"] ~ .float-dock,
+body:has(.nav_component[data-wave-menu="opening"]) .float-dock,
+body:has(.nav_component[data-wave-menu="open"]) .float-dock,
+body:has(.nav_component[data-wave-menu="closing"]) .float-dock {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+body:has(.nav_component[data-wave-menu="opening"]) .float-logo,
+body:has(.nav_component[data-wave-menu="open"]) .float-logo,
+body:has(.nav_component[data-wave-menu="closing"]) .float-logo {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+@media (min-width: 992px) {
+  .float-dock__btn {
+    min-width: 8.5rem;
+    height: 3.15rem;
+    font-size: 0.875rem;
+  }
+  .float-dock__menu {
+    width: 3.9rem;
+    height: 3.9rem;
+  }
+  .float-logo {
+    width: 4rem;
+    top: 1.4rem;
+  }
+}
+
 /* Button Hover Animation */
 [data-hover-ix] {
   transition: transform 450ms cubic-bezier(.16, 1, .3, 1);
@@ -1773,7 +1965,20 @@ body:has(.nav_component[data-wave-menu="closing"]) {
   <path d="M13 1L7 7L1 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg></div></div><nav class="nav_desktop-language-dropdown-list w-dropdown-list"><div role="list" class="nav_desktop-language-locale-list w-locales-items"><div role="listitem" class="nav_desktop-language-locale w-locales-item"><a hreflang="de" href="/" aria-current="page" class="nav_desktop-language-locale-link w--current">de</a></div><div role="listitem" class="nav_desktop-language-locale w-locales-item"><a hreflang="it" href="/it" class="nav_desktop-language-locale-link">it</a></div><div role="listitem" class="nav_desktop-language-locale w-locales-item"><a hreflang="en" href="/en" class="nav_desktop-language-locale-link">en</a></div></div></nav></div></div></div><a id="w-node-b713a23d-4b3b-f8cd-78ee-47418cd42428-d032bfcf" href="/" aria-current="page" class="nav_2_logo_wrap w-inline-block w--current"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 220 36" fill="none" class="g_svg" aria-label="Frontelago"><text x="0" y="28" fill="currentColor" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" letter-spacing="0.04em">FRONTELAGO</text></svg><!--/$--></a><div id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032c009-d032bfcf" class="nav_buttons_menu"><!--$--><div class="nav_desktop_wrap"><div class="nav_desktop_layout"><div class="nav_desktop_mask"><ul data-wf--nav-links--layout="desktop" role="list" class="nav_1_links_wrap w-list-unstyled"><li class="nav_1_links_item"><a href="#services" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Services</div></a></li><li class="nav_1_links_item"><a href="#testimonials" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Referenzen</div></a></li><li class="nav_1_links_item"><a href="#workflow" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Workflow</div></a></li><li class="nav_1_links_item"><a href="#contact" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Kontakt</div></a></li><li class="nav_1_links_item hide-desktop-only"><div class="nav_language-wrapper w-locales-list"><div data-delay="0" data-hover="false" class="nav_language-dropdown w-dropdown"><div class="nav_language-dropdown-toggle w-dropdown-toggle"><div class="nav_1_links_text u-text-style-caption-large u-text-transform-uppercase">de</div><div class="nav_language-dropdown-icon w-embed"><svg width="100%" height="100%" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M13 1L7 7L1 1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg></div></div><nav class="nav_language-dropdown-list w-dropdown-list"><div role="list" class="nav_language-locale-list w-locales-items"><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="de" href="/" aria-current="page" class="nav_language-locale-link w--current">de</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="it" href="/it" class="nav_language-locale-link">it</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="en" href="/en" class="nav_language-locale-link">en</a></div></div></nav></div></div></li></ul></div><div class="nav_desktop_trigger"><div class="nav_desktop_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div class="nav_desktop_text u-text-style-button-large">Menu</div></div></div></div><!--/$--></div></div></div></div><div class="preloader_wrap"><div class="preloader_contain u-container-full is-1"><div class="preloader_title_wrap u-container-inline-size"><h2 class="preloader_title u-text-style-display">Be Different</h2></div></div></div><main class="page_main"><section data-animate-theme-to="light" class="section_loader"><div class="nav_fake_logo_wrap"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 220 36" fill="none" class="g_svg" aria-label="Frontelago"><text x="0" y="28" fill="currentColor" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" letter-spacing="0.04em">FRONTELAGO</text></svg><!--/$--></div><div class="loader_video_wrap u-cover-absolute" data-hero-media="">
+</svg></div></div><nav class="nav_language-dropdown-list w-dropdown-list"><div role="list" class="nav_language-locale-list w-locales-items"><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="de" href="/" aria-current="page" class="nav_language-locale-link w--current">de</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="it" href="/it" class="nav_language-locale-link">it</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="en" href="/en" class="nav_language-locale-link">en</a></div></div></nav></div></div></li></ul></div><div class="nav_desktop_trigger"><div class="nav_desktop_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div class="nav_desktop_text u-text-style-button-large">Menu</div></div></div></div><!--/$--></div></div></div></div><div class="preloader_wrap"><div class="preloader_contain u-container-full is-1"><div class="preloader_title_wrap u-container-inline-size"><h2 class="preloader_title u-text-style-display">Be Different</h2></div></div></div>
+<a href="/" class="float-logo" data-float-logo aria-label="Frontelago">
+  <img src="images/logo-frontelago-white.png" alt="Frontelago" width="395" height="395" decoding="async"/>
+</a>
+<div class="float-dock" data-float-dock aria-label="Azioni rapide">
+  <div class="float-dock__row">
+    <div class="float-dock__cta">
+      <button type="button" class="float-dock__btn float-dock__btn--contact" data-float-contact>Contattaci</button>
+      <a href="#contact" class="float-dock__btn float-dock__btn--book" data-float-book>Book</a>
+    </div>
+    <button type="button" class="float-dock__menu" data-float-menu aria-label="Apri menu" aria-expanded="false"></button>
+  </div>
+</div>
+<main class="page_main"><section data-animate-theme-to="light" class="section_loader"><div class="nav_fake_logo_wrap"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 220 36" fill="none" class="g_svg" aria-label="Frontelago"><text x="0" y="28" fill="currentColor" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" letter-spacing="0.04em">FRONTELAGO</text></svg><!--/$--></div><div class="loader_video_wrap u-cover-absolute" data-hero-media="">
 <div class="loader_video_overlay"></div>
 <div class="loader_media is-active" data-hero-media-item="image">
 <img class="loader_media_img" src="assets/hero-waves-poster.webp" alt="" width="4207" height="2805" fetchpriority="high" decoding="async"/>

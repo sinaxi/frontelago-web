@@ -1707,6 +1707,112 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeStickyWaves();
     initializeHeroWaves();
     initializeWaveMenu();
+    initializeFloatChrome();
+
+    /////////////////////////////////
+    /* FLOATING DOCK + SCROLL LOGO (NILS style) */
+    /////////////////////////////////
+
+    function initializeFloatChrome() {
+      const logo = document.querySelector("[data-float-logo]");
+      const menuBtn = document.querySelector("[data-float-menu]");
+      const burger = document.querySelector(
+        ".nav_1_wrap.is-mobile .w-nav-button"
+      );
+      const navRoot = document.querySelector(".nav_component");
+      if (!logo && !menuBtn) return;
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      const SHOW_AT = 48;
+
+      const syncLogo = () => {
+        if (!logo) return;
+        const y =
+          window.scrollY ||
+          window.pageYOffset ||
+          document.documentElement.scrollTop ||
+          0;
+        const menuOpen =
+          navRoot &&
+          ["opening", "open", "closing"].includes(
+            navRoot.getAttribute("data-wave-menu") || ""
+          );
+        logo.classList.toggle("is-visible", y > SHOW_AT && !menuOpen);
+      };
+
+      syncLogo();
+      window.addEventListener("scroll", syncLogo, { passive: true });
+      if (window.lenis && typeof window.lenis.on === "function") {
+        window.lenis.on("scroll", syncLogo);
+      }
+
+      const syncMenuBtn = () => {
+        if (!menuBtn) return;
+        const open =
+          (burger && burger.classList.contains("w--open")) ||
+          (navRoot &&
+            ["opening", "open"].includes(
+              navRoot.getAttribute("data-wave-menu") || ""
+            ));
+        menuBtn.classList.toggle("is-open", !!open);
+        menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        menuBtn.setAttribute(
+          "aria-label",
+          open ? "Chiudi menu" : "Apri menu"
+        );
+        syncLogo();
+      };
+
+      if (menuBtn && burger) {
+        menuBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          burger.click();
+          // Webflow toggles async — resync shortly after
+          window.setTimeout(syncMenuBtn, 30);
+          window.setTimeout(syncMenuBtn, 400);
+          window.setTimeout(syncMenuBtn, 900);
+        });
+      }
+
+      const contactBtn = document.querySelector("[data-float-contact]");
+      if (contactBtn) {
+        contactBtn.addEventListener("click", () => {
+          const existing = document.querySelector(
+            ".ix-open-modal:not([data-float-contact])"
+          );
+          if (existing && existing !== contactBtn) {
+            // Prefer the original Webflow trigger if present
+            existing.click();
+          }
+        });
+      }
+
+      if (burger || navRoot) {
+        if (burger) {
+          burger.setAttribute("aria-hidden", "true");
+          burger.setAttribute("tabindex", "-1");
+        }
+        const mo = new MutationObserver(syncMenuBtn);
+        if (burger) {
+          mo.observe(burger, {
+            attributes: true,
+            attributeFilter: ["class"],
+          });
+        }
+        if (navRoot) {
+          mo.observe(navRoot, {
+            attributes: true,
+            attributeFilter: ["data-wave-menu"],
+          });
+        }
+      }
+
+      if (reducedMotion && logo) {
+        logo.style.transition = "none";
+      }
+    }
 
     /////////////////////////////////
     /* HERO / LOADER WAVES (NILS style) */
