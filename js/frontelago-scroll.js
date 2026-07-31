@@ -1824,12 +1824,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function initializeFloatChrome() {
       const logo = document.querySelector("[data-float-logo]");
+      const heroLogo = document.querySelector("[data-hero-brand-logo]");
       const menuBtn = document.querySelector("[data-float-menu]");
       const burger = document.querySelector(
         ".nav_1_wrap.is-mobile .w-nav-button"
       );
       const navRoot = document.querySelector(".nav_component");
-      if (!logo && !menuBtn) return;
+      if (!logo && !menuBtn && !heroLogo) return;
 
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
@@ -1837,7 +1838,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const SHOW_AT = 48;
 
       const syncLogo = () => {
-        if (!logo) return;
         const y =
           window.scrollY ||
           window.pageYOffset ||
@@ -1848,7 +1848,13 @@ document.addEventListener("DOMContentLoaded", function () {
           ["opening", "open", "closing"].includes(
             navRoot.getAttribute("data-wave-menu") || ""
           );
-        logo.classList.toggle("is-visible", y > SHOW_AT && !menuOpen);
+        const scrolled = y > SHOW_AT;
+        if (logo) {
+          logo.classList.toggle("is-visible", scrolled && !menuOpen);
+        }
+        if (heroLogo) {
+          heroLogo.classList.toggle("is-hidden", scrolled || menuOpen);
+        }
       };
 
       syncLogo();
