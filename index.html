@@ -163,7 +163,41 @@
     background: var(--palette-avorio) !important;
   }
 
-  /* Young / Gold Vibes / Minds: mustard field + white type (never cream-on-cream) */
+  /*
+   * Uniform type system — two inks:
+   *   senape = display titles / headings / CTAs on ivory
+   *   nero   = body copy on ivory only
+   * On senape or dark fields → white type (never senape-on-senape / white-on-ivory)
+   */
+  .services_title,
+  .partners_title,
+  .workflow_title,
+  .section_workflow .accordion_header,
+  .section_services .g_heading,
+  .section_services .g_heading h1,
+  .section_services .g_heading h2,
+  .section_services .btn_new_wrap,
+  .section_services .btn_new_text,
+  .section_services .btn_new_icon,
+  [data-long-scroll="white"] .text_scroll_title,
+  [data-long-scroll="white"] .text_scroll_title .pivot {
+    color: var(--palette-senape) !important;
+  }
+
+  .section_services .g_paragraph,
+  .section_services .g_paragraph p,
+  .section_services .u-rich-text,
+  .section_services .u-rich-text p,
+  .section_workflow .accordion_content,
+  .section_workflow .accordion_text_wrap,
+  .section_workflow .accordion_content .g_paragraph,
+  .section_workflow .accordion_content .g_paragraph p,
+  .section_workflow .accordion_content .u-rich-text,
+  .section_workflow .accordion_content .u-rich-text p {
+    color: var(--palette-nero) !important;
+  }
+
+  /* Young / Gold Vibes / Minds: mustard field + white type */
   [data-long-scroll="pink"][data-gsap-section="long-scroll"],
   [data-long-scroll="pink"] [data-gsap-state="pinned"]::after {
     background-color: var(--palette-senape) !important;
@@ -175,50 +209,6 @@
   }
   [data-long-scroll="white"] [data-gsap-state="pinned"]::after {
     background-color: var(--palette-avorio) !important;
-  }
-  [data-long-scroll="white"] .text_scroll_title,
-  [data-long-scroll="white"] .text_scroll_title .pivot {
-    color: var(--palette-nero) !important;
-  }
-
-  .section_workflow .accordion_header,
-  .section_workflow .workflow_title {
-    color: var(--palette-senape);
-  }
-  .section_workflow .accordion_content,
-  .section_workflow .accordion_text_wrap,
-  .section_workflow .accordion_content .g_paragraph,
-  .section_workflow .accordion_content .g_paragraph p,
-  .section_workflow .accordion_content .u-rich-text,
-  .section_workflow .accordion_content .u-rich-text p {
-    color: var(--palette-nero) !important;
-  }
-
-  /*
-   * Services sit on ivory — never white type here.
-   * (data-page-theme=pink used to force white and killed contrast.)
-   */
-  .section_services,
-  .section_services .card_stack_component,
-  .section_services .card_stack_component.white,
-  .section_services .services_title,
-  .section_services .g_heading,
-  .section_services .g_heading h1,
-  .section_services .g_heading h2,
-  .section_services .g_paragraph,
-  .section_services .g_paragraph p,
-  .section_services .u-rich-text,
-  .section_services .u-rich-text p {
-    color: var(--palette-nero) !important;
-  }
-  .section_services .btn_new_wrap,
-  .section_services .btn_new_text,
-  .section_services .btn_new_icon {
-    color: var(--palette-senape) !important;
-  }
-  .partners_title,
-  .workflow_title {
-    color: var(--palette-nero) !important;
   }
 
   .footer_wrap {
@@ -2739,15 +2729,18 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
   .section_services .card_button-wrapper {
     gap: 1.5rem;
   }
-  /* Hard lock: ivory field → dark type (beats theme / swatch white) */
-  .section_services,
+  /* Ivory field: senape titles, nero body (never white type) */
   .section_services .card_stack_component,
   .section_services .card_stack_component:where(.w-variant-14a2b2ac-6ae2-6f39-462f-9ef6e56dfe22),
   .section_services .card_stack_component:where(.w-variant-d2d6db04-8e5d-9006-f9ad-8b61979c1d2e),
-  .section_services .card_stack_component.white,
+  .section_services .card_stack_component.white {
+    color: #1a1815 !important;
+  }
   .section_services .services_title,
   .section_services .g_heading,
-  .section_services .g_heading h2,
+  .section_services .g_heading h2 {
+    color: #c9971c !important;
+  }
   .section_services .g_paragraph,
   .section_services .g_paragraph p {
     color: #1a1815 !important;
