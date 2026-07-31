@@ -2245,13 +2245,22 @@ document.addEventListener("DOMContentLoaded", function () {
               navRoot.setAttribute("data-wave-menu", "closed");
               stopMenuWaves();
             } else {
-              // Hide wipe once open — pink menu panel is above (nav z-index)
-              // and must stay readable; SVG on body would otherwise cover links.
-              waveSvg.classList.remove("is-active");
-              waveSvg.classList.add("is-open");
+              // Snap wipe to full cover, show solid pink menu UNDER it, then
+              // drop the SVG — avoids a frame where neither layer is opaque.
+              const fullCover =
+                "M 0 0 V 100 C 50 100 50 100 100 100 V 0 H 0";
+              paths.forEach((path) => path.setAttribute("d", fullCover));
+              waveSvg.classList.add("is-active", "is-open");
               navRoot.setAttribute("data-wave-menu", "open");
               startMenuWaves();
               revealMobileNavLinks();
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  if (!isOpened) return;
+                  waveSvg.classList.remove("is-active");
+                  waveSvg.classList.add("is-open");
+                });
+              });
             }
           }
         } else {
@@ -2277,12 +2286,21 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         allRange = Math.max(...pointsDelay);
 
-        waveSvg.classList.add("is-active");
-        waveSvg.classList.toggle("is-open", open);
+        const fullCover = "M 0 0 V 100 C 50 100 50 100 100 100 V 0 H 0";
 
         if (open) {
+          // Start wipe from empty; pink panel stays hidden until handoff
+          paths.forEach((path) =>
+            path.setAttribute("d", "M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0")
+          );
+          waveSvg.classList.add("is-active");
+          waveSvg.classList.remove("is-open");
           navRoot.setAttribute("data-wave-menu", "opening");
         } else {
+          // Cover with solid wipe BEFORE dropping menu opacity — no page flash
+          paths.forEach((path) => path.setAttribute("d", fullCover));
+          waveSvg.classList.add("is-active");
+          waveSvg.classList.remove("is-open");
           navRoot.setAttribute("data-wave-menu", "closing");
           stopMenuWaves();
         }

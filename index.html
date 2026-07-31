@@ -1604,7 +1604,8 @@ body:has(.nav_component[data-wave-menu="closing"]) {
 .nav_component .w-nav-menu {
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 0.4s ease-in-out;
+	/* No opacity fade on open — handoff from SVG wipe must be instant or it flashes */
+	transition: none;
 	background-color: var(--swatch--pink);
 }
 .nav_component[data-wave-menu="opening"] .w-nav-menu {
@@ -1618,7 +1619,6 @@ body:has(.nav_component[data-wave-menu="closing"]) {
 .nav_component[data-wave-menu="closing"] .w-nav-menu {
 	opacity: 0;
 	pointer-events: none;
-	transition-duration: 0.3s;
 }
 
 /* SVG wave wipe overlay — on body (JS) so fixed = true viewport */
@@ -1634,20 +1634,23 @@ body:has(.nav_component[data-wave-menu="closing"]) {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	z-index: 10040;
+	/* Above the pink panel during the wipe; dock stays higher (10070) */
+	z-index: 10055;
 	transform: rotate(180deg);
 	visibility: hidden;
+	/* Promote to own layer — avoids end-of-wipe compositor flicker */
+	will-change: visibility;
+	backface-visibility: hidden;
 }
 .nav_wave_anim.is-active {
 	visibility: visible;
 }
 .nav_wave_anim.is-open:not(.is-active) {
 	visibility: hidden;
+	will-change: auto;
 }
 /*
-  SVG is reparented to body. Raise the whole nav stacking context above it
-  so the pink panel + links paint over the wipe once open. During open/close
-  the menu is opacity:0 so the wipe still shows through.
+  Pink panel sits under the wipe. Once open (SVG hidden), links are reachable.
 */
 .nav_component[data-wave-menu="opening"],
 .nav_component[data-wave-menu="open"],
