@@ -56,11 +56,12 @@
     --swatch--pink-secondary: #f0e6d0;
     --swatch--light-pink: var(--palette-grigio);
     --swatch--lines-pink: var(--palette-senape-tenue);
-    --swatch--white: var(--palette-avorio);
+    /* Keep true white for type/icons — never map it to avorio (kills contrast) */
+    --swatch--white: #ffffff;
     --swatch--black: var(--palette-nero);
     --swatch--grey-dark: #5c574e;
     --swatch--grey-light: var(--palette-grigio);
-    --swatch--brand-text: var(--palette-avorio);
+    --swatch--brand-text: #ffffff;
 
     --float-navy: var(--palette-nero);
     --float-slate: var(--palette-grigio);
@@ -85,13 +86,13 @@
   }
   .u-theme-pink {
     --_theme---background: var(--palette-senape);
-    --_theme---text: var(--palette-avorio);
-    --_theme---border: var(--palette-avorio);
+    --_theme---text: #ffffff;
+    --_theme---border: #ffffff;
   }
   .u-theme-dark {
     --_theme---background: var(--palette-nero);
-    --_theme---text: var(--palette-avorio);
-    --_theme---border: var(--palette-avorio);
+    --_theme---text: #ffffff;
+    --_theme---border: #ffffff;
   }
   .u-theme-grey {
     --_theme---background: var(--palette-grigio);
@@ -174,9 +175,26 @@
     color: var(--palette-senape);
   }
 
+  /* Display titles must stay readable on ivory / cream fields */
+  .services_title,
+  .partners_title,
+  .workflow_title,
+  .section_services .g_heading,
+  .section_services .g_heading h2 {
+    color: var(--palette-nero) !important;
+  }
+  html[data-page-theme="pink"] .services_title,
+  html[data-page-theme="pink"] .partners_title,
+  html[data-page-theme="dark"] .services_title,
+  html[data-page-theme="dark"] .partners_title,
+  html[data-page-theme="pink"] .section_services .g_heading,
+  html[data-page-theme="pink"] .section_services .g_heading h2 {
+    color: #ffffff !important;
+  }
+
   .footer_wrap {
     background-color: var(--palette-senape) !important;
-    color: var(--palette-avorio) !important;
+    color: #ffffff !important;
   }
 
   /* Hero stats outline: ivory on soft cream, nero on mustard fields */
@@ -1425,7 +1443,7 @@
   --swatch--pink-secondary: #f0e6d0;
   --swatch--light-pink: #d9d2c3;
   --swatch--lines-pink: #e0b94f;
-  --swatch--white: #f5efe0;
+  --swatch--white: #ffffff;
   --swatch--black: #1a1815;
 }
 * {
