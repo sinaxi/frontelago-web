@@ -2096,9 +2096,11 @@ html[data-page-theme="grey"] .float-logo img {
   align-items: stretch;
   gap: 0.28rem;
   padding: 0.28rem;
-  background: #fff;
+  background: transparent; /* keep white ring only — no fill flashing on move */
+  border: 2px solid #fff;
   border-radius: 999px;
   box-shadow: 0 8px 28px rgba(21, 49, 73, 0.18);
+  overflow: hidden; /* clip any hover scale so the ring never “fills” white */
 }
 .float-dock__btn {
   display: inline-flex;
@@ -2116,10 +2118,13 @@ html[data-page-theme="grey"] .float-logo img {
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(.16,1,.3,1), filter 0.25s ease;
+  transition: filter 0.25s ease;
 }
 .float-dock__btn:hover {
-  transform: scale(0.98);
+  filter: brightness(1.06);
+}
+.float-dock__btn:active {
+  filter: brightness(0.96);
 }
 .float-dock__btn:focus-visible {
   outline: 2px solid var(--float-navy);
