@@ -2136,6 +2136,43 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
     display: none !important;
   }
 
+  /*
+    Dock uses the mobile wave menu. Webflow hides .nav_1_wrap.is-mobile
+    above 991px — remount it so open/close and links work on desktop.
+  */
+  .nav_1_wrap.is-mobile {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 0;
+    overflow: visible;
+    padding: 0 !important;
+    margin: 0 !important;
+    pointer-events: none;
+    z-index: 10050;
+  }
+
+  .nav_component[data-wave-menu="opening"] .nav_1_wrap.is-mobile,
+  .nav_component[data-wave-menu="open"] .nav_1_wrap.is-mobile,
+  .nav_component[data-wave-menu="closing"] .nav_1_wrap.is-mobile {
+    height: 100%;
+  }
+
+  .nav_component[data-wave-menu="opening"] .nav_1_wrap.is-mobile .w-nav-menu,
+  .nav_component[data-wave-menu="open"] .nav_1_wrap.is-mobile .w-nav-menu,
+  .nav_component[data-wave-menu="closing"] .nav_1_wrap.is-mobile .w-nav-menu,
+  .nav_component[data-wave-menu="opening"] .nav_1_wrap.is-mobile .nav_1_menu_wrap,
+  .nav_component[data-wave-menu="open"] .nav_1_wrap.is-mobile .nav_1_menu_wrap,
+  .nav_component[data-wave-menu="closing"] .nav_1_wrap.is-mobile .nav_1_menu_wrap,
+  .nav_component[data-wave-menu="opening"] .nav_1_wrap.is-mobile .nav_1_menu_scroll,
+  .nav_component[data-wave-menu="open"] .nav_1_wrap.is-mobile .nav_1_menu_scroll,
+  .nav_component[data-wave-menu="closing"] .nav_1_wrap.is-mobile .nav_1_menu_scroll {
+    pointer-events: auto;
+  }
+
   .float-dock__whatsapp {
     display: inline-flex;
   }
