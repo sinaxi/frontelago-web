@@ -1449,6 +1449,19 @@ body {
     -1px  1px 0 #fff,
      1px  1px 0 #fff;
 }
+
+/* On fuchsia (pink theme) text turns white — use a dark edge so the outline still reads */
+html[data-page-theme="pink"] .section_hero .hero_title,
+html[data-page-theme="pink"] .section_hero .g_paragraph,
+html[data-page-theme="pink"] .section_hero .g_paragraph p {
+  -webkit-text-stroke: 0.05em var(--float-navy, #153149);
+  text-shadow:
+    -1.5px -1.5px 0 var(--float-navy, #153149),
+     1.5px -1.5px 0 var(--float-navy, #153149),
+    -1.5px  1.5px 0 var(--float-navy, #153149),
+     1.5px  1.5px 0 var(--float-navy, #153149),
+     0 0 0 var(--float-navy, #153149);
+}
 .feed_cms_item:nth-of-type(odd) {
 	grid-column: 1;
   grid-row: 1;
