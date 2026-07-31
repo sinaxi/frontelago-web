@@ -1657,13 +1657,32 @@ body:has(.nav_component[data-wave-menu="closing"]) {
 	will-change: auto;
 }
 /*
-  Pink panel sits under the wipe. Once open (SVG hidden), links are reachable.
+  Keep nav FIXED to the viewport while the menu is open.
+  `position: relative` here made the absolute Webflow menu sit at
+  document top — invisible until you scroll back up.
 */
 .nav_component[data-wave-menu="opening"],
 .nav_component[data-wave-menu="open"],
 .nav_component[data-wave-menu="closing"] {
-	position: relative;
+	position: fixed !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100vh !important;
+	height: 100dvh !important;
 	z-index: 10050;
+}
+.nav_component[data-wave-menu="opening"] .w-nav-overlay,
+.nav_component[data-wave-menu="open"] .w-nav-overlay,
+.nav_component[data-wave-menu="closing"] .w-nav-overlay,
+.nav_component[data-wave-menu="opening"] .w-nav-menu,
+.nav_component[data-wave-menu="open"] .w-nav-menu,
+.nav_component[data-wave-menu="closing"] .w-nav-menu {
+	position: fixed !important;
+	inset: 0 !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
 }
 .nav_1_wrap.is-mobile .w-nav-button,
 .nav_1_wrap.is-mobile .nav_1_logo_wrap {
