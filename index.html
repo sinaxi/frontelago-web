@@ -186,21 +186,31 @@
     color: var(--palette-senape);
   }
 
-  /* Display titles must stay readable on ivory / cream fields */
-  .services_title,
-  .partners_title,
-  .workflow_title,
+  /*
+   * Services sit on ivory — never white type here.
+   * (data-page-theme=pink used to force white and killed contrast.)
+   */
+  .section_services,
+  .section_services .card_stack_component,
+  .section_services .card_stack_component.white,
+  .section_services .services_title,
   .section_services .g_heading,
-  .section_services .g_heading h2 {
+  .section_services .g_heading h1,
+  .section_services .g_heading h2,
+  .section_services .g_paragraph,
+  .section_services .g_paragraph p,
+  .section_services .u-rich-text,
+  .section_services .u-rich-text p {
     color: var(--palette-nero) !important;
   }
-  html[data-page-theme="pink"] .services_title,
-  html[data-page-theme="pink"] .partners_title,
-  html[data-page-theme="dark"] .services_title,
-  html[data-page-theme="dark"] .partners_title,
-  html[data-page-theme="pink"] .section_services .g_heading,
-  html[data-page-theme="pink"] .section_services .g_heading h2 {
-    color: #ffffff !important;
+  .section_services .btn_new_wrap,
+  .section_services .btn_new_text,
+  .section_services .btn_new_icon {
+    color: var(--palette-senape) !important;
+  }
+  .partners_title,
+  .workflow_title {
+    color: var(--palette-nero) !important;
   }
 
   .footer_wrap {
@@ -2710,7 +2720,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <div class="loader_waves" aria-hidden="true">
 <canvas class="loader_waves_canvas" data-hero-waves=""></canvas>
 </div>
-</div><div class="loader_contain u-container-full"><div class="loader_layout"><div class="loader_title_wrap"><h1 data-animate-heading="on-load" class="loader_title u-text-style-display">LET’S GO VIRAL</h1></div><div id="w-node-_8ec8a5c3-adf4-37f3-aabb-265d07175fe0-abb9c638" class="loader_text_wrap"><h2 data-animate-text="on-load" class="loader_subtitle">Social Media &amp; Influencer Agentur</h2></div></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="s" class="u-spacer w-variant-07a25096-adf6-3d33-f9a5-25aa6c9664ba"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="xs" class="u-spacer w-variant-e3a47723-b914-0592-cbb1-1a58e95c6f6f"></div></div></div></section><section data-animate-theme-to="babypink" class="section_hero"><div class="hero_contain u-container-full"><div class="hero_slider"><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">15+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Inhouse-Experten</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">400+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Influencer</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">150+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Zufriedene Kunden</p></div></div></div></div></div></div></section><section id="services" data-animate-theme-to="pink" class="section_services"><div class="w-embed"><style>
+</div><div class="loader_contain u-container-full"><div class="loader_layout"><div class="loader_title_wrap"><h1 data-animate-heading="on-load" class="loader_title u-text-style-display">LET’S GO VIRAL</h1></div><div id="w-node-_8ec8a5c3-adf4-37f3-aabb-265d07175fe0-abb9c638" class="loader_text_wrap"><h2 data-animate-text="on-load" class="loader_subtitle">Social Media &amp; Influencer Agentur</h2></div></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="s" class="u-spacer w-variant-07a25096-adf6-3d33-f9a5-25aa6c9664ba"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="xs" class="u-spacer w-variant-e3a47723-b914-0592-cbb1-1a58e95c6f6f"></div></div></div></section><section data-animate-theme-to="babypink" class="section_hero"><div class="hero_contain u-container-full"><div class="hero_slider"><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">15+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Inhouse-Experten</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">400+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Influencer</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">150+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Zufriedene Kunden</p></div></div></div></div></div></div></section><section id="services" data-animate-theme-to="light" class="section_services"><div class="w-embed"><style>
   /* Title + CTA + copy stacked from the top (not space-between) */
   .section_services .card_stack_content {
     justify-content: flex-start;
@@ -2718,6 +2728,24 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
   }
   .section_services .card_button-wrapper {
     gap: 1.5rem;
+  }
+  /* Hard lock: ivory field → dark type (beats theme / swatch white) */
+  .section_services,
+  .section_services .card_stack_component,
+  .section_services .card_stack_component:where(.w-variant-14a2b2ac-6ae2-6f39-462f-9ef6e56dfe22),
+  .section_services .card_stack_component:where(.w-variant-d2d6db04-8e5d-9006-f9ad-8b61979c1d2e),
+  .section_services .card_stack_component.white,
+  .section_services .services_title,
+  .section_services .g_heading,
+  .section_services .g_heading h2,
+  .section_services .g_paragraph,
+  .section_services .g_paragraph p {
+    color: #1a1815 !important;
+  }
+  .section_services .btn_new_wrap,
+  .section_services .btn_new_text,
+  .section_services .btn_new_icon {
+    color: #c9971c !important;
   }
 </style></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="section_contain u-container-full"><div class="g_title_wrap u-container-inline-size"><h2 data-gsap-squeeze="" class="services_title u-text-style-display">Unsere LEISTUNGEN</h2></div></div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div><div data-gsap="pinned-slides" class="g_component_layout"><div class="slide"><div class="slide-wrapper"><div heading-name="line-fade-in" data-animate-to="body" data-wf--component-stacking-card--style-color-variant="transparent" class="card_stack_component w-variant-14a2b2ac-6ae2-6f39-462f-9ef6e56dfe22"><section class="card_stack_contain u-container-full"><div class="card_stack_layout"><div class="card_stack_content"><div data-animate-heading="line-fade-in" class="g_heading w-richtext u-text-style-h1 u-child-contain"><h2>Content Creation</h2></div><div class="card_button-wrapper w-variant-14a2b2ac-6ae2-6f39-462f-9ef6e56dfe22"><!--$--><div data-lenis-stop="" STYLE="width: " data-hover-ix="cta" data-animate-button="modal-cta" class="btn_new_wrap u-text-style-main ix-open-modal"><div class="btn_new_mask"></div><div class="btn_new_layout"><div class="btn_new_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div aria-hidden="true" class="btn_new_text u-text-style-button-large">PROJEKT ANFRAGEN</div></div><div class="g_clickable_wrap"><a target="" href="#" class="g_clickable_link w-inline-block"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></a><!--$--><button type="button" class="g_clickable_btn"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></button><!--/$--></div></div><!--/$--><div lang="de" data-hyphen="true" data-animate-text="body" class="g_paragraph w-richtext u-text-style-large u-max-width-30ch u-child-contain u-rich-text"><p>Fotos, Reels, Drohnen-, Imagevideos &amp; Organisation passender Models.</p></div></div></div><div data-gsap-image="fade" class="card_stack_img_wrap"><!--$--><div STYLE="object-position: 50% 50%;" class="g_visual_wrap u-position-relative u-cover-absolute"><img src="https://cdn.prod.website-files.com/68527353aaf6f6ae8b0db8e9/68527353aaf6f6ae8b0db976_placeholder.svg" loading="lazy" alt="" class="g_visual_img u-cover-absolute"/><!--$--><video src="assets/frontelago-service.mp4" autoplay=" " loop="" muted="" playsinline=" " preload="none" class="g_visual_video u-cover-absolute"></video><!--/$--></div><!--/$--><div class="site-wave-lines" aria-hidden="true"><canvas class="site-wave-lines__canvas" data-wave-lines=""></canvas></div></div></div></section></div></div></div><div class="slide"><div class="slide-wrapper"><div heading-name="line-fade-in" data-animate-to="body" data-wf--component-stacking-card--style-color-variant="pink-secondary" class="card_stack_component w-variant-d2d6db04-8e5d-9006-f9ad-8b61979c1d2e"><section class="card_stack_contain u-container-full"><div class="card_stack_layout"><div class="card_stack_content"><div data-animate-heading="line-fade-in" class="g_heading w-richtext u-text-style-h1 u-child-contain"><h2>Influencer Marketing</h2></div><div class="card_button-wrapper"><!--$--><div data-lenis-stop="" STYLE="width: " data-hover-ix="cta" data-animate-button="modal-cta" class="btn_new_wrap u-text-style-main ix-open-modal"><div class="btn_new_mask"></div><div class="btn_new_layout"><div class="btn_new_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div aria-hidden="true" class="btn_new_text u-text-style-button-large">PROJEKT ANFRAGEN</div></div><div class="g_clickable_wrap"><a target="" href="#" class="g_clickable_link w-inline-block"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></a><!--$--><button type="button" class="g_clickable_btn"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></button><!--/$--></div></div><!--/$--><div lang="de" data-hyphen="true" data-animate-text="body" class="g_paragraph w-richtext u-text-style-large u-max-width-30ch u-child-contain u-rich-text"><p>Organisation passender Influencer, ob Lifestyle, Food oder Travel.</p></div></div></div><div data-gsap-image="fade" class="card_stack_img_wrap w-variant-d2d6db04-8e5d-9006-f9ad-8b61979c1d2e"><!--$--><div STYLE="object-position: 50% 50%;" class="g_visual_wrap u-position-relative u-cover-absolute"><img src="https://cdn.prod.website-files.com/68527353aaf6f6ae8b0db8e9/689c8d8e54ab091733d9c2c4_Influencer.avif" loading="lazy" alt="" class="g_visual_img u-cover-absolute"/></div><!--/$--><div class="site-wave-lines" aria-hidden="true"><canvas class="site-wave-lines__canvas" data-wave-lines=""></canvas></div></div></div></section></div></div></div><div data-gsap-flap="top" class="slide"><div data-gsap-content="flap" class="slide-wrapper"><div class="card_stack_component white"><section class="card_stack_contain u-container-full"><div class="card_stack_layout white-8"><div class="card_stack_content white-9"><div data-animate-heading="line-fade-in" class="g_heading w-richtext u-text-style-h1 u-child-contain"><h2>Social Media Marketing</h2></div><div class="card_button-wrapper"><!--$--><div data-lenis-stop="" STYLE="width: " data-hover-ix="cta" data-animate-button="modal-cta" class="btn_new_wrap u-text-style-main ix-open-modal"><div class="btn_new_mask"></div><div class="btn_new_layout"><div class="btn_new_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div aria-hidden="true" class="btn_new_text u-text-style-button-large">PROJEKT ANFRAGEN</div></div><div class="g_clickable_wrap"><a target="" href="#" class="g_clickable_link w-inline-block"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></a><!--$--><button type="button" class="g_clickable_btn"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></button><!--/$--></div></div><!--/$--><div lang="de" data-hyphen="true" data-animate-text="body" class="g_paragraph w-richtext u-text-style-large u-max-width-30ch u-child-contain u-rich-text"><p>Wir entwickeln maßgeschneiderte Strategien, analysieren aktuelle Trends und gestalten Ihren Social-Media-Auftritt.</p></div></div></div><div data-gsap-image="fade" class="card_stack_img_wrap"><!--$--><div STYLE="object-position: 50% 50%;" class="g_visual_wrap u-position-relative u-cover-absolute"><img src="https://cdn.prod.website-files.com/68527353aaf6f6ae8b0db8e9/689c8d8ed0dd93a90d3592bf_Social%20Media.avif" loading="lazy" alt="" class="g_visual_img u-cover-absolute"/></div><!--/$--><div class="site-wave-lines" aria-hidden="true"><canvas class="site-wave-lines__canvas" data-wave-lines=""></canvas></div></div></div></section></div></div></div></div></section>
 <section class="section_rooms-showcase" data-rooms-showcase="" data-animate-theme-to="light" aria-label="Rooms showcase">
