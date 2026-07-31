@@ -1675,6 +1675,8 @@ html.wf-design-mode .styleguide_guide_wrap {
 	overflow-y: auto !important;
 	-webkit-overflow-scrolling: touch;
 	overscroll-behavior: contain;
+	/* Keep Kontakt / email clear of the floating X */
+	padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px)) !important;
 }
 html.menu-scroll-lock,
 html.menu-scroll-lock body {
@@ -1842,10 +1844,29 @@ body:has(.nav_component[data-wave-menu="open"])::before {
 	align-items: flex-start;
 }
 .nav_1_links_wrap.w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 .nav_1_links_text {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
 	font-size: clamp(2.4rem, 10vw, 4.5rem);
 	line-height: 1.05;
 	letter-spacing: -0.02em;
 	font-weight: 500;
+}
+.nav_1_links_wrap.w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 .nav_1_links_text::before {
+	content: "";
+	flex: 0 0 auto;
+	width: 0.55em;
+	height: 0.08em;
+	min-height: 2px;
+	border-radius: 999px;
+	background: currentColor;
+	opacity: 0.4;
+}
+
+/* Contact block sits above the dock X, not under it */
+.nav_1_wrap.is-mobile .nav_1_contact_component {
+	margin-top: auto;
+	padding-bottom: 0.75rem;
 }
 /* Desktop SplitText must never hide mobile menu labels */
 .nav_1_wrap.is-mobile .w-nav-menu .word {
