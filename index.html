@@ -1701,7 +1701,7 @@ body:has(.nav_component[data-wave-menu="closing"]) {
   left: 0;
   right: 0;
   bottom: 1.2rem;
-  z-index: 10055;
+  z-index: 10070;
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -1809,7 +1809,7 @@ body:has(.nav_component[data-wave-menu="closing"]) {
   display: none !important;
 }
 
-/* Hide legacy mobile hamburger — dock menu replaces it */
+/* Legacy mobile hamburger stays in DOM for Webflow toggle — dock controls it */
 .nav_1_wrap.is-mobile .w-nav-button {
   position: absolute !important;
   width: 1px !important;
@@ -1820,17 +1820,7 @@ body:has(.nav_component[data-wave-menu="closing"]) {
   pointer-events: none !important;
 }
 
-/* Hide dock while wave menu covers the screen */
-.nav_component[data-wave-menu="opening"] ~ .float-dock,
-.nav_component[data-wave-menu="open"] ~ .float-dock,
-.nav_component[data-wave-menu="closing"] ~ .float-dock,
-body:has(.nav_component[data-wave-menu="opening"]) .float-dock,
-body:has(.nav_component[data-wave-menu="open"]) .float-dock,
-body:has(.nav_component[data-wave-menu="closing"]) .float-dock {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
+/* Hide scroll logo while the full-screen menu is up */
 body:has(.nav_component[data-wave-menu="opening"]) .float-logo,
 body:has(.nav_component[data-wave-menu="open"]) .float-logo,
 body:has(.nav_component[data-wave-menu="closing"]) .float-logo {
@@ -1979,7 +1969,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-logo {
 <div class="float-dock" data-float-dock aria-label="Azioni rapide">
   <div class="float-dock__row">
     <div class="float-dock__cta">
-      <button type="button" class="float-dock__btn float-dock__btn--contact" ix-open-modal data-float-contact>Contattaci</button>
+      <button type="button" class="float-dock__btn float-dock__btn--contact ix-open-modal" data-float-contact>Contattaci</button>
       <a href="#contact" class="float-dock__btn float-dock__btn--book" data-float-book>Book</a>
     </div>
     <button type="button" class="float-dock__menu" data-float-menu aria-label="Apri menu" aria-expanded="false"></button>
