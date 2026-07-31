@@ -73,148 +73,6 @@
     display: none !important;
   }
 
-  /* Hotel Royal–style 3D cylindrical gallery */
-  .section_cylinder-gallery {
-    --cylinder-bg: #ffffff;
-    position: relative;
-    z-index: 2;
-    background: var(--cylinder-bg);
-    overflow: clip;
-  }
-
-  .cylinder-gallery_bleed {
-    position: relative;
-    width: 100%;
-    margin-inline: calc(var(--site--margin, 1.25rem) * -1);
-  }
-
-  .cylinder-gallery_stage {
-    position: relative;
-    width: 100%;
-    height: 440px;
-    overflow: hidden;
-  }
-
-  .cylinder-gallery_perspective {
-    display: flex;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-    perspective: 1200px;
-    cursor: grab;
-    touch-action: pan-y;
-    user-select: none;
-  }
-
-  .cylinder-gallery_perspective.is-dragging {
-    cursor: grabbing;
-  }
-
-  .cylinder-gallery_ring {
-    position: relative;
-    display: flex;
-    height: 100%;
-    transform-origin: center center;
-    justify-content: center;
-    transform-style: preserve-3d;
-    will-change: transform;
-  }
-
-  .cylinder-gallery_item {
-    position: absolute;
-    display: flex;
-    height: 100%;
-    transform-origin: center center;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-    padding: 0.25rem;
-    transform-style: preserve-3d;
-  }
-
-  .cylinder-gallery_media {
-    position: relative;
-    aspect-ratio: 5 / 4;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 0.75rem;
-    transform: rotateY(180deg);
-  }
-
-  .cylinder-gallery_media img {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    pointer-events: none;
-  }
-
-  .cylinder-gallery_fade {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .cylinder-gallery_fade::before,
-  .cylinder-gallery_fade::after {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    width: 2rem;
-  }
-
-  .cylinder-gallery_fade::before {
-    left: 0;
-    background: linear-gradient(
-      to right,
-      var(--cylinder-bg) 0%,
-      color-mix(in srgb, var(--cylinder-bg) 60%, transparent) 55%,
-      transparent 100%
-    );
-  }
-
-  .cylinder-gallery_fade::after {
-    right: 0;
-    background: linear-gradient(
-      to left,
-      var(--cylinder-bg) 0%,
-      color-mix(in srgb, var(--cylinder-bg) 60%, transparent) 55%,
-      transparent 100%
-    );
-  }
-
-  @media (min-width: 768px) {
-    .cylinder-gallery_stage {
-      height: 560px;
-    }
-
-    .cylinder-gallery_fade::before,
-    .cylinder-gallery_fade::after {
-      width: 4rem;
-    }
-  }
-
-  @media (min-width: 992px) {
-    .cylinder-gallery_stage {
-      height: 720px;
-    }
-
-    .cylinder-gallery_fade::before,
-    .cylinder-gallery_fade::after {
-      width: 6rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .cylinder-gallery_perspective {
-      cursor: default;
-    }
-  }
-
   /* Hotel Royal–style rooms showcase */
   .section_rooms-showcase {
     --royal-primary: #5d4b36;
@@ -1011,11 +869,12 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 52%;
-    transform: translateY(-50%);
+    top: auto;
+    bottom: 8%;
+    transform: none;
     width: 100%;
-    height: min(38%, 280px);
-    min-height: 160px;
+    height: 18rem;
+    min-height: 0;
     pointer-events: none;
     z-index: 3;
   }
@@ -1024,7 +883,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    opacity: 0.85;
+    opacity: 0.55;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1923,78 +1782,6 @@ body:has(.nav_component[data-wave-menu="closing"]) {
   }
 }
 </style></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="section_contain u-container-full"><div class="g_title_wrap u-container-inline-size"><h2 data-gsap-squeeze="" class="services_title u-text-style-display">Unsere LEISTUNGEN</h2></div></div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div><div data-gsap="pinned-slides" class="g_component_layout"><div class="slide"><div class="slide-wrapper"><div heading-name="line-fade-in" data-animate-to="body" data-wf--component-stacking-card--style-color-variant="transparent" class="card_stack_component w-variant-14a2b2ac-6ae2-6f39-462f-9ef6e56dfe22"><section class="card_stack_contain u-container-full"><div class="card_stack_layout"><div class="card_stack_content"><div data-animate-heading="line-fade-in" class="g_heading w-richtext u-text-style-h1 u-child-contain"><h2>Content Creation</h2></div><div class="card_button-wrapper w-variant-14a2b2ac-6ae2-6f39-462f-9ef6e56dfe22"><!--$--><div data-lenis-stop="" STYLE="width: " data-hover-ix="cta" data-animate-button="modal-cta" class="btn_new_wrap u-text-style-main ix-open-modal"><div class="btn_new_mask"></div><div class="btn_new_layout"><div class="btn_new_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div aria-hidden="true" class="btn_new_text u-text-style-button-large">PROJEKT ANFRAGEN</div></div><div class="g_clickable_wrap"><a target="" href="#" class="g_clickable_link w-inline-block"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></a><!--$--><button type="button" class="g_clickable_btn"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></button><!--/$--></div></div><!--/$--><div lang="de" data-hyphen="true" data-animate-text="body" class="g_paragraph w-richtext u-text-style-large u-max-width-30ch u-child-contain u-rich-text"><p>Fotos, Reels, Drohnen-, Imagevideos &amp; Organisation passender Models.</p></div></div></div><div data-gsap-image="scale" class="card_stack_img_wrap"><!--$--><div STYLE="object-position: 50% 50%;" class="g_visual_wrap u-position-relative u-cover-absolute"><img src="https://cdn.prod.website-files.com/68527353aaf6f6ae8b0db8e9/68527353aaf6f6ae8b0db976_placeholder.svg" loading="lazy" alt="" class="g_visual_img u-cover-absolute"/><!--$--><video src="assets/frontelago-service.mp4" autoplay=" " loop="" muted="" playsinline=" " preload="none" class="g_visual_video u-cover-absolute"></video><!--/$--></div><!--/$--></div></div></section></div></div></div><div class="slide"><div class="slide-wrapper"><div heading-name="line-fade-in" data-animate-to="body" data-wf--component-stacking-card--style-color-variant="pink-secondary" class="card_stack_component w-variant-d2d6db04-8e5d-9006-f9ad-8b61979c1d2e"><section class="card_stack_contain u-container-full"><div class="card_stack_layout"><div class="card_stack_content"><div data-animate-heading="line-fade-in" class="g_heading w-richtext u-text-style-h1 u-child-contain"><h2>Influencer Marketing</h2></div><div class="card_button-wrapper"><!--$--><div data-lenis-stop="" STYLE="width: " data-hover-ix="cta" data-animate-button="modal-cta" class="btn_new_wrap u-text-style-main ix-open-modal"><div class="btn_new_mask"></div><div class="btn_new_layout"><div class="btn_new_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div aria-hidden="true" class="btn_new_text u-text-style-button-large">PROJEKT ANFRAGEN</div></div><div class="g_clickable_wrap"><a target="" href="#" class="g_clickable_link w-inline-block"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></a><!--$--><button type="button" class="g_clickable_btn"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></button><!--/$--></div></div><!--/$--><div lang="de" data-hyphen="true" data-animate-text="body" class="g_paragraph w-richtext u-text-style-large u-max-width-30ch u-child-contain u-rich-text"><p>Organisation passender Influencer, ob Lifestyle, Food oder Travel.</p></div></div></div><div data-gsap-image="scale" class="card_stack_img_wrap w-variant-d2d6db04-8e5d-9006-f9ad-8b61979c1d2e"><!--$--><div STYLE="object-position: 50% 50%;" class="g_visual_wrap u-position-relative u-cover-absolute"><img src="https://cdn.prod.website-files.com/68527353aaf6f6ae8b0db8e9/689c8d8e54ab091733d9c2c4_Influencer.avif" loading="lazy" alt="" class="g_visual_img u-cover-absolute"/></div><!--/$--></div></div></section></div></div></div><div data-gsap-flap="top" class="slide"><div data-gsap-content="flap" class="slide-wrapper"><div class="card_stack_component white"><section class="card_stack_contain u-container-full"><div class="card_stack_layout white-8"><div class="card_stack_content white-9"><div data-animate-heading="line-fade-in" class="g_heading w-richtext u-text-style-h1 u-child-contain"><h2>Social Media Marketing</h2></div><div class="card_button-wrapper"><!--$--><div data-lenis-stop="" STYLE="width: " data-hover-ix="cta" data-animate-button="modal-cta" class="btn_new_wrap u-text-style-main ix-open-modal"><div class="btn_new_mask"></div><div class="btn_new_layout"><div class="btn_new_icon"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 16 17" fill="none" class="g_svg"><!--$--><path d="M12.175 9.5H0V7.5H12.175L6.575 1.9L8 0.5L16 8.5L8 16.5L6.575 15.1L12.175 9.5Z" fill="currentColor"></path><!--/$--></svg><!--/$--></div><div aria-hidden="true" class="btn_new_text u-text-style-button-large">PROJEKT ANFRAGEN</div></div><div class="g_clickable_wrap"><a target="" href="#" class="g_clickable_link w-inline-block"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></a><!--$--><button type="button" class="g_clickable_btn"><!--$--><span class="g_clickable_text u-sr-only">PROJEKT ANFRAGEN</span><!--/$--></button><!--/$--></div></div><!--/$--><div lang="de" data-hyphen="true" data-animate-text="body" class="g_paragraph w-richtext u-text-style-large u-max-width-30ch u-child-contain u-rich-text"><p>Wir entwickeln maßgeschneiderte Strategien, analysieren aktuelle Trends und gestalten Ihren Social-Media-Auftritt.</p></div></div></div><div data-gsap-image="scale" class="card_stack_img_wrap"><!--$--><div STYLE="object-position: 50% 50%;" class="g_visual_wrap u-position-relative u-cover-absolute"><img src="https://cdn.prod.website-files.com/68527353aaf6f6ae8b0db8e9/689c8d8ed0dd93a90d3592bf_Social%20Media.avif" loading="lazy" alt="" class="g_visual_img u-cover-absolute"/></div><!--/$--></div></div></section></div></div></div></div></section>
-<section class="section_cylinder-gallery" data-cylinder-gallery="" data-animate-theme-to="light" aria-label="Gallery">
-  <div class="cylinder-gallery_bleed">
-    <div class="cylinder-gallery_stage">
-      <div class="cylinder-gallery_perspective" data-cylinder-perspective="">
-        <div class="cylinder-gallery_ring" data-cylinder-ring="">
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/e265bd2f439ad9d28adf48201d408afa8c6840a5-640x427.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/b0be566d8ce5f0c82a1e2b21e59df68dc7e7a678-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/1b915b187e2e2e5d31bafee8b3a226d2d57554c4-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/e332a72bc767dfc98d1a12b43f711c2c6e80743a-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/6c88d117c16421ea3b6378cd31699c9a2e39cb9f-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/5ef4db44c7a55eb4260c99695d09d5a1f45d70f9-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/e265bd2f439ad9d28adf48201d408afa8c6840a5-640x427.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/b0be566d8ce5f0c82a1e2b21e59df68dc7e7a678-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/1b915b187e2e2e5d31bafee8b3a226d2d57554c4-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/e332a72bc767dfc98d1a12b43f711c2c6e80743a-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/6c88d117c16421ea3b6378cd31699c9a2e39cb9f-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-          <div class="cylinder-gallery_item" data-cylinder-item="">
-            <div class="cylinder-gallery_media">
-              <img src="https://cdn.sanity.io/images/6od6ct5d/production/5ef4db44c7a55eb4260c99695d09d5a1f45d70f9-640x360.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="" loading="lazy" decoding="async" sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 95vw"/>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="cylinder-gallery_fade" aria-hidden="true"></div>
-    </div>
-  </div>
-</section>
-
 <section class="section_rooms-showcase" data-rooms-showcase="" data-animate-theme-to="light" aria-label="Rooms showcase">
   <div class="rooms-showcase_panel">
     <div class="rooms-showcase_bg" aria-hidden="true">
