@@ -486,7 +486,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const navMenuWrap = document.querySelector(".nav_desktop_wrap");
       const navMenuMask = document.querySelector(".nav_desktop_mask");
       const navMenuTrigger = document.querySelector(".nav_desktop_trigger");
-      const navMenuLinks = document.querySelectorAll(".nav_1_links_link");
+      // Only desktop links — mobile nav shares .nav_1_links_link and must stay visible
+      const navMenuLinks = navMenuWrap
+        ? navMenuWrap.querySelectorAll(".nav_1_links_link")
+        : [];
 
       if (!navButtonsMenu || !navMenuTrigger) return;
 
@@ -495,7 +498,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const triggerIcon = navMenuTrigger.querySelector(".nav_desktop_icon");
       const linkTexts = [];
 
-      // Collect all link text elements
+      // Collect desktop link text elements only
       navMenuLinks.forEach((link) => {
         const textElement = link.querySelector(".nav_1_links_text");
         if (textElement) {
@@ -1554,6 +1557,347 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     initializeStickyWaves();
+    initializeWaveMenu();
+
+    /////////////////////////////////
+    /* MOBILE MENU WAVE WIPE (NILS-style) */
+    /////////////////////////////////
+
+    function initializeWaveMenu() {
+      const navRoot = document.querySelector(".nav_component");
+      const burger = document.querySelector(
+        ".nav_1_wrap.is-mobile .w-nav-button"
+      );
+      const waveSvg = document.querySelector("[data-nav-wave]");
+      const menuCanvas = document.querySelector("[data-menu-waves]");
+      if (!navRoot || !burger || !waveSvg) return;
+
+      // Escape nav_component transform containing block so fixed = true viewport
+      if (waveSvg.parentElement !== document.body) {
+        document.body.appendChild(waveSvg);
+      }
+
+      const paths = Array.from(
+        waveSvg.querySelectorAll(".nav_wave_anim__path")
+      );
+      if (!paths.length) return;
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      const cfg = {
+        numPoints: 2,
+        duration: 650,
+        delayPointsMax: 0,
+        delayPerPath: 150,
+      };
+
+      let isOpened = false;
+      let isAnimating = false;
+      let pointsDelay = [];
+      let allRange = 0;
+      let timeStart = 0;
+      let rafMorph = 0;
+
+      function cubicInOut(t) {
+        return t < 0.5
+          ? 4 * t * t * t
+          : 0.5 * Math.pow(2 * t - 2, 3) + 1;
+      }
+
+      function cubicOut(t) {
+        return --t * t * t + 1;
+      }
+
+      // Codrops / NILS: open uses cubicOut, close uses cubicInOut
+      function ease(t) {
+        return isOpened ? cubicOut(t) : cubicInOut(t);
+      }
+
+      // Morph always runs points 0→100; path construction differs for open vs close
+      function updatePath(elapsed) {
+        const n = [];
+        for (let o = 0; o < cfg.numPoints; o++) {
+          n[o] =
+            ease(
+              Math.min(
+                Math.max(elapsed - pointsDelay[o], 0) / cfg.duration,
+                1
+              )
+            ) * 100;
+        }
+
+        let d = isOpened ? `M 0 0 V ${n[0]}` : `M 0 ${n[0]}`;
+        for (let o = 0; o < cfg.numPoints - 1; o++) {
+          const p = ((o + 1) / (cfg.numPoints - 1)) * 100;
+          const c = p - ((1 / (cfg.numPoints - 1)) * 100) / 2;
+          d += ` C ${c} ${n[o]} ${c} ${n[o + 1]} ${p} ${n[o + 1]}`;
+        }
+        d += isOpened ? " V 0 H 0" : " V 100 H 0";
+        return d;
+      }
+
+      function render() {
+        if (isAnimating) {
+          const elapsed = Date.now() - timeStart;
+          paths.forEach((path, index) => {
+            path.setAttribute(
+              "d",
+              updatePath(elapsed - cfg.delayPerPath * index)
+            );
+          });
+          if (elapsed < cfg.duration + cfg.delayPerPath * (paths.length - 1) + allRange) {
+            rafMorph = requestAnimationFrame(render);
+          } else {
+            isAnimating = false;
+            if (!isOpened) {
+              waveSvg.classList.remove("is-active", "is-open");
+              navRoot.setAttribute("data-wave-menu", "closed");
+              stopMenuWaves();
+            } else {
+              // Hide wipe once open — pink menu panel is above (nav z-index)
+              // and must stay readable; SVG on body would otherwise cover links.
+              waveSvg.classList.remove("is-active");
+              waveSvg.classList.add("is-open");
+              navRoot.setAttribute("data-wave-menu", "open");
+              startMenuWaves();
+              revealMobileNavLinks();
+            }
+          }
+        } else {
+          const d = updatePath(
+            cfg.duration +
+              cfg.delayPerPath * (paths.length - 1) +
+              allRange +
+              1
+          );
+          paths.forEach((path) => path.setAttribute("d", d));
+        }
+      }
+
+      function toggleMenu(open) {
+        if (isAnimating) return;
+        isAnimating = true;
+        isOpened = open;
+        timeStart = Date.now();
+
+        pointsDelay = [];
+        for (let i = 0; i < cfg.numPoints; i++) {
+          pointsDelay[i] = Math.random() * cfg.delayPointsMax;
+        }
+        allRange = Math.max(...pointsDelay);
+
+        waveSvg.classList.add("is-active");
+        waveSvg.classList.toggle("is-open", open);
+
+        if (open) {
+          navRoot.setAttribute("data-wave-menu", "opening");
+        } else {
+          navRoot.setAttribute("data-wave-menu", "closing");
+          stopMenuWaves();
+        }
+
+        render();
+      }
+
+      // --- canvas waves inside menu ---
+      let wavesRaf = 0;
+      let wavesRunning = false;
+      let wavesTime = 0;
+      let wavesCtx = null;
+
+      const menuWaves = [
+        {
+          baseAmplitude: 18,
+          amplitude: 18,
+          wavelength: 140,
+          speed: 2,
+          phase: 0,
+          verticalOffset: -40,
+        },
+        {
+          baseAmplitude: 26,
+          amplitude: 26,
+          wavelength: 260,
+          speed: 1,
+          phase: Math.PI / 2,
+          verticalOffset: 0,
+        },
+        {
+          baseAmplitude: 14,
+          amplitude: 14,
+          wavelength: 190,
+          speed: 1.5,
+          phase: Math.PI,
+          verticalOffset: 45,
+        },
+        {
+          baseAmplitude: 22,
+          amplitude: 22,
+          wavelength: 230,
+          speed: 1.2,
+          phase: Math.PI / 4,
+          verticalOffset: 90,
+        },
+      ];
+
+      function resizeMenuCanvas() {
+        if (!menuCanvas || !wavesCtx) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = menuCanvas.clientWidth || window.innerWidth;
+        const height = menuCanvas.clientHeight || 280;
+        menuCanvas.width = Math.max(1, Math.floor(width * dpr));
+        menuCanvas.height = Math.max(1, Math.floor(height * dpr));
+        wavesCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function drawMenuWave(wave, cssWidth, cssHeight) {
+        wavesCtx.beginPath();
+        wavesCtx.moveTo(0, cssHeight / 2 + wave.verticalOffset);
+        for (let x = 0; x < cssWidth; x++) {
+          const y =
+            Math.sin(
+              x / wave.wavelength + wavesTime * wave.speed + wave.phase
+            ) * wave.amplitude;
+          wavesCtx.lineTo(x, cssHeight / 2 + wave.verticalOffset + y);
+        }
+        wavesCtx.strokeStyle = "white";
+        wavesCtx.lineWidth = 2.25;
+        wavesCtx.lineCap = "round";
+        wavesCtx.lineJoin = "round";
+        wavesCtx.globalAlpha = 0.7;
+        wavesCtx.stroke();
+        wavesCtx.globalAlpha = 1;
+      }
+
+      function animateMenuWaves() {
+        if (!wavesRunning || !wavesCtx) return;
+        const cssWidth = menuCanvas.clientWidth || window.innerWidth;
+        const cssHeight = menuCanvas.clientHeight || 280;
+        wavesCtx.clearRect(0, 0, cssWidth, cssHeight);
+        menuWaves.forEach((wave, index) => {
+          wave.amplitude =
+            wave.baseAmplitude + 4 * Math.sin(wavesTime * (0.5 + 0.2 * index));
+          drawMenuWave(wave, cssWidth, cssHeight);
+        });
+        wavesTime += 0.012;
+        wavesRaf = requestAnimationFrame(animateMenuWaves);
+      }
+
+      function startMenuWaves() {
+        if (!menuCanvas || reducedMotion) return;
+        if (!wavesCtx) wavesCtx = menuCanvas.getContext("2d");
+        if (!wavesCtx) return;
+        if (wavesRunning) return;
+        wavesRunning = true;
+        resizeMenuCanvas();
+        animateMenuWaves();
+      }
+
+      function stopMenuWaves() {
+        wavesRunning = false;
+        if (wavesRaf) cancelAnimationFrame(wavesRaf);
+      }
+
+      function revealMobileNavLinks() {
+        const mobileMenu = document.querySelector(
+          ".nav_1_wrap.is-mobile .w-nav-menu"
+        );
+        if (!mobileMenu || typeof gsap === "undefined") return;
+        const words = mobileMenu.querySelectorAll(".word");
+        const links = mobileMenu.querySelectorAll(".nav_1_links_link");
+        if (words.length) {
+          gsap.to(words, {
+            opacity: 1,
+            yPercent: 0,
+            y: 0,
+            duration: 0.45,
+            stagger: 0.04,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        } else if (links.length) {
+          gsap.fromTo(
+            links,
+            { opacity: 0, y: 24 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.45,
+              stagger: 0.06,
+              ease: "power2.out",
+              overwrite: true,
+            }
+          );
+        }
+      }
+
+      window.addEventListener("resize", () => {
+        if (wavesRunning) resizeMenuCanvas();
+      });
+
+      // Sync with Webflow hamburger class
+      const syncFromBurger = () => {
+        const open = burger.classList.contains("w--open");
+        if (open && !isOpened && !isAnimating) {
+          if (reducedMotion) {
+            isOpened = true;
+            waveSvg.classList.remove("is-active");
+            waveSvg.classList.add("is-open");
+            navRoot.setAttribute("data-wave-menu", "open");
+            paths.forEach((path) =>
+              path.setAttribute(
+                "d",
+                "M 0 0 V 100 C 50 100 50 100 100 100 V 0 H 0"
+              )
+            );
+            startMenuWaves();
+            revealMobileNavLinks();
+            return;
+          }
+          toggleMenu(true);
+        } else if (!open && isOpened && !isAnimating) {
+          if (reducedMotion) {
+            isOpened = false;
+            waveSvg.classList.remove("is-active", "is-open");
+            navRoot.setAttribute("data-wave-menu", "closed");
+            paths.forEach((path) =>
+              path.setAttribute(
+                "d",
+                "M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0"
+              )
+            );
+            stopMenuWaves();
+            return;
+          }
+          toggleMenu(false);
+        }
+      };
+
+      const observer = new MutationObserver(syncFromBurger);
+      observer.observe(burger, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+
+      // Block hamburger mid-wipe so Webflow class and wave state stay in sync
+      burger.addEventListener(
+        "click",
+        (event) => {
+          if (!isAnimating) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        },
+        true
+      );
+
+      // Initial closed state
+      navRoot.setAttribute("data-wave-menu", "closed");
+      paths.forEach((path) =>
+        path.setAttribute("d", "M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0")
+      );
+    }
 
     /////////////////////////////////
     /* H2 PINNED WITHOUT GRAVITY */
