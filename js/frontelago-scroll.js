@@ -1979,12 +1979,17 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       function cubicOut(t) {
-        return --t * t * t + 1;
+        const u = t - 1;
+        return u * u * u + 1;
       }
 
-      // Codrops / NILS: open uses cubicOut, close uses cubicInOut
-      function ease(t) {
-        return isOpened ? cubicOut(t) : cubicInOut(t);
+      // NILS / bn-internal Wave: each control point gets a different ease so the
+      // leading edge stays oblique (cubicInOut vs cubicOut), not a flat wipe.
+      function easePoint(t, pointIndex) {
+        if (isOpened) {
+          return pointIndex === 1 ? cubicOut(t) : cubicInOut(t);
+        }
+        return pointIndex === 1 ? cubicInOut(t) : cubicOut(t);
       }
 
       // Morph always runs points 0→100; path construction differs for open vs close
@@ -1992,21 +1997,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const n = [];
         for (let o = 0; o < cfg.numPoints; o++) {
           n[o] =
-            ease(
+            easePoint(
               Math.min(
                 Math.max(elapsed - pointsDelay[o], 0) / cfg.duration,
                 1
-              )
+              ),
+              o
             ) * 100;
         }
 
-        let d = isOpened ? `M 0 0 V ${n[0]}` : `M 0 ${n[0]}`;
+        let d = isOpened ? `M 0 0 V ${n[0]} ` : `M 0 ${n[0]} `;
         for (let o = 0; o < cfg.numPoints - 1; o++) {
           const p = ((o + 1) / (cfg.numPoints - 1)) * 100;
           const c = p - ((1 / (cfg.numPoints - 1)) * 100) / 2;
-          d += ` C ${c} ${n[o]} ${c} ${n[o + 1]} ${p} ${n[o + 1]}`;
+          d += `C ${c} ${n[o]} ${c} ${n[o + 1]} ${p} ${n[o + 1]} `;
         }
-        d += isOpened ? " V 0 H 0" : " V 100 H 0";
+        d += isOpened ? "V 0 H 0" : "V 100 H 0";
         return d;
       }
 
@@ -2014,10 +2020,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isAnimating) {
           const elapsed = Date.now() - timeStart;
           paths.forEach((path, index) => {
-            path.setAttribute(
-              "d",
-              updatePath(elapsed - cfg.delayPerPath * index)
-            );
+            // Open: stagger 0→n. Close: reverse stagger (NILS) so layers peel off.
+            const pathDelay = isOpened
+              ? cfg.delayPerPath * index
+              : cfg.delayPerPath * (paths.length - index - 1);
+            path.setAttribute("d", updatePath(elapsed - pathDelay));
           });
           if (elapsed < cfg.duration + cfg.delayPerPath * (paths.length - 1) + allRange) {
             rafMorph = requestAnimationFrame(render);
