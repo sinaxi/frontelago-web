@@ -837,10 +837,7 @@
     height: 100%;
     opacity: 0.55;
   }
-  .section_long-scroll .section_inner {
-    position: relative;
-    overflow: hidden;
-  }
+  /* Do NOT override .section_inner position — it must stay sticky for the zoom pin */
   .section_long-scroll .site-wave-lines {
     bottom: auto;
     top: 42%;
@@ -856,6 +853,16 @@
   .section_long-scroll .section_contain {
     position: relative;
     z-index: 2;
+  }
+  /* Solid wipe colors — avoid inheriting dark theme currentColor */
+  [data-long-scroll="pink"][data-gsap-section="long-scroll"] {
+    background-color: var(--swatch--pink-secondary);
+  }
+  [data-long-scroll="pink"] [data-gsap-state="pinned"]::after {
+    background-color: var(--swatch--pink);
+  }
+  [data-long-scroll="white"] [data-gsap-state="pinned"]::after {
+    background-color: #fff;
   }
   .card_stack_img_wrap {
     position: relative;
@@ -2341,7 +2348,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-logo {
     </div>
   </div>
 </section>
-<section data-long-scroll="pink" data-gsap-section="long-scroll" class="section_long-scroll"><div data-gsap-state="pinned" data-gsap-flap="bottom" class="section_inner"><div class="site-wave-lines" aria-hidden="true"><canvas class="site-wave-lines__canvas" data-wave-lines=""></canvas></div><div class="section_contain u-container cc-long"><div data-gsap-wrapper="text-wrapper" class="text_scroll_layout u-container-inline-size"><div class="g_title_wrap is-1"><h2 data-gsap-text="top" class="text_scroll_title u-text-style-display u-color-white">Young</h2></div><div class="g_title_wrap is-2"><h2 data-gsap-text="middle" class="text_scroll_title u-text-style-display"><span data-gsap-pivot="before" class="pivot">Pink V</span><span data-gsap-offset="7.5" data-gsap-pivot="pivot" class="pivot">i</span><span data-gsap-pivot="after" class="pivot">bes</span></h2></div><div class="g_title_wrap is-3"><h2 data-gsap-text="bottom" class="text_scroll_title u-text-style-display u-color-white">Minds</h2></div></div></div></div></section><section data-animate-theme-to="pink" class="section_partners"><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="section_contain u-container-full"><div class="g_title_wrap u-container-inline-size"><h2 data-gsap-squeeze="" class="partners_title u-text-style-display">UNSERE PARTNER</h2></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="grid-lines"></div><div class="w-embed"><!-- Letztes Item bei Desktop ausblendet, damit bei Desktop 15 und bei mobile 16 angzeigt werden - und nicht ein einzelnes Logo alleine in einer Reihe steht -->
+<section data-long-scroll="pink" data-gsap-section="long-scroll" data-animate-theme-to="babypink" class="section_long-scroll"><div data-gsap-state="pinned" data-gsap-flap="bottom" class="section_inner"><div class="site-wave-lines" aria-hidden="true"><canvas class="site-wave-lines__canvas" data-wave-lines=""></canvas></div><div class="section_contain u-container cc-long"><div data-gsap-wrapper="text-wrapper" class="text_scroll_layout u-container-inline-size"><div class="g_title_wrap is-1"><h2 data-gsap-text="top" class="text_scroll_title u-text-style-display u-color-white">Young</h2></div><div class="g_title_wrap is-2"><h2 data-gsap-text="middle" class="text_scroll_title u-text-style-display"><span data-gsap-pivot="before" class="pivot">Pink V</span><span data-gsap-offset="7.5" data-gsap-pivot="pivot" class="pivot">i</span><span data-gsap-pivot="after" class="pivot">bes</span></h2></div><div class="g_title_wrap is-3"><h2 data-gsap-text="bottom" class="text_scroll_title u-text-style-display u-color-white">Minds</h2></div></div></div></div></section><section data-animate-theme-to="pink" class="section_partners"><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="section_contain u-container-full"><div class="g_title_wrap u-container-inline-size"><h2 data-gsap-squeeze="" class="partners_title u-text-style-display">UNSERE PARTNER</h2></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="5xl-base" class="u-spacer"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="m" class="u-spacer w-variant-ac197c4f-70c5-bd21-5298-e123a3b96d65"></div></div></div><div class="grid-lines"></div><div class="w-embed"><!-- Letztes Item bei Desktop ausblendet, damit bei Desktop 15 und bei mobile 16 angzeigt werden - und nicht ein einzelnes Logo alleine in einer Reihe steht -->
 <style>
   @media (min-width: 992px){
     .partners_cms_list .partners_cms_item:last-child{
