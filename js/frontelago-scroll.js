@@ -2322,8 +2322,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         allRange = Math.max(...pointsDelay);
 
-        const fullCover = "M 0 0 V 100 C 50 100 50 100 100 100 V 0 H 0";
-
         if (open) {
           // Start wipe from empty; pink panel stays hidden until handoff
           paths.forEach((path) =>
@@ -2334,12 +2332,17 @@ document.addEventListener("DOMContentLoaded", function () {
           navRoot.setAttribute("data-wave-menu", "opening");
           lockPageScroll();
         } else {
-          // Cover with solid wipe BEFORE dropping menu opacity — no page flash
+          // NILS close: SVG must be the only pink cover, then peel away to
+          // reveal the page. Menu goes transparent first; no solid backdrop.
+          const fullCover = "M 0 0 V 100 C 50 100 50 100 100 100 V 0 H 0";
           paths.forEach((path) => path.setAttribute("d", fullCover));
           waveSvg.classList.add("is-active");
           waveSvg.classList.remove("is-open");
-          navRoot.setAttribute("data-wave-menu", "closing");
           stopMenuWaves();
+          // Hide menu panel so only the SVG wave layers remain visible
+          navRoot.setAttribute("data-wave-menu", "closing");
+          // Force a paint of the full cover before the peel starts
+          void waveSvg.getBoundingClientRect();
         }
 
         render();

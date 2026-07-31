@@ -1739,9 +1739,9 @@ body:has(.nav_component[data-wave-menu="closing"]) {
 	height: 100% !important;
 	min-height: 100% !important;
 }
-/* Full-bleed pink under the menu so no page peeks through at the bottom */
-body:has(.nav_component[data-wave-menu="open"])::before,
-body:has(.nav_component[data-wave-menu="closing"])::before {
+/* Full-bleed pink only while menu is fully open — NOT while closing,
+   or the wave peel can't reveal the page underneath (NILS close). */
+body:has(.nav_component[data-wave-menu="open"])::before {
 	content: "";
 	position: fixed;
 	inset: 0;
@@ -2045,6 +2045,20 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-logo {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+/* Menu open: only the X stays in the dock — no Contattaci / Book */
+body:has(.nav_component[data-wave-menu="opening"]) .float-dock__cta,
+body:has(.nav_component[data-wave-menu="open"]) .float-dock__cta,
+body:has(.nav_component[data-wave-menu="closing"]) .float-dock__cta {
+  display: none !important;
+}
+
+/* Menu open: hide legal links (Impressum / Privacy / Cookies) */
+.nav_component[data-wave-menu="opening"] .nav_1_legal_component,
+.nav_component[data-wave-menu="open"] .nav_1_legal_component,
+.nav_component[data-wave-menu="closing"] .nav_1_legal_component {
+  display: none !important;
 }
 
 @media (min-width: 992px) {
