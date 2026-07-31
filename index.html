@@ -1876,17 +1876,22 @@ body:has(.nav_component[data-wave-menu="open"])::before {
 	opacity: 0.35;
 }
 
-/* Menu contact callout — icon mark + copy (not the left linguetta) */
+/* Menu contact — separated callout chip (clear of last nav link) */
+.nav_1_wrap.is-mobile .nav_1_menu_contain {
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100% - 2rem);
+}
 .nav_1_wrap.is-mobile .nav_1_contact_component {
 	margin-top: auto;
+	padding-top: 2.25rem;
 	padding-bottom: 0.75rem;
 	flex: 0 0 auto;
 	width: 100%;
+	border-top: 1px solid rgba(255, 255, 255, 0.28);
 }
 .nav_1_wrap.is-mobile .nav_1_contact_wrap {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
+	display: block;
 	padding: 0;
 	border-radius: 0;
 	background: transparent;
@@ -1894,62 +1899,68 @@ body:has(.nav_component[data-wave-menu="open"])::before {
 	color: #fff;
 }
 .nav_1_wrap.is-mobile .nav_1_contact_mail {
+	display: none;
+}
+.nav_1_wrap.is-mobile .nav_1_contact_title,
+.nav_1_wrap.is-mobile .nav_1_contact_copy .nav_1_contact_title {
+	display: none;
+}
+.nav_1_wrap.is-mobile .nav_1_contact_chip {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.35rem;
+	width: 100%;
+	max-width: 22rem;
+	padding: 1.1rem 1.35rem 1.2rem;
+	border-radius: 1.25rem;
+	background: #fff;
+	color: var(--swatch--pink, #df0567);
+	text-decoration: none;
+	box-shadow: 0 12px 32px rgba(21, 49, 73, 0.18);
+	transition: transform 0.25s cubic-bezier(.16,1,.3,1);
+}
+.nav_1_wrap.is-mobile .nav_1_contact_chip:hover {
+	transform: scale(0.985);
+}
+.nav_1_wrap.is-mobile .nav_1_contact_chip_label {
+	font-size: 0.7rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	opacity: 0.65;
+}
+.nav_1_wrap.is-mobile .nav_1_contact_chip_row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	width: 100%;
+}
+.nav_1_wrap.is-mobile .nav_1_contact_chip_email {
+	font-size: clamp(1.05rem, 4vw, 1.35rem);
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	word-break: break-word;
+}
+.nav_1_wrap.is-mobile .nav_1_contact_chip_arrow {
 	flex: 0 0 auto;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 3.25rem;
-	height: 3.25rem;
+	width: 2.25rem;
+	height: 2.25rem;
 	border-radius: 50%;
-	background: #fff;
-	color: var(--swatch--pink, #df0567);
-	text-decoration: none;
-	box-shadow: 0 8px 22px rgba(21, 49, 73, 0.16);
-	transition: transform 0.25s cubic-bezier(.16,1,.3,1);
+	background: var(--swatch--pink, #df0567);
+	color: #fff;
+	font-size: 1.05rem;
+	line-height: 1;
 }
-.nav_1_wrap.is-mobile .nav_1_contact_mail:hover {
-	transform: scale(0.96);
-}
-.nav_1_wrap.is-mobile .nav_1_contact_mail svg {
-	display: block;
-	width: 1.35rem;
-	height: 1.35rem;
-}
+.nav_1_wrap.is-mobile .nav_1_contact_wrap .underline_link_wrap,
+.nav_1_wrap.is-mobile .nav_1_contact_wrap .underline_link_line,
 .nav_1_wrap.is-mobile .nav_1_contact_copy {
-	display: flex;
-	flex-direction: column;
-	gap: 0.2rem;
-	min-width: 0;
-}
-.nav_1_wrap.is-mobile .nav_1_contact_title {
-	margin: 0;
-	color: rgba(255, 255, 255, 0.7);
-	font-size: 0.7rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-.nav_1_wrap.is-mobile .nav_1_contact_wrap .underline_link_wrap {
-	color: #fff;
-	text-decoration: none;
-	width: fit-content;
-	max-width: 100%;
-}
-.nav_1_wrap.is-mobile .nav_1_contact_wrap .underline_link_text {
-	color: #fff;
-	font-size: clamp(1.05rem, 4.2vw, 1.4rem);
-	font-weight: 600;
-	letter-spacing: -0.015em;
-	line-height: 1.2;
-	word-break: break-word;
-}
-.nav_1_wrap.is-mobile .nav_1_contact_wrap .underline_link_line {
-	display: block;
-	height: 1px;
-	margin-top: 0.35rem;
-	background: rgba(255, 255, 255, 0.55);
-	transform-origin: left center;
-	transform: scaleX(0.55);
+	display: none;
 }
 /* Desktop SplitText must never hide mobile menu labels */
 .nav_1_wrap.is-mobile .w-nav-menu .word {
@@ -2422,7 +2433,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 }
 </style></div><div data-animation="default" data-collapse="all" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="nav_1_wrap is-mobile w-nav"><svg class="nav_wave_anim" data-nav-wave viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="nav_wave_anim__path" d="M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0"></path><path class="nav_wave_anim__path" d="M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0"></path><path class="nav_wave_anim__path" d="M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0"></path><path class="nav_wave_anim__path" d="M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0"></path><path class="nav_wave_anim__path" d="M 0 0 V 0 C 50 0 50 0 100 0 V 0 H 0"></path></svg><div class="nav_1_contain u-container-full"><div aria-label="Home Page" class="nav_1_logo_wrap is-op-0"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 220 36" fill="none" class="g_svg" aria-label="Frontelago"><text x="0" y="28" fill="currentColor" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" letter-spacing="0.04em">FRONTELAGO</text></svg><!--/$--></div><nav role="navigation" class="nav_1_menu_wrap w-nav-menu"><div data-lenis-prevent="" class="nav_1_menu_scroll"><div class="nav_menu_waves" aria-hidden="true"><canvas data-menu-waves width="800" height="280"></canvas></div><div class="nav_1_menu_contain u-container"><div class="nav_1_links_component"><ul data-wf--nav-links--layout="mobile" role="list" class="nav_1_links_wrap w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-list-unstyled"><li class="nav_1_links_item w-variant-1110551f-14bf-9d4a-0086-bc18a894f466"><a href="#services" class="nav_1_links_link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-inline-block"><div class="nav_1_links_text w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 u-text-style-caption-large">Services</div></a></li><li class="nav_1_links_item w-variant-1110551f-14bf-9d4a-0086-bc18a894f466"><a href="#testimonials" class="nav_1_links_link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-inline-block"><div class="nav_1_links_text w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 u-text-style-caption-large">Referenzen</div></a></li><li class="nav_1_links_item w-variant-1110551f-14bf-9d4a-0086-bc18a894f466"><a href="#workflow" class="nav_1_links_link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-inline-block"><div class="nav_1_links_text w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 u-text-style-caption-large">Workflow</div></a></li><li class="nav_1_links_item w-variant-1110551f-14bf-9d4a-0086-bc18a894f466"><a href="#contact" class="nav_1_links_link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-inline-block"><div class="nav_1_links_text w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 u-text-style-caption-large">Kontakt</div></a></li><li class="nav_1_links_item w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 hide-desktop-only"><div class="nav_language-wrapper w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-locales-list"><div data-delay="0" data-hover="false" class="nav_language-dropdown w-dropdown"><div class="nav_language-dropdown-toggle w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-dropdown-toggle"><div class="nav_1_links_text w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 u-text-style-caption-large u-text-transform-uppercase">de</div><div class="nav_language-dropdown-icon w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-embed"><svg width="100%" height="100%" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M13 1L7 7L1 1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg></div></div><nav class="nav_language-dropdown-list w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-dropdown-list"><div role="list" class="nav_language-locale-list w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-locales-items"><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="de" href="/" aria-current="page" class="nav_language-locale-link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w--current">de</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="it" href="/it" class="nav_language-locale-link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466">it</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="en" href="/en" class="nav_language-locale-link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466">en</a></div></div></nav></div></div></li></ul></div><div class="nav_1_contact_component"><div class="nav_1_contact_wrap"><div class="nav_1_contact_title u-text-style-small u-mb-2">Kontakt</div><a href="mailto:info@frontelago.com" class="underline_link_wrap w-inline-block"><div class="underline_link_text u-text-style-h5">info@frontelago.com</div><div class="underline_link_line"></div></a></div></div><div class="nav_1_legal_component"><ul role="list" class="nav_1_legal_wrap u-grid-autofit w-list-unstyled"><li id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bfe4-d032bfcf" class="nav_1_legal_item"><a href="/impressum" class="nav_1_legal_link u-text-style-small w-inline-block"><div>Impressum</div></a></li><li id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bfe8-d032bfcf" class="nav_1_legal_item"><a href="/privacy" class="nav_1_legal_link u-text-style-small w-inline-block"><div>Privacy</div></a></li><li id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bfec-d032bfcf" class="nav_1_legal_item"><a href="/cookies" class="nav_1_legal_link u-text-style-small w-inline-block"><div>Cookies</div></a></li></ul></div></div></div></nav><div data-lenis-toggle="" class="nav_1_btn_wrap w-nav-button"><div class="nav_1_btn_layout"><div class="nav_1_btn_line"></div><div class="nav_1_btn_line"></div></div></div></div></div><div data-animation="default" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="nav_2_wrap w-nav"><div class="nav_2_contain u-container-full"><div id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bff6-d032bfcf" class="nav_buttons_cta is-contact"><div data-hover-ix="language" class="nav_desktop-language-wrapper is-btn_new_style w-locales-list"><div data-delay="0" data-hover="false" class="nav_desktop-language-dropdown w-dropdown"><div class="nav_desktop-language-dropdown-toggle w-dropdown-toggle"><div class="nav_desktop-language-links-text">de</div><div class="nav_desktop-language-dropdown-icon w-embed"><svg width="100%" height="100%" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+</svg></div></div><nav class="nav_language-dropdown-list w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-dropdown-list"><div role="list" class="nav_language-locale-list w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w-locales-items"><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="de" href="/" aria-current="page" class="nav_language-locale-link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 w--current">de</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="it" href="/it" class="nav_language-locale-link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466">it</a></div><div role="listitem" class="nav_language-locale w-locales-item"><a hreflang="en" href="/en" class="nav_language-locale-link w-variant-1110551f-14bf-9d4a-0086-bc18a894f466">en</a></div></div></nav></div></div></li></ul></div><div class="nav_1_contact_component"><div class="nav_1_contact_wrap"><a href="mailto:info@frontelago.com" class="nav_1_contact_chip"><span class="nav_1_contact_chip_label">Email</span><span class="nav_1_contact_chip_row"><span class="nav_1_contact_chip_email">info@frontelago.com</span><span class="nav_1_contact_chip_arrow" aria-hidden="true">→</span></span></a></div></div><div class="nav_1_legal_component"><ul role="list" class="nav_1_legal_wrap u-grid-autofit w-list-unstyled"><li id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bfe4-d032bfcf" class="nav_1_legal_item"><a href="/impressum" class="nav_1_legal_link u-text-style-small w-inline-block"><div>Impressum</div></a></li><li id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bfe8-d032bfcf" class="nav_1_legal_item"><a href="/privacy" class="nav_1_legal_link u-text-style-small w-inline-block"><div>Privacy</div></a></li><li id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bfec-d032bfcf" class="nav_1_legal_item"><a href="/cookies" class="nav_1_legal_link u-text-style-small w-inline-block"><div>Cookies</div></a></li></ul></div></div></div></nav><div data-lenis-toggle="" class="nav_1_btn_wrap w-nav-button"><div class="nav_1_btn_layout"><div class="nav_1_btn_line"></div><div class="nav_1_btn_line"></div></div></div></div></div><div data-animation="default" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="nav_2_wrap w-nav"><div class="nav_2_contain u-container-full"><div id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032bff6-d032bfcf" class="nav_buttons_cta is-contact"><div data-hover-ix="language" class="nav_desktop-language-wrapper is-btn_new_style w-locales-list"><div data-delay="0" data-hover="false" class="nav_desktop-language-dropdown w-dropdown"><div class="nav_desktop-language-dropdown-toggle w-dropdown-toggle"><div class="nav_desktop-language-links-text">de</div><div class="nav_desktop-language-dropdown-icon w-embed"><svg width="100%" height="100%" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M13 1L7 7L1 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg></div></div><nav class="nav_desktop-language-dropdown-list w-dropdown-list"><div role="list" class="nav_desktop-language-locale-list w-locales-items"><div role="listitem" class="nav_desktop-language-locale w-locales-item"><a hreflang="de" href="/" aria-current="page" class="nav_desktop-language-locale-link w--current">de</a></div><div role="listitem" class="nav_desktop-language-locale w-locales-item"><a hreflang="it" href="/it" class="nav_desktop-language-locale-link">it</a></div><div role="listitem" class="nav_desktop-language-locale w-locales-item"><a hreflang="en" href="/en" class="nav_desktop-language-locale-link">en</a></div></div></nav></div></div></div><a id="w-node-b713a23d-4b3b-f8cd-78ee-47418cd42428-d032bfcf" href="/" aria-current="page" class="nav_2_logo_wrap w-inline-block w--current"><!--$--><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 220 36" fill="none" class="g_svg" aria-label="Frontelago"><text x="0" y="28" fill="currentColor" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" letter-spacing="0.04em">FRONTELAGO</text></svg><!--/$--></a><div id="w-node-_18f0ab3c-dd84-6895-55aa-000cd032c009-d032bfcf" class="nav_buttons_menu"><!--$--><div class="nav_desktop_wrap"><div class="nav_desktop_layout"><div class="nav_desktop_mask"><ul data-wf--nav-links--layout="desktop" role="list" class="nav_1_links_wrap w-list-unstyled"><li class="nav_1_links_item"><a href="#services" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Services</div></a></li><li class="nav_1_links_item"><a href="#testimonials" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Referenzen</div></a></li><li class="nav_1_links_item"><a href="#workflow" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Workflow</div></a></li><li class="nav_1_links_item"><a href="#contact" class="nav_1_links_link w-inline-block"><div class="nav_1_links_text u-text-style-caption-large">Kontakt</div></a></li><li class="nav_1_links_item hide-desktop-only"><div class="nav_language-wrapper w-locales-list"><div data-delay="0" data-hover="false" class="nav_language-dropdown w-dropdown"><div class="nav_language-dropdown-toggle w-dropdown-toggle"><div class="nav_1_links_text u-text-style-caption-large u-text-transform-uppercase">de</div><div class="nav_language-dropdown-icon w-embed"><svg width="100%" height="100%" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M13 1L7 7L1 1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
