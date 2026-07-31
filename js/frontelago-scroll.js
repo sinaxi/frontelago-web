@@ -2569,7 +2569,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!title) return; // Skip if no h2 found
 
-        // Use SplitText to split the h2 into individual characters
+        const dist = container.clientHeight - title.clientHeight;
+        const shouldPin =
+          container.getAttribute("data-animate-container") === "pinned";
+
+        // Desktop: pin the solid headline — no scattered letters
+        if (!isMobile()) {
+          if (shouldPin) {
+            ScrollTrigger.create({
+              trigger: container,
+              pin: title,
+              start: "top 15%",
+              end: "+=" + dist,
+            });
+          } else {
+            const horizontalWrapper = document.querySelector(
+              '[data-gsap-wrapper="horizontal-scroll"]'
+            );
+            const gridSectionHeight = horizontalWrapper
+              ? horizontalWrapper.getBoundingClientRect().height
+              : 0;
+            const seventyPercentVH = window.innerHeight * 0.7;
+            const shouldUseGridSectionAsEndTrigger =
+              gridSectionHeight < seventyPercentVH;
+
+            const scrollTriggerConfig = {
+              trigger: container,
+              pin: title,
+              start: "top 15%",
+            };
+
+            if (shouldUseGridSectionAsEndTrigger && gridSection) {
+              scrollTriggerConfig.endTrigger = gridSection;
+              scrollTriggerConfig.end = "bottom bottom";
+            } else {
+              scrollTriggerConfig.end = "+=" + dist;
+            }
+
+            ScrollTrigger.create(scrollTriggerConfig);
+          }
+          return;
+        }
+
+        // Mobile: SplitText + pin + letters that reunite on scroll
         const splitText = new SplitText(title, {
           type: "chars, lines",
           charsClass: "letter",
@@ -2577,93 +2619,24 @@ document.addEventListener("DOMContentLoaded", function () {
           reduceWhiteSpace: false,
         });
 
-        // Calculate the distance for scattering
-        const dist = container.clientHeight - title.clientHeight;
+        ScrollTrigger.create({
+          trigger: container,
+          pin: title,
+          start: "top 15%",
+          end: "+=" + dist,
+        });
 
-        // Check if container should be pinned
-        const shouldPin =
-          container.getAttribute("data-animate-container") === "pinned";
-
-        if (!isMobile()) {
-          if (shouldPin) {
-            // Pin the title during scroll (only for containers with "pinned" value)
-            ScrollTrigger.create({
-              trigger: container,
-              pin: title,
-              start: "top 15%",
-              end: "+=" + dist,
-              // markers: true,
-              onComplete: () => {
-                // Optional: Revert SplitText when animation completes
-                // splitText.revert();
-              },
-            });
-          } else {
-            // Specific case for horizontal scroll with pinning
-
-            // Check if gridSection height is less than 70% of viewport height
-            const horizontalWrapper = document.querySelector(
-              '[data-gsap-wrapper="horizontal-scroll"]'
-            );
-            const gridSectionHeight = horizontalWrapper
-              ? horizontalWrapper.getBoundingClientRect().height
-              : 0;
-            const viewportHeight = window.innerHeight;
-            const seventyPercentVH = viewportHeight * 0.7;
-
-            const shouldUseGridSectionAsEndTrigger =
-              gridSectionHeight < seventyPercentVH;
-            // console.log(gridSectionHeight, seventyPercentVH);
-            const scrollTriggerConfig = {
-              trigger: container,
-              pin: title,
-              start: "top 15%",
-              // markers: true,
-              onComplete: () => {
-                // Optional: Revert SplitText when animation completes
-                // splitText.revert();
-              },
-            };
-
-            // Conditionally set endTrigger and end based on grid section height
-            if (shouldUseGridSectionAsEndTrigger && gridSection) {
-              scrollTriggerConfig.endTrigger = gridSection;
-              scrollTriggerConfig.end = "bottom bottom";
-            } else {
-              // Default behavior when grid section is tall enough
-              scrollTriggerConfig.end = "+=" + dist;
-            }
-
-            ScrollTrigger.create(scrollTriggerConfig);
-          }
-        } else {
-          ScrollTrigger.create({
-            trigger: container,
-            pin: title,
-            start: "top 15%",
-            end: "+=" + dist,
-            // markers: true,
-            onComplete: () => {
-              // Optional: Revert SplitText when animation completes
-              // splitText.revert();
-            },
-          });
-        }
-
-        // Animate each character with random scattering (applies to all containers)
-        const letters = splitText.chars;
-        letters.forEach((letter) => {
+        splitText.chars.forEach((letter) => {
           const randomDistance = Math.random() * dist;
 
           gsap.from(letter, {
             y: randomDistance,
             ease: "none",
             scrollTrigger: {
-              trigger: shouldPin ? title : container, // Use title if pinned, container if not
+              trigger: shouldPin ? title : container,
               start: "top 15%",
               end: "+=" + randomDistance,
-              // markers: true,
-              scrub: !isMobile() ? true : 1,
+              scrub: 1,
             },
           });
         });
