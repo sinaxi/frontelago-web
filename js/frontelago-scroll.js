@@ -1665,53 +1665,52 @@ document.addEventListener("DOMContentLoaded", function () {
     /* STICKY IMAGE WAVE OVERLAY (NILS-style) */
     /////////////////////////////////
 
-    function initializeStickyWaves() {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        return;
-      }
-
-      const canvas = document.querySelector("[data-sticky-waves]");
-      if (!canvas) return;
-
+    function createWaveLinesAnimator(canvas, options = {}) {
       const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      if (!ctx) return null;
 
+      const scale = options.scale || 1;
+      const lineWidth = options.lineWidth || 2.25;
+      const strokeAlpha = options.strokeAlpha || 0.72;
+      const timeStep = options.timeStep || 0.012;
+      const observeEl =
+        options.observe ||
+        canvas.closest("section, [data-sticky-features], .card_stack_img_wrap") ||
+        canvas.parentElement;
+
+      // Same 4 sine strokes as the hero first scene
       const waves = [
         {
-          baseAmplitude: 20,
-          amplitude: 20,
-          wavelength: 150,
+          baseAmplitude: 18 * scale,
+          amplitude: 18 * scale,
+          wavelength: 140,
           speed: 2,
-          color: "white",
           phase: 0,
-          verticalOffset: -50,
+          verticalOffset: -45 * scale,
         },
         {
-          baseAmplitude: 30,
-          amplitude: 30,
-          wavelength: 300,
+          baseAmplitude: 28 * scale,
+          amplitude: 28 * scale,
+          wavelength: 280,
           speed: 1,
-          color: "white",
           phase: Math.PI / 2,
           verticalOffset: 0,
         },
         {
-          baseAmplitude: 15,
-          amplitude: 15,
-          wavelength: 200,
+          baseAmplitude: 14 * scale,
+          amplitude: 14 * scale,
+          wavelength: 190,
           speed: 1.5,
-          color: "white",
           phase: Math.PI,
-          verticalOffset: 50,
+          verticalOffset: 48 * scale,
         },
         {
-          baseAmplitude: 25,
-          amplitude: 25,
-          wavelength: 250,
+          baseAmplitude: 22 * scale,
+          amplitude: 22 * scale,
+          wavelength: 240,
           speed: 1.2,
-          color: "white",
           phase: Math.PI / 4,
-          verticalOffset: 100,
+          verticalOffset: 95 * scale,
         },
       ];
 
@@ -1719,20 +1718,10 @@ document.addEventListener("DOMContentLoaded", function () {
       let rafId = 0;
       let running = false;
 
-      function calculateCanvasHeight() {
-        let max = 0;
-        waves.forEach((wave) => {
-          const extent =
-            Math.abs(wave.verticalOffset) + wave.baseAmplitude + 5;
-          if (extent > max) max = extent;
-        });
-        return 2 * max + 20;
-      }
-
       function resizeCanvas() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight || calculateCanvasHeight();
+        const width = canvas.clientWidth || window.innerWidth;
+        const height = canvas.clientHeight || 280;
         canvas.width = Math.max(1, Math.floor(width * dpr));
         canvas.height = Math.max(1, Math.floor(height * dpr));
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1747,26 +1736,27 @@ document.addEventListener("DOMContentLoaded", function () {
             wave.amplitude;
           ctx.lineTo(x, cssHeight / 2 + wave.verticalOffset + y);
         }
-        ctx.strokeStyle = wave.color;
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = lineWidth;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
-        ctx.globalAlpha = 0.55;
+        ctx.globalAlpha = strokeAlpha;
         ctx.stroke();
         ctx.globalAlpha = 1;
       }
 
       function animate() {
         if (!running) return;
-        const cssWidth = canvas.clientWidth;
-        const cssHeight = canvas.clientHeight;
+        const cssWidth = canvas.clientWidth || window.innerWidth;
+        const cssHeight = canvas.clientHeight || 280;
         ctx.clearRect(0, 0, cssWidth, cssHeight);
         waves.forEach((wave, index) => {
           wave.amplitude =
-            wave.baseAmplitude + 5 * Math.sin(time * (0.5 + 0.2 * index));
+            wave.baseAmplitude +
+            4 * scale * Math.sin(time * (0.5 + 0.2 * index));
           drawWave(wave, cssWidth, cssHeight);
         });
-        time += 0.01;
+        time += timeStep;
         rafId = requestAnimationFrame(animate);
       }
 
@@ -1785,9 +1775,7 @@ document.addEventListener("DOMContentLoaded", function () {
       resizeCanvas();
       window.addEventListener("resize", resizeCanvas);
 
-      // Only animate while the sticky section is near the viewport
-      const section = canvas.closest("[data-sticky-features]");
-      if ("IntersectionObserver" in window && section) {
+      if ("IntersectionObserver" in window && observeEl) {
         const observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
@@ -1795,15 +1783,37 @@ document.addEventListener("DOMContentLoaded", function () {
               else stop();
             });
           },
-          { rootMargin: "10% 0px" }
+          { rootMargin: "12% 0px", threshold: 0.01 }
         );
-        observer.observe(section);
+        observer.observe(observeEl);
       } else {
         start();
       }
+
+      return { start, stop, resizeCanvas };
     }
 
-    initializeStickyWaves();
+    function initializeSiteWaveLines() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      document.querySelectorAll("[data-wave-lines]").forEach((canvas) => {
+        const isPink = !!canvas.closest('[data-long-scroll="pink"]');
+        const isCard = !!canvas.closest(".card_stack_img_wrap");
+        createWaveLinesAnimator(canvas, {
+          scale: isCard ? 0.55 : isPink ? 0.85 : 0.7,
+          lineWidth: isCard ? 1.75 : 2.25,
+          strokeAlpha: isPink ? 0.5 : 0.72,
+          observe:
+            canvas.closest(
+              ".sticky-features_img-item, .card_stack_img_wrap, .section_long-scroll, [data-sticky-features]"
+            ) || canvas.parentElement,
+        });
+      });
+    }
+
+    initializeSiteWaveLines();
     initializeHeroWaves();
     initializeWaveMenu();
     initializeFloatChrome();
