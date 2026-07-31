@@ -64,6 +64,15 @@
     position: static;
   }
 
+  /* Desktop: body copy under the step title, left-aligned with "01." */
+  @media (min-width: 992px) {
+    .section_workflow .accordion_text_wrap {
+      align-self: flex-start;
+      margin-left: 0;
+      max-width: 42rem;
+    }
+  }
+
 
   .preloader_wrap {
     height: 100svh;
