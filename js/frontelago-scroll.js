@@ -1242,27 +1242,28 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // Image scaling animation for all cards (including the last one)
+    // Image fade-in for all cards (already at final size — no zoom / slide)
     const allCardsWrappers = gsap.utils.toArray(".slide-wrapper");
 
-    allCardsWrappers.forEach((wrapper, i) => {
+    allCardsWrappers.forEach((wrapper) => {
       const imageElement = wrapper.querySelector("[data-gsap-image]");
 
       if (imageElement) {
-        // Set initial scale
         gsap.set(imageElement, {
-          scale: 0.3,
+          opacity: 0,
+          scale: 1,
+          x: 0,
+          xPercent: 0,
         });
 
-        // Create the scaling animation
         gsap.to(imageElement, {
-          scale: 1,
-          ease: "none",
+          opacity: 1,
+          duration: 0.9,
+          ease: "power2.out",
           scrollTrigger: {
             trigger: wrapper,
-            start: "top 80%", // When card top hits 90% from top
-            end: "top 30%", // When card reaches center (50% from top)
-            scrub: 1,
+            start: "top 80%",
+            once: true,
           },
         });
       }
