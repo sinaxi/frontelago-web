@@ -288,6 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
           lenis.start();
         }
         refreshScrollTriggers();
+        window.dispatchEvent(new CustomEvent("frontelago:preloader-done"));
       },
     });
   };
@@ -318,7 +319,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Set initial states for on-load elements
-  gsap.set(".loader_video", {
+  gsap.set(".loader_media_img, .loader_video", {
     scale: 1.25,
   });
 
@@ -360,7 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "-=0.85"
       )
       .to(
-        ".loader_video",
+        ".loader_media_img, .loader_video",
         {
           scale: 1,
           duration: 2,
@@ -454,7 +455,7 @@ document.addEventListener("DOMContentLoaded", function () {
       )
 
       .to(
-        ".loader_video",
+        ".loader_media_img, .loader_video",
         {
           scale: 1,
           duration: 2,
@@ -1335,6 +1336,342 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     /////////////////////////////////
+    /* 3D CYLINDER GALLERY (Hotel Royal style) */
+    /////////////////////////////////
+
+    function initializeCylinderGallery() {
+      const section = document.querySelector("[data-cylinder-gallery]");
+      if (!section) return;
+
+      const perspective = section.querySelector("[data-cylinder-perspective]");
+      const ring = section.querySelector("[data-cylinder-ring]");
+      const items = gsap.utils.toArray(
+        section.querySelectorAll("[data-cylinder-item]")
+      );
+      if (!perspective || !ring || items.length < 2) return;
+
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      let itemWidth = 400;
+      let radius = 764;
+      let zPush = 820;
+      let yOffset = -12;
+      let rotation = 0;
+      let velocity = 0;
+      let autoSpeed = reduceMotion ? 0 : 0.035;
+      let dragging = false;
+      let lastX = 0;
+      let lastTime = 0;
+      let inView = false;
+      let tickerFn = null;
+
+      function getItemWidth() {
+        const w = window.innerWidth;
+        if (w < 768) return 240;
+        if (w < 992) return 320;
+        return 400;
+      }
+
+      function layout() {
+        itemWidth = getItemWidth();
+        const count = items.length;
+        radius = itemWidth / 2 / Math.tan(Math.PI / count);
+        zPush = Math.round(radius * 1.073);
+        yOffset = window.innerWidth < 768 ? -6 : -12;
+
+        ring.style.width = `${count * itemWidth}px`;
+
+        items.forEach((item, i) => {
+          const angle = (360 / count) * i;
+          item.style.width = `${itemWidth}px`;
+          item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+        });
+
+        applyTransform();
+      }
+
+      function applyTransform() {
+        ring.style.transform = `translate3d(0px, ${yOffset}px, ${zPush}px) rotateY(${rotation}deg)`;
+      }
+
+      function onPointerDown(event) {
+        if (reduceMotion) return;
+        dragging = true;
+        velocity = 0;
+        autoSpeed = 0;
+        lastX = event.clientX;
+        lastTime = performance.now();
+        perspective.classList.add("is-dragging");
+        perspective.setPointerCapture?.(event.pointerId);
+      }
+
+      function onPointerMove(event) {
+        if (!dragging) return;
+        const now = performance.now();
+        const dx = event.clientX - lastX;
+        const dt = Math.max(now - lastTime, 1);
+        rotation += dx * 0.18;
+        velocity = (dx * 0.18) / (dt / 16.67);
+        lastX = event.clientX;
+        lastTime = now;
+        applyTransform();
+      }
+
+      function onPointerUp(event) {
+        if (!dragging) return;
+        dragging = false;
+        perspective.classList.remove("is-dragging");
+        try {
+          perspective.releasePointerCapture?.(event.pointerId);
+        } catch (_) {}
+        autoSpeed = reduceMotion ? 0 : 0.035;
+      }
+
+      perspective.addEventListener("pointerdown", onPointerDown);
+      perspective.addEventListener("pointermove", onPointerMove);
+      perspective.addEventListener("pointerup", onPointerUp);
+      perspective.addEventListener("pointercancel", onPointerUp);
+      perspective.addEventListener("lostpointercapture", onPointerUp);
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        onEnter: () => {
+          inView = true;
+        },
+        onEnterBack: () => {
+          inView = true;
+        },
+        onLeave: () => {
+          inView = false;
+        },
+        onLeaveBack: () => {
+          inView = false;
+        },
+        onUpdate: (self) => {
+          if (reduceMotion || dragging) return;
+          const v = self.getVelocity();
+          if (Math.abs(v) > 1) {
+            velocity += gsap.utils.clamp(-1.8, 1.8, v * 0.00008);
+          }
+        },
+      });
+
+      if (!reduceMotion) {
+        tickerFn = () => {
+          if (!inView && !dragging) return;
+          if (!dragging) {
+            rotation += autoSpeed + velocity;
+            velocity *= 0.92;
+            if (Math.abs(velocity) < 0.001) velocity = 0;
+          }
+          applyTransform();
+        };
+        gsap.ticker.add(tickerFn);
+      }
+
+      layout();
+      window.addEventListener("resize", layout);
+    }
+
+    initializeCylinderGallery();
+
+    /////////////////////////////////
+    /* ROOMS SHOWCASE (Hotel Royal style) */
+    /////////////////////////////////
+
+    function initializeRoomsShowcase() {
+      const section = document.querySelector("[data-rooms-showcase]");
+      if (!section) return;
+
+      const tabs = gsap.utils.toArray(section.querySelectorAll("[data-rooms-tab]"));
+      const panes = gsap.utils.toArray(section.querySelectorAll("[data-pane]"));
+      const bgs = gsap.utils.toArray(section.querySelectorAll("[data-bg]"));
+      const track = section.querySelector("[data-rooms-track]");
+      const slides = gsap.utils.toArray(section.querySelectorAll(".rooms-showcase_slide"));
+      const prevBtn = section.querySelector("[data-rooms-prev]");
+      const nextBtn = section.querySelector("[data-rooms-next]");
+      const mobileTrigger = section.querySelector("[data-rooms-mobile-trigger]");
+      const mobileMenu = section.querySelector("[data-rooms-mobile-menu]");
+      const mobileLabel = section.querySelector("[data-rooms-mobile-label]");
+
+      let index = 0;
+      let activeTab = "rooms";
+
+      const headings = {
+        rooms: "Rooms",
+        amenities: "Amenities",
+        sustainability: "Sustainability",
+      };
+
+      function setTab(name) {
+        activeTab = name;
+        tabs.forEach((tab) => {
+          const on = tab.getAttribute("data-rooms-tab") === name;
+          tab.classList.toggle("is-active", on);
+          if (tab.getAttribute("role") === "tab") {
+            tab.setAttribute("aria-selected", on ? "true" : "false");
+          }
+        });
+        panes.forEach((pane) => {
+          const on = pane.getAttribute("data-pane") === name;
+          pane.classList.toggle("is-active", on);
+          if (on) pane.removeAttribute("hidden");
+          else pane.setAttribute("hidden", "");
+        });
+        bgs.forEach((img) => {
+          img.classList.toggle("is-active", img.getAttribute("data-bg") === name);
+        });
+        if (mobileLabel) {
+          const source = tabs.find(
+            (t) =>
+              t.getAttribute("data-rooms-tab") === name &&
+              t.closest(".rooms-showcase_tabs")
+          );
+          if (source) {
+            mobileLabel.innerHTML = source.querySelector("span")?.innerHTML || headings[name];
+          }
+        }
+        if (mobileMenu) mobileMenu.classList.remove("is-open");
+        if (mobileTrigger) mobileTrigger.setAttribute("aria-expanded", "false");
+        if (name === "rooms") {
+          index = 0;
+          updateSlider(false);
+        }
+      }
+
+      function maxIndex() {
+        const w = window.innerWidth;
+        if (w >= 992) return Math.max(0, slides.length - 3);
+        if (w >= 768) return Math.max(0, slides.length - 1);
+        return Math.max(0, slides.length - 1);
+      }
+
+      function slideStep() {
+        if (!slides.length) return 0;
+        const slide = slides[0];
+        const width = slide.offsetWidth || slide.getBoundingClientRect().width;
+        if (width > 1) return width;
+        const viewport = section.querySelector("[data-rooms-viewport]");
+        if (!viewport) return 0;
+        const basis = window.getComputedStyle(slide).flexBasis;
+        if (basis.endsWith("%")) {
+          return viewport.clientWidth * (parseFloat(basis) / 100);
+        }
+        return viewport.clientWidth;
+      }
+
+      function updateSlider(animate = true) {
+        if (!track || !slides.length) return;
+        index = gsap.utils.clamp(0, maxIndex(), index);
+        const width = slideStep();
+        const x = width > 1 ? -index * width : 0;
+        if (animate) {
+          gsap.to(track, { x, duration: 0.45, ease: "power2.out", overwrite: true });
+        } else {
+          gsap.set(track, { x });
+        }
+        if (prevBtn) prevBtn.disabled = index <= 0;
+        if (nextBtn) nextBtn.disabled = index >= maxIndex();
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          setTab(tab.getAttribute("data-rooms-tab"));
+        });
+      });
+
+      if (mobileTrigger && mobileMenu) {
+        mobileTrigger.addEventListener("click", () => {
+          const open = mobileMenu.classList.toggle("is-open");
+          mobileTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+        document.addEventListener("click", (event) => {
+          if (!section.contains(event.target)) {
+            mobileMenu.classList.remove("is-open");
+            mobileTrigger.setAttribute("aria-expanded", "false");
+          }
+        });
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          index -= 1;
+          updateSlider();
+        });
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          index += 1;
+          updateSlider();
+        });
+      }
+
+      let startX = 0;
+      let startY = 0;
+      let dragging = false;
+      let startOffset = 0;
+
+      if (track) {
+        track.addEventListener(
+          "pointerdown",
+          (event) => {
+            if (activeTab !== "rooms") return;
+            dragging = true;
+            startX = event.clientX;
+            startY = event.clientY;
+            startOffset = gsap.getProperty(track, "x") || 0;
+            track.setPointerCapture?.(event.pointerId);
+          },
+          { passive: true }
+        );
+        track.addEventListener("pointermove", (event) => {
+          if (!dragging) return;
+          const dx = event.clientX - startX;
+          const dy = event.clientY - startY;
+          if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
+            dragging = false;
+            return;
+          }
+          gsap.set(track, { x: startOffset + dx });
+        });
+        const endDrag = (event) => {
+          if (!dragging) return;
+          dragging = false;
+          const dx = event.clientX - startX;
+          const slideW = slideStep();
+          if (slideW > 1) {
+            if (dx < -40) index += 1;
+            else if (dx > 40) index -= 1;
+          }
+          updateSlider();
+        };
+        track.addEventListener("pointerup", endDrag);
+        track.addEventListener("pointercancel", endDrag);
+      }
+
+      window.addEventListener("resize", () => updateSlider(false));
+
+      if ("IntersectionObserver" in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((e) => e.isIntersecting)) updateSlider(false);
+          },
+          { threshold: 0.15 }
+        );
+        io.observe(section);
+      }
+
+      setTab("rooms");
+      updateSlider(false);
+    }
+
+    initializeRoomsShowcase();
+
+    /////////////////////////////////
     /* STICKY FEATURES (Bend Club style) */
     /////////////////////////////////
 
@@ -1557,7 +1894,186 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     initializeStickyWaves();
+    initializeHeroWaves();
     initializeWaveMenu();
+
+    /////////////////////////////////
+    /* HERO / LOADER WAVES (NILS style) */
+    /////////////////////////////////
+
+    function initializeHeroWaves() {
+      const canvas = document.querySelector("[data-hero-waves]");
+      const mediaRoot = document.querySelector("[data-hero-media]");
+      if (!canvas && !mediaRoot) return;
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      // Image first, then crossfade to video
+      if (mediaRoot) {
+        const imageItem = mediaRoot.querySelector(
+          '[data-hero-media-item="image"]'
+        );
+        const videoItem = mediaRoot.querySelector(
+          '[data-hero-media-item="video"]'
+        );
+        const video = videoItem?.querySelector("video");
+
+        let switched = false;
+        const showVideo = () => {
+          if (switched || !videoItem || !imageItem) return;
+          switched = true;
+          imageItem.classList.remove("is-active");
+          videoItem.classList.add("is-active");
+          if (video) {
+            const play = video.play();
+            if (play && typeof play.catch === "function") play.catch(() => {});
+          }
+        };
+
+        if (reducedMotion) {
+          showVideo();
+        } else {
+          const schedule = () => window.setTimeout(showVideo, 5200);
+          const preloader = document.querySelector(".preloader_wrap");
+          const preloaderVisible =
+            preloader && getComputedStyle(preloader).display !== "none";
+          if (preloaderVisible) {
+            window.addEventListener("frontelago:preloader-done", schedule, {
+              once: true,
+            });
+            window.setTimeout(schedule, 10000);
+          } else {
+            schedule();
+          }
+        }
+      }
+
+      if (!canvas || reducedMotion) return;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const waves = [
+        {
+          baseAmplitude: 18,
+          amplitude: 18,
+          wavelength: 140,
+          speed: 2,
+          phase: 0,
+          verticalOffset: -45,
+        },
+        {
+          baseAmplitude: 28,
+          amplitude: 28,
+          wavelength: 280,
+          speed: 1,
+          phase: Math.PI / 2,
+          verticalOffset: 0,
+        },
+        {
+          baseAmplitude: 14,
+          amplitude: 14,
+          wavelength: 190,
+          speed: 1.5,
+          phase: Math.PI,
+          verticalOffset: 48,
+        },
+        {
+          baseAmplitude: 22,
+          amplitude: 22,
+          wavelength: 240,
+          speed: 1.2,
+          phase: Math.PI / 4,
+          verticalOffset: 95,
+        },
+        {
+          baseAmplitude: 12,
+          amplitude: 12,
+          wavelength: 160,
+          speed: 1.8,
+          phase: Math.PI / 6,
+          verticalOffset: -90,
+        },
+      ];
+
+      let time = 0;
+      let rafId = 0;
+      let running = false;
+
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = canvas.clientWidth || window.innerWidth;
+        const height = canvas.clientHeight || 280;
+        canvas.width = Math.max(1, Math.floor(width * dpr));
+        canvas.height = Math.max(1, Math.floor(height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function drawWave(wave, cssWidth, cssHeight) {
+        ctx.beginPath();
+        ctx.moveTo(0, cssHeight / 2 + wave.verticalOffset);
+        for (let x = 0; x < cssWidth; x++) {
+          const y =
+            Math.sin(x / wave.wavelength + time * wave.speed + wave.phase) *
+            wave.amplitude;
+          ctx.lineTo(x, cssHeight / 2 + wave.verticalOffset + y);
+        }
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2.25;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.globalAlpha = 0.72;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      function animate() {
+        if (!running) return;
+        const cssWidth = canvas.clientWidth || window.innerWidth;
+        const cssHeight = canvas.clientHeight || 280;
+        ctx.clearRect(0, 0, cssWidth, cssHeight);
+        waves.forEach((wave, index) => {
+          wave.amplitude =
+            wave.baseAmplitude + 4 * Math.sin(time * (0.5 + 0.2 * index));
+          drawWave(wave, cssWidth, cssHeight);
+        });
+        time += 0.012;
+        rafId = requestAnimationFrame(animate);
+      }
+
+      function start() {
+        if (running) return;
+        running = true;
+        resizeCanvas();
+        animate();
+      }
+
+      function stop() {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+      }
+
+      resizeCanvas();
+      start();
+      window.addEventListener("resize", resizeCanvas);
+
+      if ("IntersectionObserver" in window) {
+        const section =
+          canvas.closest(".section_loader") || canvas.parentElement;
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) start();
+              else stop();
+            });
+          },
+          { threshold: 0.05 }
+        );
+        if (section) io.observe(section);
+      }
+    }
 
     /////////////////////////////////
     /* MOBILE MENU WAVE WIPE (NILS-style) */
