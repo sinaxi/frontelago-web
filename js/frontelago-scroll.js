@@ -399,6 +399,12 @@ document.addEventListener("DOMContentLoaded", function () {
   document.body.classList.add("u-live-noscroll");
   if (lenis) lenis.stop();
 
+  const preloaderWrap = document.querySelector(".preloader_wrap");
+  if (preloaderWrap) {
+    preloaderWrap.style.backgroundColor = "#c9971c";
+    preloaderWrap.style.height = "100svh";
+  }
+
   runWelcomeCycle(() => {
     const closeAndReveal = () => {
       const preloaderTimeline = createPreloaderTimeline();
