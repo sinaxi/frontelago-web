@@ -298,9 +298,26 @@ document.addEventListener("DOMContentLoaded", function () {
     '[data-animate-heading="on-load"]'
   );
   const onLoadText = document.querySelector('[data-animate-text="on-load"]');
-  const preloaderTitle = document.querySelector(".preloader_title");
+  const preloaderTitle = document.querySelector(
+    "[data-preloader-welcome], .preloader_title"
+  );
 
-  let headingSplit, textSplit, titleSplit;
+  // Hotel Royal–style multilingual welcome cycle (+ Benvenuto, Dutch, Norwegian)
+  const WELCOME_WORDS = [
+    "Griaßdi",
+    "Ciao",
+    "Welcome",
+    "Benvenuto",
+    "Grüezi",
+    "Servus",
+    "Hello",
+    "Buongiorno",
+    "Willkommen",
+    "Welkom",
+    "Velkommen",
+  ];
+
+  let headingSplit, textSplit;
 
   if (onLoadHeading) {
     headingSplit = new SplitText(onLoadHeading, { type: "words" });
@@ -323,22 +340,40 @@ document.addEventListener("DOMContentLoaded", function () {
     scale: 1.25,
   });
 
-  // PRELOADER ANIMATION - RUNS IMMEDIATELY
-  if (isMobile()) {
-    // MOBILE TIMELINE — no sheep image; close preloader quickly into hero
-    const mobileTimeline = createPreloaderTimeline();
+  function runWelcomeCycle(onDone) {
+    if (!preloaderTitle) {
+      onDone();
+      return;
+    }
 
-    mobileTimeline
-      .to({}, { duration: 0.15 })
+    gsap.set(preloaderTitle, { opacity: 1 });
+    preloaderTitle.textContent = WELCOME_WORDS[0];
+
+    let index = 0;
+    const advance = () => {
+      index += 1;
+      if (index >= WELCOME_WORDS.length) {
+        onDone();
+        return;
+      }
+      preloaderTitle.textContent = WELCOME_WORDS[index];
+      window.setTimeout(advance, index === 1 ? 160 : 140);
+    };
+
+    // Hold first greeting, then rapid cycle like Hotel Royal
+    window.setTimeout(advance, 900);
+  }
+
+  function finishPreloaderReveal(timeline) {
+    timeline
       .to(".preloader_wrap", {
         height: "0svh",
-        duration: 1,
+        duration: 1.1,
         ease: "power4.out",
         onComplete: function () {
           gsap.set(".preloader_wrap", { display: "none" });
         },
       })
-      // Headline/subtitle wait for the video scene (see initializeHeroWaves)
       .to(
         ".loader_media_img, .loader_video",
         {
@@ -358,79 +393,30 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         "-=1"
       );
-  } else {
-    // DESKTOP TIMELINE
-    // console.log("Initializing desktop preloader timeline");
-
-    // Split preloader title into characters for desktop
-    if (preloaderTitle) {
-      gsap.set(preloaderTitle, { opacity: 1 });
-      // console.log("Desktop: Preloader Title is set to show");
-
-      titleSplit = new SplitText(preloaderTitle, { type: "chars" });
-      // console.log("Desktop titleSplit:", titleSplit);
-      gsap.set(titleSplit.chars, { yPercent: 100, opacity: 0 });
-    }
-
-    const desktopTimeline = createPreloaderTimeline();
-
-    desktopTimeline
-
-      .to(titleSplit ? titleSplit.chars : [], {
-        yPercent: 0,
-        opacity: 1,
-        duration: 0.75, // 1 second total duration for the stagger effect
-        ease: "power2.out",
-        stagger: 0.05, // Character by character stagger
-      })
-      // 2. Hold for a moment
-      .to({}, { duration: 0.3 })
-
-      // 3. Animate title characters out (to -100%) before preloader closes
-      .to(titleSplit ? titleSplit.chars : [], {
-        yPercent: -100,
-        opacity: 0,
-        duration: 0.7,
-        ease: "power2.in",
-        stagger: 0.03, // Faster stagger for exit
-      })
-      // 4. Animate preloader out
-      .to(
-        ".preloader_wrap",
-        {
-          height: "0svh",
-          duration: 1.1,
-          ease: "power4.out",
-          onComplete: function () {
-            gsap.set(".preloader_wrap", { display: "none" });
-          },
-        },
-        "<+" + (titleSplit ? (titleSplit.chars.length - 1) * 0.03 + 0.5 : 0.7)
-      )
-
-      // 5. Image/video settle — headline waits for the video scene
-      .to(
-        ".loader_media_img, .loader_video",
-        {
-          scale: 1,
-          duration: 2,
-          ease: "power4.out",
-        },
-        "-=0.85"
-      )
-
-      // 6. Animate navigation component at the very end
-      .to(
-        ".nav_component",
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power2.out",
-        },
-        "-=1"
-      ); // Start slightly before media settle completes
   }
+
+  // PRELOADER ANIMATION — multilingual welcome, then close
+  document.body.classList.add("u-live-noscroll");
+  if (lenis) lenis.stop();
+
+  runWelcomeCycle(() => {
+    const closeAndReveal = () => {
+      const preloaderTimeline = createPreloaderTimeline();
+      finishPreloaderReveal(preloaderTimeline);
+    };
+
+    if (preloaderTitle) {
+      gsap.to(preloaderTitle, {
+        opacity: 0,
+        yPercent: -30,
+        duration: 0.35,
+        ease: "power2.in",
+        onComplete: closeAndReveal,
+      });
+    } else {
+      closeAndReveal();
+    }
+  });
 
     /////////////////////////////////
     /* Hero Navbar */
