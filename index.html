@@ -2691,8 +2691,23 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
   }
   .float-dock__menu,
   .float-dock__circle {
-    width: 3.9rem;
-    height: 3.9rem;
+    width: 4.15rem;
+    height: 4.15rem;
+  }
+  .float-dock__whatsapp-icon {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+  .float-dock__menu::before,
+  .float-dock__menu::after {
+    width: 1.7rem;
+    height: 4px;
+  }
+  .float-dock__menu::before {
+    transform: translate(-50%, calc(-50% - 0.42rem));
+  }
+  .float-dock__menu::after {
+    transform: translate(-50%, calc(-50% + 0.42rem));
   }
   .float-logo {
     width: 4rem;
