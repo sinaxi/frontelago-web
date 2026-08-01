@@ -298,8 +298,9 @@ document.addEventListener("DOMContentLoaded", function () {
     '[data-animate-heading="on-load"]'
   );
   const onLoadText = document.querySelector('[data-animate-text="on-load"]');
-  const preloaderTitle = document.querySelector(
-    "[data-preloader-welcome], .preloader_title"
+  const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
+  const preloaderWelcomeText = document.querySelector(
+    ".preloader_welcome_text"
   );
 
   // Hotel Royal–style multilingual welcome cycle (+ Benvenuto, Dutch, Norwegian)
@@ -341,13 +342,18 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function runWelcomeCycle(onDone) {
-    if (!preloaderTitle) {
+    if (!preloaderWelcome || !preloaderWelcomeText) {
       onDone();
       return;
     }
 
-    gsap.set(preloaderTitle, { opacity: 1 });
-    preloaderTitle.textContent = WELCOME_WORDS[0];
+    // Match Hotel Royal: fade in to 0.75, then cycle words
+    gsap.fromTo(
+      preloaderWelcome,
+      { opacity: 0 },
+      { opacity: 0.75, duration: 0.5, delay: 0.2, ease: "power1.out" }
+    );
+    preloaderWelcomeText.textContent = WELCOME_WORDS[0];
 
     let index = 0;
     const advance = () => {
@@ -356,20 +362,21 @@ document.addEventListener("DOMContentLoaded", function () {
         onDone();
         return;
       }
-      preloaderTitle.textContent = WELCOME_WORDS[index];
-      window.setTimeout(advance, index === 1 ? 160 : 140);
+      preloaderWelcomeText.textContent = WELCOME_WORDS[index];
+      window.setTimeout(advance, 150);
     };
 
-    // Hold first greeting, then rapid cycle like Hotel Royal
-    window.setTimeout(advance, 900);
+    // Hold first greeting 1s, then 150ms each (Hotel Royal timing)
+    window.setTimeout(advance, 1000);
   }
 
   function finishPreloaderReveal(timeline) {
     timeline
       .to(".preloader_wrap", {
-        height: "0svh",
-        duration: 1.1,
-        ease: "power4.out",
+        y: "-100vh",
+        duration: 0.8,
+        ease: "power3.inOut",
+        delay: 0.2,
         onComplete: function () {
           gsap.set(".preloader_wrap", { display: "none" });
         },
@@ -381,7 +388,7 @@ document.addEventListener("DOMContentLoaded", function () {
           duration: 2,
           ease: "power4.out",
         },
-        "-=0.85"
+        "-=0.5"
       )
       .to(
         ".nav_component",
@@ -411,11 +418,10 @@ document.addEventListener("DOMContentLoaded", function () {
       finishPreloaderReveal(preloaderTimeline);
     };
 
-    if (preloaderTitle) {
-      gsap.to(preloaderTitle, {
+    if (preloaderWelcome) {
+      gsap.to(preloaderWelcome, {
         opacity: 0,
-        yPercent: -30,
-        duration: 0.35,
+        duration: 0.25,
         ease: "power2.in",
         onComplete: closeAndReveal,
       });
