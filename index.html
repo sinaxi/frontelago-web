@@ -2544,8 +2544,8 @@ body:has(.nav_component[data-wave-menu="open"])::before {
 }
 .float-dock__whatsapp-icon {
   display: block;
-  width: 1.45rem;
-  height: 1.45rem;
+  width: 1.95rem;
+  height: 1.95rem;
 }
 .float-dock__menu {
   position: relative;
@@ -2572,26 +2572,25 @@ body:has(.nav_component[data-wave-menu="open"])::before {
   position: absolute;
   left: 50%;
   top: 50%;
-  height: 3px;
+  width: 1.55rem;
+  height: 3.5px;
   background: #fff;
-  border-radius: 2px;
-  transition: transform 0.35s ease, width 0.35s ease, top 0.35s ease;
+  border-radius: 999px;
+  transition: transform 0.35s ease, width 0.35s ease;
 }
 .float-dock__menu::before {
-  width: 1.45rem;
-  transform: translate(-60%, -0.42rem);
+  transform: translate(-50%, calc(-50% - 0.38rem));
 }
 .float-dock__menu::after {
-  width: 1.1rem;
-  transform: translate(-40%, 0.42rem);
+  transform: translate(-50%, calc(-50% + 0.38rem));
 }
 .float-dock__menu.is-open::before {
-  width: 1.35rem;
-  transform: translate(-50%, 0) rotate(45deg);
+  width: 1.55rem;
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 .float-dock__menu.is-open::after {
-  width: 1.35rem;
-  transform: translate(-50%, 0) rotate(-45deg);
+  width: 1.55rem;
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 /* Hide legacy top-left FRONTELAGO wordmarks */
