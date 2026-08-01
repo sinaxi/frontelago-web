@@ -268,31 +268,6 @@ document.addEventListener("DOMContentLoaded", function () {
   /////////////////////////////////
 
 
-  const createPreloaderTimeline = () => {
-    return gsap.timeline({
-      onStart: () => {
-        // Fallback: also set body overflow hidden
-        document.body.classList.add("u-live-noscroll");
-
-        // Disable Lenis scrolling at the start of preloader
-        if (lenis) {
-          lenis.stop();
-        }
-      },
-      onComplete: () => {
-        // Remove body overflow restriction
-        document.body.classList.remove("u-live-noscroll");
-
-        // Re-enable Lenis scrolling when preloader completes
-        if (lenis) {
-          lenis.start();
-        }
-        refreshScrollTriggers();
-        window.dispatchEvent(new CustomEvent("frontelago:preloader-done"));
-      },
-    });
-  };
-
   // Split text elements and set initial states - IMMEDIATE
   const onLoadHeading = document.querySelector(
     '[data-animate-heading="on-load"]'
@@ -302,6 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const preloaderWelcomeText = document.querySelector(
     ".preloader_welcome_text"
   );
+  const preloaderWrap = document.querySelector(".preloader_wrap");
 
   // Hotel Royal–style multilingual welcome cycle (+ Benvenuto, Dutch, Norwegian)
   const WELCOME_WORDS = [
@@ -319,6 +295,8 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   let headingSplit, textSplit;
+  let preloaderClosed = false;
+  let preloaderUnlocked = false;
 
   if (onLoadHeading) {
     headingSplit = new SplitText(onLoadHeading, { type: "words" });
@@ -341,11 +319,36 @@ document.addEventListener("DOMContentLoaded", function () {
     scale: 1.25,
   });
 
+  function unlockAfterPreloader() {
+    if (preloaderUnlocked) return;
+    preloaderUnlocked = true;
+    document.body.classList.remove("u-live-noscroll");
+    if (lenis) lenis.start();
+    refreshScrollTriggers();
+    window.dispatchEvent(new CustomEvent("frontelago:preloader-done"));
+  }
+
+  function hidePreloaderWrap() {
+    if (!preloaderWrap) return;
+    preloaderWrap.classList.add("is-done");
+    // Beat CSS `display: flex !important` so the overlay cannot stick
+    preloaderWrap.style.setProperty("display", "none", "important");
+    preloaderWrap.style.setProperty("pointer-events", "none", "important");
+    preloaderWrap.setAttribute("aria-hidden", "true");
+  }
+
   function runWelcomeCycle(onDone) {
     if (!preloaderWelcome || !preloaderWelcomeText) {
       onDone();
       return;
     }
+
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      onDone();
+    };
 
     // Match Hotel Royal: fade in to 0.75, then cycle words
     gsap.fromTo(
@@ -359,7 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const advance = () => {
       index += 1;
       if (index >= WELCOME_WORDS.length) {
-        onDone();
+        finish();
         return;
       }
       preloaderWelcomeText.textContent = WELCOME_WORDS[index];
@@ -368,18 +371,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Hold first greeting 1s, then 150ms each (Hotel Royal timing)
     window.setTimeout(advance, 1000);
+    // Safety: never leave welcome stuck if timers are throttled
+    window.setTimeout(finish, 4500);
   }
 
-  function finishPreloaderReveal(timeline) {
+  function closePreloaderAndReveal() {
+    if (preloaderClosed) return;
+    preloaderClosed = true;
+
+    // Must start paused: an empty playing timeline can complete before
+    // tweens are appended (common on fast desktop), leaving the overlay stuck.
+    const timeline = gsap.timeline({
+      paused: true,
+      onComplete: unlockAfterPreloader,
+    });
+
     timeline
-      .to(".preloader_wrap", {
+      .to(preloaderWrap || ".preloader_wrap", {
         y: "-100vh",
         duration: 0.8,
         ease: "power3.inOut",
-        delay: 0.2,
-        onComplete: function () {
-          gsap.set(".preloader_wrap", { display: "none" });
-        },
+        delay: 0.15,
+        onComplete: hidePreloaderWrap,
       })
       .to(
         ".loader_media_img, .loader_video",
@@ -400,33 +413,40 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         "-=1"
       );
+
+    timeline.play();
+
+    // Hard failsafe if GSAP never finishes the slide-away
+    window.setTimeout(() => {
+      hidePreloaderWrap();
+      unlockAfterPreloader();
+      gsap.set(".nav_component", { y: 0, opacity: 1 });
+      gsap.set(".loader_media_img, .loader_video", { scale: 1 });
+    }, 3500);
   }
 
   // PRELOADER ANIMATION — multilingual welcome, then close
   document.body.classList.add("u-live-noscroll");
   if (lenis) lenis.stop();
 
-  const preloaderWrap = document.querySelector(".preloader_wrap");
   if (preloaderWrap) {
     preloaderWrap.style.backgroundColor = "#c9971c";
     preloaderWrap.style.height = "100svh";
   }
 
   runWelcomeCycle(() => {
-    const closeAndReveal = () => {
-      const preloaderTimeline = createPreloaderTimeline();
-      finishPreloaderReveal(preloaderTimeline);
-    };
-
     if (preloaderWelcome) {
       gsap.to(preloaderWelcome, {
         opacity: 0,
         duration: 0.25,
         ease: "power2.in",
-        onComplete: closeAndReveal,
+        overwrite: true,
+        onComplete: closePreloaderAndReveal,
       });
+      // If opacity tween is blocked by CSS !important, still close
+      window.setTimeout(closePreloaderAndReveal, 400);
     } else {
-      closeAndReveal();
+      closePreloaderAndReveal();
     }
   });
 
