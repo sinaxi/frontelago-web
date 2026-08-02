@@ -259,10 +259,10 @@ document.addEventListener("DOMContentLoaded", function () {
   /////////////////////////////////
 
   const WELCOME_WORDS = [
+    "Benvenuto",
+    "Welcome",
     "Griaßdi",
     "Ciao",
-    "Welcome",
-    "Benvenuto",
     "Grüezi",
     "Servus",
     "Hello",
