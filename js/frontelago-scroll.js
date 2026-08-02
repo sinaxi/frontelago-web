@@ -255,31 +255,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /////////////////////////////////
-  /* ALL OTHER ANIMATIONS - WAIT FOR FONTS */
-  /////////////////////////////////
-  
-
-  // Function to initialize all font-dependent animations
-  function initializeFontDependentAnimations() {
-    // console.log("Initializing font-dependent animations");
-
-  /////////////////////////////////
-  /* Pre loader animation - RUNS IMMEDIATELY */
+  /* PRELOADER — never wait on fonts (fonts.ready can hang) */
   /////////////////////////////////
 
-
-  // Split text elements and set initial states - IMMEDIATE
-  const onLoadHeading = document.querySelector(
-    '[data-animate-heading="on-load"]'
-  );
-  const onLoadText = document.querySelector('[data-animate-text="on-load"]');
-  const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
-  const preloaderWelcomeText = document.querySelector(
-    ".preloader_welcome_text"
-  );
-  const preloaderWrap = document.querySelector(".preloader_wrap");
-
-  // Hotel Royal–style multilingual welcome cycle (+ Benvenuto, Dutch, Norwegian)
   const WELCOME_WORDS = [
     "Griaßdi",
     "Ciao",
@@ -294,69 +272,97 @@ document.addEventListener("DOMContentLoaded", function () {
     "Velkommen",
   ];
 
-  let headingSplit, textSplit;
+  const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
+  const preloaderWelcomeText = document.querySelector(
+    ".preloader_welcome_text"
+  );
+  const preloaderWrap = document.querySelector(".preloader_wrap");
+
   let preloaderClosed = false;
   let preloaderUnlocked = false;
-
-  if (onLoadHeading) {
-    headingSplit = new SplitText(onLoadHeading, { type: "words" });
-    gsap.set(headingSplit.words, { opacity: 0, yPercent: 100 });
-  }
-
-  if (onLoadText) {
-    textSplit = new SplitText(onLoadText, { type: "lines" });
-    gsap.set(textSplit.lines, { opacity: 0, y: 40 });
-  }
-
-  // Set initial state for navigation component
-  gsap.set(".nav_component", {
-    y: -100,
-    opacity: 0,
-  });
-
-  // Set initial states for on-load elements
-  gsap.set(".loader_media_img, .loader_video", {
-    scale: 1.25,
-  });
 
   function unlockAfterPreloader() {
     if (preloaderUnlocked) return;
     preloaderUnlocked = true;
     document.body.classList.remove("u-live-noscroll");
     if (lenis) lenis.start();
-    refreshScrollTriggers();
+    try {
+      refreshScrollTriggers();
+    } catch (_) {
+      /* ignore */
+    }
     window.dispatchEvent(new CustomEvent("frontelago:preloader-done"));
   }
 
   function hidePreloaderWrap() {
     if (!preloaderWrap) return;
     preloaderWrap.classList.add("is-done");
-    // Beat CSS `display: flex !important` so the overlay cannot stick
+    preloaderWrap.classList.remove("is-leaving");
     preloaderWrap.style.setProperty("display", "none", "important");
     preloaderWrap.style.setProperty("pointer-events", "none", "important");
+    preloaderWrap.style.setProperty("visibility", "hidden", "important");
     preloaderWrap.setAttribute("aria-hidden", "true");
   }
 
-  function runWelcomeCycle(onDone) {
-    if (!preloaderWelcome || !preloaderWelcomeText) {
-      onDone();
-      return;
+  function revealPageChrome() {
+    try {
+      gsap.set(".nav_component", { y: 0, opacity: 1, clearProps: "transform" });
+      gsap.set(".loader_media_img, .loader_video", { scale: 1 });
+    } catch (_) {
+      document.querySelectorAll(".nav_component").forEach((el) => {
+        el.style.transform = "none";
+        el.style.opacity = "1";
+      });
+    }
+  }
+
+  function dismissPreloader() {
+    if (preloaderClosed) return;
+    preloaderClosed = true;
+
+    if (preloaderWelcome) {
+      preloaderWelcome.style.opacity = "0";
     }
 
-    let done = false;
+    if (preloaderWrap) {
+      preloaderWrap.classList.add("is-leaving");
+    }
+
+    // DOM/CSS close first — do not depend on GSAP ticker
+    window.setTimeout(() => {
+      hidePreloaderWrap();
+      revealPageChrome();
+      unlockAfterPreloader();
+    }, 750);
+
+    // Nuclear failsafe
+    window.setTimeout(() => {
+      hidePreloaderWrap();
+      revealPageChrome();
+      unlockAfterPreloader();
+    }, 2000);
+  }
+
+  function runWelcomeCycle(onDone) {
+    let finished = false;
     const finish = () => {
-      if (done) return;
-      done = true;
+      if (finished) return;
+      finished = true;
       onDone();
     };
 
-    // Match Hotel Royal: fade in to 0.75, then cycle words
-    gsap.fromTo(
-      preloaderWelcome,
-      { opacity: 0 },
-      { opacity: 0.75, duration: 0.5, delay: 0.2, ease: "power1.out" }
-    );
+    if (!preloaderWelcome || !preloaderWelcomeText) {
+      finish();
+      return;
+    }
+
+    preloaderWelcome.style.opacity = "0";
     preloaderWelcomeText.textContent = WELCOME_WORDS[0];
+    // Fade in without GSAP
+    window.requestAnimationFrame(() => {
+      preloaderWelcome.style.transition = "opacity 0.45s ease-out";
+      preloaderWelcome.style.opacity = "0.75";
+    });
 
     let index = 0;
     const advance = () => {
@@ -369,63 +375,10 @@ document.addEventListener("DOMContentLoaded", function () {
       window.setTimeout(advance, 150);
     };
 
-    // Hold first greeting 1s, then 150ms each (Hotel Royal timing)
     window.setTimeout(advance, 1000);
-    // Safety: never leave welcome stuck if timers are throttled
-    window.setTimeout(finish, 4500);
+    window.setTimeout(finish, 3500);
   }
 
-  function closePreloaderAndReveal() {
-    if (preloaderClosed) return;
-    preloaderClosed = true;
-
-    // Must start paused: an empty playing timeline can complete before
-    // tweens are appended (common on fast desktop), leaving the overlay stuck.
-    const timeline = gsap.timeline({
-      paused: true,
-      onComplete: unlockAfterPreloader,
-    });
-
-    timeline
-      .to(preloaderWrap || ".preloader_wrap", {
-        y: "-100vh",
-        duration: 0.8,
-        ease: "power3.inOut",
-        delay: 0.15,
-        onComplete: hidePreloaderWrap,
-      })
-      .to(
-        ".loader_media_img, .loader_video",
-        {
-          scale: 1,
-          duration: 2,
-          ease: "power4.out",
-        },
-        "-=0.5"
-      )
-      .to(
-        ".nav_component",
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power2.out",
-        },
-        "-=1"
-      );
-
-    timeline.play();
-
-    // Hard failsafe if GSAP never finishes the slide-away
-    window.setTimeout(() => {
-      hidePreloaderWrap();
-      unlockAfterPreloader();
-      gsap.set(".nav_component", { y: 0, opacity: 1 });
-      gsap.set(".loader_media_img, .loader_video", { scale: 1 });
-    }, 3500);
-  }
-
-  // PRELOADER ANIMATION — multilingual welcome, then close
   document.body.classList.add("u-live-noscroll");
   if (lenis) lenis.stop();
 
@@ -434,21 +387,57 @@ document.addEventListener("DOMContentLoaded", function () {
     preloaderWrap.style.height = "100svh";
   }
 
+  // Always dismiss eventually, even if cycle / fonts / GSAP stall
+  window.setTimeout(dismissPreloader, 5000);
+
   runWelcomeCycle(() => {
-    if (preloaderWelcome) {
-      gsap.to(preloaderWelcome, {
-        opacity: 0,
-        duration: 0.25,
-        ease: "power2.in",
-        overwrite: true,
-        onComplete: closePreloaderAndReveal,
-      });
-      // If opacity tween is blocked by CSS !important, still close
-      window.setTimeout(closePreloaderAndReveal, 400);
-    } else {
-      closePreloaderAndReveal();
-    }
+    window.setTimeout(dismissPreloader, 200);
   });
+
+  /////////////////////////////////
+  /* ALL OTHER ANIMATIONS - WAIT FOR FONTS */
+  /////////////////////////////////
+
+  let fontAnimationsStarted = false;
+
+  // Function to initialize all font-dependent animations
+  function initializeFontDependentAnimations() {
+    if (fontAnimationsStarted) return;
+    fontAnimationsStarted = true;
+
+    const onLoadHeading = document.querySelector(
+      '[data-animate-heading="on-load"]'
+    );
+    const onLoadText = document.querySelector('[data-animate-text="on-load"]');
+
+    let headingSplit, textSplit;
+
+    try {
+      if (onLoadHeading) {
+        headingSplit = new SplitText(onLoadHeading, { type: "words" });
+        gsap.set(headingSplit.words, { opacity: 0, yPercent: 100 });
+      }
+      if (onLoadText) {
+        textSplit = new SplitText(onLoadText, { type: "lines" });
+        gsap.set(textSplit.lines, { opacity: 0, y: 40 });
+      }
+    } catch (_) {
+      headingSplit = null;
+      textSplit = null;
+    }
+
+    // Avoid re-hiding chrome if welcome already dismissed while waiting on fonts
+    if (!preloaderClosed) {
+      gsap.set(".nav_component", {
+        y: -100,
+        opacity: 0,
+      });
+      gsap.set(".loader_media_img, .loader_video", {
+        scale: 1.25,
+      });
+    } else {
+      revealPageChrome();
+    }
 
     /////////////////////////////////
     /* Hero Navbar */
@@ -3799,32 +3788,25 @@ document.addEventListener("DOMContentLoaded", function () {
     // }, 100);
   }
 
-  // Initialize font-dependent animations
-  // Try document.fonts.ready first, with fallback
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready
-      .then(() => {
-        // console.log(
-        //   "Fonts loaded via document.fonts.ready - initializing animations"
-        // );
-        initializeFontDependentAnimations();
-      })
-      .catch((error) => {
-        // console.log("document.fonts.ready failed, using fallback:", error);
-        // Fallback: wait a bit then initialize
-        setTimeout(() => {
-          // console.log("Fallback initialization after timeout");
-          initializeFontDependentAnimations();
-        }, 1000);
-      });
-  } else {
-    // Fallback for browsers that don't support document.fonts.ready
-    // console.log("document.fonts.ready not supported, using timeout fallback");
-    setTimeout(() => {
-      // console.log("Timeout fallback initialization");
+  // Initialize font-dependent animations (never hang forever on fonts.ready)
+  const startFontAnimations = () => {
+    try {
       initializeFontDependentAnimations();
-    }, 1000);
-  }
+    } catch (error) {
+      console.warn("Font-dependent init failed:", error);
+      dismissPreloader();
+    }
+  };
+
+  const fontsReady =
+    document.fonts && document.fonts.ready
+      ? document.fonts.ready.catch(() => {})
+      : Promise.resolve();
+
+  Promise.race([
+    fontsReady,
+    new Promise((resolve) => window.setTimeout(resolve, 2000)),
+  ]).then(startFontAnimations);
 
   /////////////////////////////////
   /////////////////////////////////

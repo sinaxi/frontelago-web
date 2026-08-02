@@ -377,6 +377,16 @@
     align-items: center !important;
     justify-content: center !important;
     flex-flow: row !important;
+    transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .preloader_wrap.is-leaving {
+    transform: translateY(-100%) !important;
+    pointer-events: none !important;
+  }
+  .preloader_wrap.is-done {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
   }
   .preloader_image_wrap,
   .preloader_contain,
@@ -1596,6 +1606,12 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+.preloader_wrap.is-leaving {
+  transform: translateY(-100%) !important;
+  pointer-events: none !important;
 }
 .preloader_wrap.is-done {
   display: none !important;
