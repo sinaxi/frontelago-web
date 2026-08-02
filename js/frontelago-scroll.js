@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function revealPageChrome() {
     try {
       gsap.set(".nav_component", { y: 0, opacity: 1, clearProps: "transform" });
-      gsap.set(".loader_media_img, .loader_video", { scale: 1 });
+      // Do not touch loader image scale here — CSS ken-burns owns it (avoids snap)
     } catch (_) {
       document.querySelectorAll(".nav_component").forEach((el) => {
         el.style.transform = "none";
@@ -431,9 +431,6 @@ document.addEventListener("DOMContentLoaded", function () {
       gsap.set(".nav_component", {
         y: -100,
         opacity: 0,
-      });
-      gsap.set(".loader_media_img, .loader_video", {
-        scale: 1.25,
       });
     } else {
       revealPageChrome();
