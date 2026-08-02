@@ -285,7 +285,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (preloaderUnlocked) return;
     preloaderUnlocked = true;
     document.body.classList.remove("u-live-noscroll");
-    document.querySelector(".section_loader")?.classList.add("is-hero-ready");
+    const heroSection = document.querySelector(".section_loader");
+    if (heroSection) {
+      heroSection.classList.add("is-hero-ready");
+      window.setTimeout(() => {
+        heroSection.classList.remove("is-hero-ready");
+        heroSection.classList.add("is-hero-living");
+      }, 2400);
+    }
     if (lenis) lenis.start();
     try {
       refreshScrollTriggers();

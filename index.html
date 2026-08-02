@@ -1483,6 +1483,11 @@
     display: none;
   }
 
+  /* Hero first scene — cinematic wipe + focus pull, then soft living pan */
+  .loader_media[data-hero-media-item="image"] {
+    overflow: hidden;
+  }
+
   .loader_media_img,
   .loader_media .loader_video {
     position: absolute;
@@ -1494,37 +1499,77 @@
     display: block;
   }
 
-  /* Hero image: cinematic settle after welcome, then soft ambient drift */
   .loader_media_img {
-    transform: scale(1.16);
-    filter: brightness(0.88) saturate(0.92);
-    transform-origin: 52% 42%;
-    will-change: transform, filter;
+    transform: scale(1.18) translate3d(0, 4%, 0);
+    filter: blur(18px) brightness(0.78) saturate(0.85);
+    clip-path: inset(0 0 100% 0);
+    transform-origin: 50% 40%;
+    will-change: transform, filter, clip-path;
   }
 
   .section_loader.is-hero-ready .loader_media_img {
-    animation:
-      hero-image-reveal 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-      hero-image-drift 28s ease-in-out 2.6s infinite alternate;
+    animation: hero-scene-enter 2.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
-  @keyframes hero-image-reveal {
-    from {
-      transform: scale(1.16);
-      filter: brightness(0.88) saturate(0.92);
+  .section_loader.is-hero-living .loader_media_img {
+    animation: hero-scene-live 32s ease-in-out infinite alternate;
+  }
+
+  @keyframes hero-scene-enter {
+    0% {
+      clip-path: inset(0 0 100% 0);
+      transform: scale(1.18) translate3d(0, 4%, 0);
+      filter: blur(18px) brightness(0.78) saturate(0.85);
     }
-    to {
-      transform: scale(1.05);
-      filter: brightness(1) saturate(1);
+    55% {
+      clip-path: inset(0 0 0 0);
+      transform: scale(1.08) translate3d(0, 0, 0);
+      filter: blur(3px) brightness(0.94) saturate(0.96);
+    }
+    100% {
+      clip-path: inset(0 0 0 0);
+      transform: scale(1.04) translate3d(0, 0, 0);
+      filter: blur(0) brightness(1) saturate(1);
     }
   }
 
-  @keyframes hero-image-drift {
+  @keyframes hero-scene-live {
     from {
-      transform: scale(1.05) translate3d(0, 0, 0);
+      transform: scale(1.04) translate3d(0, 0, 0);
     }
     to {
-      transform: scale(1.08) translate3d(-1.6%, 1%, 0);
+      transform: scale(1.09) translate3d(-1.8%, 1.1%, 0);
+    }
+  }
+
+  /* One soft light sweep across the first scene */
+  .section_loader.is-hero-ready .loader_video_wrap::before {
+    content: "";
+    position: absolute;
+    inset: -10%;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.18) 48%,
+      transparent 62%
+    );
+    transform: translateX(-70%);
+    animation: hero-light-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both;
+  }
+
+  @keyframes hero-light-sweep {
+    from {
+      transform: translateX(-70%);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    to {
+      transform: translateX(70%);
+      opacity: 0;
     }
   }
 
@@ -1576,10 +1621,16 @@
     }
 
     .loader_media_img,
-    .section_loader.is-hero-ready .loader_media_img {
+    .section_loader.is-hero-ready .loader_media_img,
+    .section_loader.is-hero-living .loader_media_img {
       animation: none;
       transform: none;
       filter: none;
+      clip-path: none;
+    }
+
+    .section_loader.is-hero-ready .loader_video_wrap::before {
+      display: none;
     }
   }
 
