@@ -1383,9 +1383,22 @@ document.addEventListener("DOMContentLoaded", function () {
           if (on) pane.removeAttribute("hidden");
           else pane.setAttribute("hidden", "");
         });
+        // Layered crossfade: keep previous image as base under the new one
+        // so the panel never flashes black between tabs.
+        const nextBg = bgs.find((img) => img.getAttribute("data-bg") === name);
+        const prevBg = bgs.find((img) => img.classList.contains("is-active"));
         bgs.forEach((img) => {
-          img.classList.toggle("is-active", img.getAttribute("data-bg") === name);
+          img.classList.remove("is-base");
+          if (img === prevBg && prevBg !== nextBg) img.classList.add("is-base");
+          img.classList.toggle("is-active", img === nextBg);
         });
+        if (prevBg && nextBg && prevBg !== nextBg) {
+          window.setTimeout(() => {
+            bgs.forEach((img) => {
+              if (img !== nextBg) img.classList.remove("is-base", "is-active");
+            });
+          }, 560);
+        }
         if (mobileLabel) {
           const source = tabs.find(
             (t) =>
@@ -1641,7 +1654,8 @@ document.addEventListener("DOMContentLoaded", function () {
             );
           }
 
-          // Outgoing: slow drift + dim so the cut feels layered, not a hard iris
+          // Outgoing: slow drift under the wipe — stay fully opaque so no
+          // section color (mustard) flashes between images
           if (prevImg) {
             tl.to(
               prevImg,
@@ -1649,11 +1663,6 @@ document.addEventListener("DOMContentLoaded", function () {
               at
             );
           }
-          tl.to(
-            visuals[i],
-            { opacity: 0.35, ease: "none", duration: 1 },
-            at
-          );
         }
 
         tl.to(
