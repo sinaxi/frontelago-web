@@ -584,8 +584,8 @@
     position: relative;
     overflow: hidden;
     border-radius: 2rem;
-    /* Never flash solid black between bg images — media stack covers this */
-    background: transparent;
+    /* Underlay is the photo stack; keep a dark fallback only if media fails */
+    background: #1a1815;
     padding: 1rem;
     color: #fff;
   }
@@ -605,8 +605,9 @@
   .rooms-showcase_bg {
     position: absolute;
     inset: 0;
+    z-index: 0;
     pointer-events: none;
-    /* Hold the opening photo under crossfades so gaps never read as black */
+    /* Hold the opening photo under crossfades so gaps never read as empty */
     background:
       center / cover no-repeat
       url("https://cdn.sanity.io/images/6od6ct5d/production/ab82bdf777f9b456affef79360d3338225acd7f9-1920x1280.jpg?auto=format&fit=max&w=1920&q=65");
@@ -636,6 +637,7 @@
   .rooms-showcase_bg-glow {
     position: absolute;
     inset: 0;
+    z-index: 3;
     border-radius: inherit;
     box-shadow: 0 0 20px 10px var(--royal-glow) inset;
   }
@@ -643,11 +645,13 @@
   .rooms-showcase_bg-dim {
     position: absolute;
     inset: 0;
+    z-index: 3;
     background: rgba(0, 0, 0, 0.3);
   }
 
   .rooms-showcase_tabs-mobile {
     position: relative;
+    z-index: 2;
     margin-bottom: 2.5rem;
     width: 100%;
   }
@@ -715,6 +719,7 @@
 
   .rooms-showcase_tabs {
     position: relative;
+    z-index: 2;
     display: none;
     gap: 1rem;
     margin-bottom: 4rem;
@@ -758,6 +763,7 @@
 
   .rooms-showcase_body {
     position: relative;
+    z-index: 2;
   }
 
   .rooms-showcase_pane {
