@@ -217,6 +217,21 @@
     color: #ffffff;
     stroke-width: 1.85;
   }
+  @media (min-width: 992px) {
+    .amenity-content {
+      gap: 1.35rem;
+      padding: clamp(1.75rem, 2.8vw, 2.75rem) 1.25rem;
+    }
+    .amenity-icon-svg {
+      width: clamp(4.5rem, 5.5vw, 6.25rem);
+      height: clamp(4.5rem, 5.5vw, 6.25rem);
+      stroke-width: 1.65;
+    }
+    .amenity-label {
+      font-size: clamp(0.9375rem, 1.1vw, 1.1875rem);
+      max-width: 14ch;
+    }
+  }
   .amenity-label {
     font-family: Montserrat, "Inter Variable", system-ui, sans-serif;
     font-size: clamp(0.8125rem, 1.15vw, 1.0625rem);
