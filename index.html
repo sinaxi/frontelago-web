@@ -1375,38 +1375,22 @@
     object-fit: cover;
     object-position: center 58%;
     display: block;
-    will-change: transform;
   }
 
-  /* Slow ken-burns — starts at rest scale so preloader exit never snaps */
-  .loader_media_img {
-    transform: scale(1.04);
-    transform-origin: 55% 45%;
-    animation: hero-kenburns 22s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-  }
-
-  @keyframes hero-kenburns {
-    from {
-      transform: scale(1.04);
-    }
-    to {
-      transform: scale(1.12);
-    }
-  }
-
-  /* Soft top scrim so white logo reads on bright ceiling */
+  /* Soft black fade across the top of the hero (logo contrast, no box) */
   .section_loader .loader_video_wrap::after {
     content: "";
     position: absolute;
     inset: 0 0 auto 0;
-    height: min(42%, 22rem);
+    height: min(48%, 28rem);
     z-index: 2;
     pointer-events: none;
     background: linear-gradient(
       180deg,
-      rgba(26, 24, 21, 0.55) 0%,
-      rgba(26, 24, 21, 0.28) 42%,
-      rgba(26, 24, 21, 0) 100%
+      rgba(0, 0, 0, 0.48) 0%,
+      rgba(0, 0, 0, 0.22) 38%,
+      rgba(0, 0, 0, 0.06) 70%,
+      rgba(0, 0, 0, 0) 100%
     );
   }
 
@@ -1438,11 +1422,6 @@
 
     .loader_media {
       transition: none;
-    }
-
-    .loader_media_img {
-      animation: none;
-      transform: scale(1.04);
     }
   }
 
