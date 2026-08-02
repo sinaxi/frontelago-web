@@ -1997,13 +1997,60 @@ document.addEventListener("DOMContentLoaded", function () {
         const showVideo = () => {
           if (switched || !videoItem || !imageItem) return;
           switched = true;
-          imageItem.classList.remove("is-active");
+
+          let revealed = false;
+          const finishCrossfade = () => {
+            if (revealed) return;
+            revealed = true;
+            imageItem.classList.remove("is-active");
+            revealHeroCopy();
+          };
+
+          // Bring video up first while image stays on top, then fade image away
           videoItem.classList.add("is-active");
+
           if (video) {
-            const play = video.play();
-            if (play && typeof play.catch === "function") play.catch(() => {});
+            // Use the hero poster as first frame fallback while decoding
+            if (!video.getAttribute("poster")) {
+              video.setAttribute(
+                "poster",
+                "assets/hero-waves-poster.webp"
+              );
+            }
+            try {
+              video.load();
+            } catch (_) {
+              /* ignore */
+            }
+
+            const tryPlay = () => {
+              const play = video.play();
+              if (play && typeof play.catch === "function") {
+                play.catch(() => finishCrossfade());
+              }
+            };
+
+            const onReady = () => {
+              tryPlay();
+              window.requestAnimationFrame(() => {
+                window.setTimeout(finishCrossfade, 220);
+              });
+            };
+
+            if (video.readyState >= 2) {
+              onReady();
+            } else {
+              video.addEventListener("loadeddata", onReady, { once: true });
+              video.addEventListener("playing", () => {
+                window.setTimeout(finishCrossfade, 180);
+              }, { once: true });
+              tryPlay();
+              // Failsafe: never leave a stuck gray frame
+              window.setTimeout(finishCrossfade, 1600);
+            }
+          } else {
+            finishCrossfade();
           }
-          revealHeroCopy();
         };
 
         if (section) section.setAttribute("data-hero-scene", "image");
@@ -2011,7 +2058,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (reducedMotion) {
           showVideo();
         } else {
-          const schedule = () => window.setTimeout(showVideo, 5200);
+          // Wait for the longer hero image entrance before switching scene
+          const schedule = () => window.setTimeout(showVideo, 7800);
           const preloader = document.querySelector(".preloader_wrap");
           const preloaderVisible =
             preloader && getComputedStyle(preloader).display !== "none";
@@ -2019,7 +2067,7 @@ document.addEventListener("DOMContentLoaded", function () {
             window.addEventListener("frontelago:preloader-done", schedule, {
               once: true,
             });
-            window.setTimeout(schedule, 10000);
+            window.setTimeout(schedule, 14000);
           } else {
             schedule();
           }
@@ -3665,11 +3713,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Get the line elements
       const lines = splitText.lines;
-      const isFooterTitle = element.classList.contains("footer_title");
+      const isFooterTitle = false; // keep original left-origin squeeze for all titles including LET’S WORK TOGETHER
 
       // Set initial transform origin and scale for each line
       gsap.set(lines, {
-        transformOrigin: isFooterTitle ? "50% 0" : "0 0",
+        transformOrigin: "0 0",
         scaleX: 1,
         scaleY: 0, // Start from scale 1,0
       });
