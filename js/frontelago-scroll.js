@@ -3665,10 +3665,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Get the line elements
       const lines = splitText.lines;
+      const isFooterTitle = element.classList.contains("footer_title");
 
       // Set initial transform origin and scale for each line
       gsap.set(lines, {
-        transformOrigin: "0 0", // Origin at top-left (0,0)
+        transformOrigin: isFooterTitle ? "50% 0" : "0 0",
         scaleX: 1,
         scaleY: 0, // Start from scale 1,0
       });

@@ -322,12 +322,27 @@
 
   .footer_title {
     color: #ffffff !important;
+    text-align: center;
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  #contact .g_title_wrap {
+    width: 100%;
+    text-align: center;
+  }
+
+  #contact .footer_title .squeeze-line {
+    display: block;
+    text-align: center;
+    transform-origin: 50% 0;
   }
 
   .contact-form-card {
     width: min(100%, 44rem);
     margin-top: clamp(1.5rem, 3.5vw, 2.75rem);
     margin-bottom: clamp(1.5rem, 3.5vw, 2.75rem);
+    margin-inline: auto;
     padding: clamp(1.35rem, 3vw, 2rem);
     border-radius: 1.75rem;
     background: #ffffff;
@@ -400,7 +415,7 @@
   }
 
   .contact-form__submit {
-    justify-self: start;
+    justify-self: center;
     margin-top: 0.25rem;
     appearance: none;
     border: 0;
