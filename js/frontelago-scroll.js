@@ -3708,8 +3708,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Basic Line-by-Line Squeeze using GSAP SplitText plugin
     const squeezeElements = gsap.utils.toArray("[data-gsap-squeeze]");
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
 
     squeezeElements.forEach((element, i) => {
+      // LET’S WORK TOGETHER — word-by-word rise + squeeze on enter
+      if (element.classList.contains("footer_title")) {
+        const splitWords = new SplitText(element, {
+          type: "words",
+          wordsClass: "footer-title-word",
+        });
+
+        if (reducedMotion) {
+          gsap.set(splitWords.words, { clearProps: "all" });
+          return;
+        }
+
+        gsap.set(splitWords.words, {
+          opacity: 0,
+          yPercent: 55,
+          scaleY: 0.15,
+          transformOrigin: "50% 100%",
+        });
+
+        gsap.to(splitWords.words, {
+          opacity: 1,
+          yPercent: 0,
+          scaleY: 1,
+          duration: 0.95,
+          stagger: 0.11,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 88%",
+            toggleActions: "play none none none",
+          },
+        });
+        return;
+      }
+
       // Split the text into lines using SplitText plugin
       // console.log(`Animating line of element ${element}}`);
       const splitText = new SplitText(element, {
@@ -3719,7 +3757,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Get the line elements
       const lines = splitText.lines;
-      const isFooterTitle = false; // keep original left-origin squeeze for all titles including LET’S WORK TOGETHER
 
       // Set initial transform origin and scale for each line
       gsap.set(lines, {
