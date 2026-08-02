@@ -1429,6 +1429,7 @@
   /* Hero / loader: NILS-style transparent waves over first media */
   .loader_video_wrap {
     isolation: isolate;
+    overflow: hidden;
   }
 
   .loader_media {
@@ -1508,6 +1509,40 @@
     display: block;
   }
 
+  /* Hero image: cinematic settle after welcome, then soft ambient drift */
+  .loader_media_img {
+    transform: scale(1.16);
+    filter: brightness(0.88) saturate(0.92);
+    transform-origin: 52% 42%;
+    will-change: transform, filter;
+  }
+
+  .section_loader.is-hero-ready .loader_media_img {
+    animation:
+      hero-image-reveal 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+      hero-image-drift 28s ease-in-out 2.6s infinite alternate;
+  }
+
+  @keyframes hero-image-reveal {
+    from {
+      transform: scale(1.16);
+      filter: brightness(0.88) saturate(0.92);
+    }
+    to {
+      transform: scale(1.05);
+      filter: brightness(1) saturate(1);
+    }
+  }
+
+  @keyframes hero-image-drift {
+    from {
+      transform: scale(1.05) translate3d(0, 0, 0);
+    }
+    to {
+      transform: scale(1.08) translate3d(-1.6%, 1%, 0);
+    }
+  }
+
   /* Soft black fade across the top of the hero (logo contrast, no box) */
   .section_loader .loader_video_wrap::after {
     content: "";
@@ -1553,6 +1588,13 @@
 
     .loader_media {
       transition: none;
+    }
+
+    .loader_media_img,
+    .section_loader.is-hero-ready .loader_media_img {
+      animation: none;
+      transform: none;
+      filter: none;
     }
   }
 

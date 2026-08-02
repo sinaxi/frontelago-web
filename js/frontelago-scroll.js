@@ -285,6 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (preloaderUnlocked) return;
     preloaderUnlocked = true;
     document.body.classList.remove("u-live-noscroll");
+    document.querySelector(".section_loader")?.classList.add("is-hero-ready");
     if (lenis) lenis.start();
     try {
       refreshScrollTriggers();
