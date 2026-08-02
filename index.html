@@ -1520,7 +1520,7 @@
     display: none;
   }
 
-  /* Hero first scene — longer cinematic wipe + focus pull, then soft living pan */
+  /* Hero first scene — sharp image immediately, soft living pan, then video */
   .loader_media_img,
   .loader_media .loader_video {
     position: absolute;
@@ -1533,34 +1533,15 @@
   }
 
   .loader_media_img {
-    /* Always fill the frame — soft focus pull, no wipe that exposes black */
-    transform: scale(1.14) translate3d(0, 2%, 0);
-    filter: blur(14px) brightness(0.94) saturate(0.9);
+    transform: scale(1.05);
     transform-origin: 50% 40%;
-    will-change: transform, filter;
+    will-change: transform;
+    filter: none;
   }
 
-  .section_loader.is-hero-ready .loader_media_img {
-    animation: hero-scene-enter 5.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  }
-
+  .section_loader.is-hero-ready .loader_media_img,
   .section_loader.is-hero-living .loader_media_img {
     animation: hero-scene-live 40s ease-in-out infinite alternate;
-  }
-
-  @keyframes hero-scene-enter {
-    0% {
-      transform: scale(1.14) translate3d(0, 2%, 0);
-      filter: blur(14px) brightness(0.94) saturate(0.9);
-    }
-    55% {
-      transform: scale(1.07) translate3d(0, 0, 0);
-      filter: blur(2px) brightness(0.98) saturate(0.97);
-    }
-    100% {
-      transform: scale(1.05) translate3d(0, 0, 0);
-      filter: blur(0) brightness(1) saturate(1);
-    }
   }
 
   @keyframes hero-scene-live {
@@ -1569,37 +1550,6 @@
     }
     to {
       transform: scale(1.1) translate3d(-2%, 1.2%, 0);
-    }
-  }
-
-  /* Soft light sweep across the first scene */
-  .section_loader.is-hero-ready .loader_video_wrap::before {
-    content: "";
-    position: absolute;
-    inset: -10%;
-    z-index: 2;
-    pointer-events: none;
-    background: linear-gradient(
-      115deg,
-      transparent 32%,
-      rgba(255, 255, 255, 0.22) 48%,
-      transparent 64%
-    );
-    transform: translateX(-75%);
-    animation: hero-light-sweep 2.8s cubic-bezier(0.4, 0, 0.2, 1) 0.55s both;
-  }
-
-  @keyframes hero-light-sweep {
-    from {
-      transform: translateX(-75%);
-      opacity: 0;
-    }
-    18% {
-      opacity: 1;
-    }
-    to {
-      transform: translateX(75%);
-      opacity: 0;
     }
   }
 
@@ -1656,11 +1606,6 @@
       animation: none;
       transform: none;
       filter: none;
-      clip-path: none;
-    }
-
-    .section_loader.is-hero-ready .loader_video_wrap::before {
-      display: none;
     }
   }
 

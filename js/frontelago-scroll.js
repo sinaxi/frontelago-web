@@ -287,11 +287,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.remove("u-live-noscroll");
     const heroSection = document.querySelector(".section_loader");
     if (heroSection) {
-      heroSection.classList.add("is-hero-ready");
-      window.setTimeout(() => {
-        heroSection.classList.remove("is-hero-ready");
-        heroSection.classList.add("is-hero-living");
-      }, 5300);
+      // Sharp image + living pan right away (no blur-to-clear reveal)
+      heroSection.classList.add("is-hero-ready", "is-hero-living");
     }
     if (lenis) lenis.start();
     try {
@@ -2067,8 +2064,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (reducedMotion) {
           showVideo();
         } else {
-          // Wait for the longer hero image entrance before switching scene
-          const schedule = () => window.setTimeout(showVideo, 7800);
+          // Hold sharp living image ~4s, then crossfade to video + copy
+          const schedule = () => window.setTimeout(showVideo, 4000);
           const preloader = document.querySelector(".preloader_wrap");
           const preloaderVisible =
             preloader && getComputedStyle(preloader).display !== "none";
