@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function () {
       window.setTimeout(() => {
         heroSection.classList.remove("is-hero-ready");
         heroSection.classList.add("is-hero-living");
-      }, 2400);
+      }, 5300);
     }
     if (lenis) lenis.start();
     try {
