@@ -2483,19 +2483,16 @@ body:has(.nav_component[data-wave-menu="open"])::before {
 .nav_1_links_link,
 .nav_1_links_link .nav_1_links_text {
 	color: #ffffff !important;
-	transition: color 0.2s ease, opacity 0.2s ease;
+	opacity: 1;
+	transition: color 0.2s ease;
 }
 .nav_1_links_link:hover,
 .nav_1_links_link:focus-visible,
 .nav_1_links_link:hover .nav_1_links_text,
 .nav_1_links_link:focus-visible .nav_1_links_text {
-	color: #ffffff !important;
-	opacity: 1;
+	color: var(--palette-nero, #1a1815) !important;
 }
-.nav_1_links_link:hover .nav_1_links_text {
-	opacity: 0.92;
-}
-/* Desktop flyout links — same slim weight + white hover */
+/* Desktop flyout links — same slim weight + nero hover */
 .nav_desktop_wrap .nav_1_links_text {
 	font-family: Montserrat, system-ui, sans-serif;
 	font-weight: 300 !important;
@@ -2504,7 +2501,7 @@ body:has(.nav_component[data-wave-menu="open"])::before {
 }
 .nav_desktop_wrap .nav_1_links_link:hover,
 .nav_desktop_wrap .nav_1_links_link:hover .nav_1_links_text {
-	color: #ffffff !important;
+	color: var(--palette-nero, #1a1815) !important;
 }
 .nav_1_links_wrap.w-variant-1110551f-14bf-9d4a-0086-bc18a894f466 .nav_1_links_text::before {
 	content: "";
