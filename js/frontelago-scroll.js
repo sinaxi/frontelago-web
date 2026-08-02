@@ -1897,10 +1897,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const contactBtn = document.querySelector("[data-float-contact]");
-      if (contactBtn) {
-        // Webflow IX opens .g_modal via .ix-open-modal class on click
-        contactBtn.classList.add("ix-open-modal");
-      }
+      // Contattaci scrolls to #contact form — no modal hook
 
       if (burger || navRoot) {
         if (burger) {
