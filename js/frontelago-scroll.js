@@ -2072,9 +2072,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
           if (section) section.setAttribute("data-hero-scene", "slideshow");
-          let i = 0;
-          activateImage(0);
 
+          let i = 0;
           const tick = () => {
             i += 1;
             if (i >= imageItems.length) {
@@ -2085,11 +2084,14 @@ document.addEventListener("DOMContentLoaded", function () {
             window.setTimeout(tick, SLIDE_HOLD_MS);
           };
 
-          // First image already shown under the text; advance after a short beat
-          window.setTimeout(tick, SLIDE_HOLD_MS);
+          // Text already held 2s on slide 1 — advance to slide 2 now
+          tick();
         };
 
+        let sequenceStarted = false;
         const startHeroSequence = () => {
+          if (sequenceStarted) return;
+          sequenceStarted = true;
           activateImage(0);
           revealHeroCopy();
           if (reducedMotion) {
