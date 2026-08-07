@@ -1610,47 +1610,52 @@
         clamp(2.5rem, 6.5vw, 4.25rem) + clamp(9.5rem, 34vw, 16rem) + 0.65rem
       ) !important;
       padding-bottom: 0 !important;
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
       margin-top: 0;
       width: 100%;
     }
 
     .section_loader .loader_layout {
-      align-items: center;
-      text-align: center;
-      gap: 0.75rem;
+      align-items: center !important;
+      text-align: center !important;
+      gap: 0.55rem;
       width: 100%;
     }
 
     .section_loader .loader_title_wrap,
     .section_loader .loader_text_wrap {
       width: 100%;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      text-align: center !important;
     }
 
+    /* Keep title on ONE centered line on mobile */
     .loader_title-break,
     .loader_subtitle-break {
-      display: block;
+      display: none !important;
     }
 
     .section_loader .loader_title.u-text-style-display {
       margin-left: 0 !important;
-      margin-inline: auto;
-      max-width: 12ch;
-      white-space: normal;
-      text-align: center;
-      font-size: clamp(2.15rem, 10.5vw, 3.15rem) !important;
-      line-height: 0.92;
-      letter-spacing: -0.025em;
+      margin-inline: auto !important;
+      max-width: none !important;
+      width: auto;
+      white-space: nowrap !important;
+      text-align: center !important;
+      text-wrap: nowrap !important;
+      font-size: clamp(1.15rem, 6.2vw, 1.85rem) !important;
+      line-height: 1 !important;
+      letter-spacing: -0.02em;
     }
 
     .section_loader .loader_subtitle {
-      white-space: nowrap;
-      max-width: none;
-      text-align: center;
+      white-space: nowrap !important;
+      max-width: none !important;
+      text-align: center !important;
       text-transform: none;
-      font-size: clamp(0.72rem, 3.4vw, 0.95rem);
+      font-size: clamp(0.7rem, 3.3vw, 0.92rem);
       letter-spacing: 0.01em;
       line-height: 1.2;
       margin-inline: auto;
