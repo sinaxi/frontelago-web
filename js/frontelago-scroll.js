@@ -1951,7 +1951,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // Text first → 3 attic images (quick) → video
+      // Text first → attic images 1→2 (3s each) → video
       if (mediaRoot) {
         const imageItems = Array.from(
           mediaRoot.querySelectorAll('[data-hero-media-item="image"]')
@@ -1963,8 +1963,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const section =
           mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
-        const SLIDE_HOLD_MS = 900;
-        const TEXT_HOLD_MS = 2000;
+        const SLIDE_HOLD_MS = 3000;
+        const TEXT_HOLD_MS = 3000;
 
         let switched = false;
         let copyRevealed = false;
@@ -2116,7 +2116,7 @@ document.addEventListener("DOMContentLoaded", function () {
             window.setTimeout(tick, SLIDE_HOLD_MS);
           };
 
-          // Text already held 2s on slide 1 — advance to slide 2 now
+          // Text already held 3s on slide 1 — advance to slide 2 now
           tick();
         };
 
@@ -2133,7 +2133,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showVideo();
             return;
           }
-          // Hold text on first image for 2s, then cycle remaining slides → video
+          // Hold text on first image for 3s, then image 2 for 3s → video
           window.setTimeout(runImageSequence, TEXT_HOLD_MS);
         };
 
