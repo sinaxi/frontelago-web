@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /////////////////////////////////
-  /* PRELOADER — never wait on fonts (fonts.ready can hang) */
+  /* PRELOADER — welcome words cover hero image + video preload */
   /////////////////////////////////
 
   const WELCOME_WORDS = [
@@ -272,6 +272,16 @@ document.addEventListener("DOMContentLoaded", function () {
     "Velkommen",
   ];
 
+  const HERO_PRELOAD_IMAGES = [
+    "images/slider-1-attico-frontelago-lago-iseo-lake-valle-camonica.jpg",
+    "images/slider-2-attico-frontelago-lago-iseo-lake-valle-camonica.jpg",
+    "images/slider-3-attico-frontelago-lago-iseo-lake-valle-camonica.jpg",
+    "assets/hero-video-poster.jpg",
+  ];
+
+  const PRELOADER_MIN_MS = 2800;
+  const PRELOADER_MAX_MS = 14000;
+
   const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
   const preloaderWelcomeText = document.querySelector(
     ".preloader_welcome_text"
@@ -280,6 +290,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let preloaderClosed = false;
   let preloaderUnlocked = false;
+  let welcomeMinDone = false;
+  let heroMediaReady = false;
+
+  function getHeroVideoSrc() {
+    if (window.__frontelagoHeroVideoSrc) {
+      return window.__frontelagoHeroVideoSrc;
+    }
+    return window.matchMedia("(min-width: 768px)").matches
+      ? "assets/frontelago-hero-desktop.mp4"
+      : "assets/frontelago-hero-mobile.mp4";
+  }
 
   function unlockAfterPreloader() {
     if (preloaderUnlocked) return;
@@ -348,22 +369,132 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 2000);
   }
 
-  function runWelcomeCycle(onDone) {
-    let finished = false;
-    const finish = () => {
-      if (finished) return;
-      finished = true;
-      onDone();
+  function maybeDismissPreloader() {
+    if (welcomeMinDone && heroMediaReady) {
+      dismissPreloader();
+    }
+  }
+
+  function preloadImage(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        resolve(true);
+      };
+      img.onload = done;
+      img.onerror = done;
+      img.decoding = "async";
+      img.src = src;
+      if (img.complete) done();
+    });
+  }
+
+  function videoHasPlayableBuffer(video) {
+    if (!video) return false;
+    if (video.readyState >= 3) return true;
+    try {
+      if (video.buffered && video.buffered.length) {
+        return video.buffered.end(video.buffered.length - 1) >= 1.5;
+      }
+    } catch (_) {
+      /* ignore */
+    }
+    return false;
+  }
+
+  function preloadHeroVideo() {
+    return new Promise((resolve) => {
+      const src = getHeroVideoSrc();
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        resolve(true);
+      };
+
+      const attachVideo = () => {
+        const video = document.getElementById("hero_video");
+        if (!video) return;
+        video.muted = true;
+        video.defaultMuted = true;
+        video.volume = 0;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.setAttribute("autoplay", "");
+        video.setAttribute("muted", "");
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.preload = "auto";
+        if ((video.getAttribute("src") || "") !== src) {
+          video.src = src;
+        }
+        try {
+          video.load();
+        } catch (_) {
+          /* ignore */
+        }
+        const playAttempt = video.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {});
+        }
+      };
+
+      // One network trip: early head fetch warms cache, then bind <video>
+      const early =
+        window.__frontelagoHeroVideoPreload ||
+        window
+          .fetch(src, { credentials: "same-origin", cache: "force-cache" })
+          .then((res) => (res.ok ? res.blob() : null))
+          .catch(() => null);
+
+      Promise.resolve(early)
+        .then(() => {
+          attachVideo();
+          finish();
+        })
+        .catch(() => {
+          attachVideo();
+          const video = document.getElementById("hero_video");
+          if (!video) {
+            finish();
+            return;
+          }
+          const onReady = () => {
+            if (videoHasPlayableBuffer(video)) finish();
+          };
+          video.addEventListener("canplaythrough", onReady);
+          video.addEventListener("canplay", onReady);
+          video.addEventListener("loadeddata", onReady);
+          window.setTimeout(finish, 4000);
+        });
+    });
+  }
+
+  function preloadHeroMedia() {
+    return Promise.all([
+      ...HERO_PRELOAD_IMAGES.map(preloadImage),
+      preloadHeroVideo(),
+    ]);
+  }
+
+  function runWelcomeCycle(onMinDone) {
+    let minNotified = false;
+    const notifyMin = () => {
+      if (minNotified) return;
+      minNotified = true;
+      onMinDone();
     };
 
     if (!preloaderWelcome || !preloaderWelcomeText) {
-      finish();
+      notifyMin();
       return;
     }
 
     preloaderWelcome.style.opacity = "0";
     preloaderWelcomeText.textContent = WELCOME_WORDS[0];
-    // Fade in without GSAP
     window.requestAnimationFrame(() => {
       preloaderWelcome.style.transition = "opacity 0.45s ease-out";
       preloaderWelcome.style.opacity = "0.75";
@@ -371,17 +502,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let index = 0;
     const advance = () => {
-      index += 1;
-      if (index >= WELCOME_WORDS.length) {
-        finish();
-        return;
-      }
+      if (preloaderClosed) return;
+      index = (index + 1) % WELCOME_WORDS.length;
       preloaderWelcomeText.textContent = WELCOME_WORDS[index];
       window.setTimeout(advance, 150);
     };
 
     window.setTimeout(advance, 1000);
-    window.setTimeout(finish, 3500);
+    window.setTimeout(notifyMin, PRELOADER_MIN_MS);
   }
 
   document.body.classList.add("u-live-noscroll");
@@ -392,12 +520,23 @@ document.addEventListener("DOMContentLoaded", function () {
     preloaderWrap.style.height = "100svh";
   }
 
-  // Always dismiss eventually, even if cycle / fonts / GSAP stall
-  window.setTimeout(dismissPreloader, 5000);
-
+  // Welcome words keep looping while hero stills + video buffer
   runWelcomeCycle(() => {
-    window.setTimeout(dismissPreloader, 200);
+    welcomeMinDone = true;
+    maybeDismissPreloader();
   });
+
+  preloadHeroMedia().then(() => {
+    heroMediaReady = true;
+    maybeDismissPreloader();
+  });
+
+  // Never hang forever on slow networks
+  window.setTimeout(() => {
+    welcomeMinDone = true;
+    heroMediaReady = true;
+    dismissPreloader();
+  }, PRELOADER_MAX_MS);
 
   /////////////////////////////////
   /* ALL OTHER ANIMATIONS - WAIT FOR FONTS */
