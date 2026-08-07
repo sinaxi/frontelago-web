@@ -2122,7 +2122,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // Text first → attic images 1→2→3→4 (3s each) → video
+      // Text first → attic images 1→2→3→4 (2s each) → video
       if (mediaRoot) {
         const imageItems = Array.from(
           mediaRoot.querySelectorAll('[data-hero-media-item="image"]')
@@ -2134,8 +2134,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const section =
           mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
-        const SLIDE_HOLD_MS = 3000;
-        const TEXT_HOLD_MS = 3000;
+        const SLIDE_HOLD_MS = 2000;
+        const TEXT_HOLD_MS = 2000;
 
         let switched = false;
         let copyRevealed = false;
@@ -2321,7 +2321,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showVideo();
             return;
           }
-          // Hold text on first image for 3s, then images 2–4 (3s each) → video
+          // Hold text on first image for 2s, then images 2–4 (2s each) → video
           window.setTimeout(runImageSequence, TEXT_HOLD_MS);
         };
 
