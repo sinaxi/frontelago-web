@@ -1534,11 +1534,13 @@
     z-index: 2;
   }
 
-  /* First scene = image only; copy reveals with the video scene */
-  .section_loader:not([data-hero-scene="video"]) .loader_layout {
+  /* Copy visible from first hero beat (not only when video starts) */
+  .section_loader:not([data-hero-scene="copy"]):not([data-hero-scene="slideshow"]):not([data-hero-scene="video"]) .loader_layout {
     visibility: hidden;
   }
 
+  .section_loader[data-hero-scene="copy"] .loader_layout,
+  .section_loader[data-hero-scene="slideshow"] .loader_layout,
   .section_loader[data-hero-scene="video"] .loader_layout {
     visibility: visible;
   }

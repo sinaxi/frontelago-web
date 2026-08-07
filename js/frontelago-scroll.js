@@ -1951,10 +1951,10 @@ document.addEventListener("DOMContentLoaded", function () {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // Image first (no headline), then crossfade to video + reveal copy
+      // Text first → 3 attic images (quick) → video
       if (mediaRoot) {
-        const imageItem = mediaRoot.querySelector(
-          '[data-hero-media-item="image"]'
+        const imageItems = Array.from(
+          mediaRoot.querySelectorAll('[data-hero-media-item="image"]')
         );
         const videoItem = mediaRoot.querySelector(
           '[data-hero-media-item="video"]'
@@ -1963,13 +1963,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const section =
           mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
+        const SLIDE_HOLD_MS = 900;
+        const TEXT_HOLD_MS = 2000;
+
         let switched = false;
         let copyRevealed = false;
+
+        const activateImage = (index) => {
+          imageItems.forEach((el, i) => {
+            el.classList.toggle("is-active", i === index);
+          });
+        };
 
         const revealHeroCopy = () => {
           if (copyRevealed) return;
           copyRevealed = true;
-          if (section) section.setAttribute("data-hero-scene", "video");
+          if (section) section.setAttribute("data-hero-scene", "copy");
 
           if (reducedMotion) {
             if (headingSplit) gsap.set(headingSplit.words, { opacity: 1, yPercent: 0 });
@@ -2001,27 +2010,22 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         const showVideo = () => {
-          if (switched || !videoItem || !imageItem) return;
+          if (switched || !videoItem || !imageItems.length) return;
           switched = true;
+          if (section) section.setAttribute("data-hero-scene", "video");
 
           let revealed = false;
           const finishCrossfade = () => {
             if (revealed) return;
             revealed = true;
-            imageItem.classList.remove("is-active");
-            revealHeroCopy();
+            imageItems.forEach((el) => el.classList.remove("is-active"));
           };
 
-          // Bring video up first while image stays on top, then fade image away
           videoItem.classList.add("is-active");
 
           if (video) {
-            // Use the hero poster as first frame fallback while decoding
             if (!video.getAttribute("poster")) {
-              video.setAttribute(
-                "poster",
-                "assets/hero-video-poster.jpg"
-              );
+              video.setAttribute("poster", "assets/hero-video-poster.jpg");
             }
             try {
               video.load();
@@ -2047,11 +2051,14 @@ document.addEventListener("DOMContentLoaded", function () {
               onReady();
             } else {
               video.addEventListener("loadeddata", onReady, { once: true });
-              video.addEventListener("playing", () => {
-                window.setTimeout(finishCrossfade, 180);
-              }, { once: true });
+              video.addEventListener(
+                "playing",
+                () => {
+                  window.setTimeout(finishCrossfade, 180);
+                },
+                { once: true }
+              );
               tryPlay();
-              // Failsafe: never leave a stuck gray frame
               window.setTimeout(finishCrossfade, 1600);
             }
           } else {
@@ -2059,24 +2066,53 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         };
 
-        if (section) section.setAttribute("data-hero-scene", "image");
-
-        if (reducedMotion) {
-          showVideo();
-        } else {
-          // Hold sharp living image ~4s, then crossfade to video + copy
-          const schedule = () => window.setTimeout(showVideo, 4000);
-          const preloader = document.querySelector(".preloader_wrap");
-          const preloaderVisible =
-            preloader && getComputedStyle(preloader).display !== "none";
-          if (preloaderVisible) {
-            window.addEventListener("frontelago:preloader-done", schedule, {
-              once: true,
-            });
-            window.setTimeout(schedule, 14000);
-          } else {
-            schedule();
+        const runImageSequence = () => {
+          if (!imageItems.length) {
+            showVideo();
+            return;
           }
+          if (section) section.setAttribute("data-hero-scene", "slideshow");
+          let i = 0;
+          activateImage(0);
+
+          const tick = () => {
+            i += 1;
+            if (i >= imageItems.length) {
+              showVideo();
+              return;
+            }
+            activateImage(i);
+            window.setTimeout(tick, SLIDE_HOLD_MS);
+          };
+
+          // First image already shown under the text; advance after a short beat
+          window.setTimeout(tick, SLIDE_HOLD_MS);
+        };
+
+        const startHeroSequence = () => {
+          activateImage(0);
+          revealHeroCopy();
+          if (reducedMotion) {
+            showVideo();
+            return;
+          }
+          // Hold text on first image for 2s, then cycle remaining slides → video
+          window.setTimeout(runImageSequence, TEXT_HOLD_MS);
+        };
+
+        if (section) section.setAttribute("data-hero-scene", "image");
+        activateImage(0);
+
+        const preloader = document.querySelector(".preloader_wrap");
+        const preloaderVisible =
+          preloader && getComputedStyle(preloader).display !== "none";
+        if (preloaderVisible) {
+          window.addEventListener("frontelago:preloader-done", startHeroSequence, {
+            once: true,
+          });
+          window.setTimeout(startHeroSequence, 14000);
+        } else {
+          startHeroSequence();
         }
       }
 
