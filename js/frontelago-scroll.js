@@ -1951,7 +1951,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // Text first → attic images 1→2 (3s each) → video
+      // Text first → attic images 1→2→3 (3s each) → video
       if (mediaRoot) {
         const imageItems = Array.from(
           mediaRoot.querySelectorAll('[data-hero-media-item="image"]')
@@ -2144,7 +2144,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showVideo();
             return;
           }
-          // Hold text on first image for 3s, then image 2 for 3s → video
+          // Hold text on first image for 3s, then images 2 and 3 (3s each) → video
           window.setTimeout(runImageSequence, TEXT_HOLD_MS);
         };
 
