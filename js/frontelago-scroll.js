@@ -2049,7 +2049,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return Promise.resolve(!video.paused);
         };
 
-        // Keep hammering play until it sticks (no gesture required for muted)
+        // Keep hammering play until it sticks (muted autoplay — no UI)
         const keepTryingAutoplay = () => {
           if (!video) return;
           let tries = 0;
@@ -2058,12 +2058,22 @@ document.addEventListener("DOMContentLoaded", function () {
             tries += 1;
             tryPlayHeroVideo().then((ok) => {
               if (ok || !video.paused) return;
-              if (tries < 20) window.setTimeout(tick, 400);
+              if (tries < 40) window.setTimeout(tick, 300);
             });
           };
           tick();
-          video.addEventListener("canplay", () => tryPlayHeroVideo(), { once: true });
-          video.addEventListener("loadeddata", () => tryPlayHeroVideo(), { once: true });
+          video.addEventListener("canplay", () => tryPlayHeroVideo());
+          video.addEventListener("loadeddata", () => tryPlayHeroVideo());
+          // Any passive page activity can unlock iOS without a visible play button
+          ["touchstart", "touchend", "scroll", "wheel", "pageshow"].forEach((evt) => {
+            window.addEventListener(
+              evt,
+              () => {
+                tryPlayHeroVideo();
+              },
+              { passive: true }
+            );
+          });
         };
 
         const showVideo = () => {
@@ -2071,17 +2081,32 @@ document.addEventListener("DOMContentLoaded", function () {
           switched = true;
           if (section) section.setAttribute("data-hero-scene", "video");
 
-          // Video has been playing under stills — just lift the stills away
           videoItem.classList.add("is-active", "is-video-bed");
           ensureHeroVideoReady();
-          tryPlayHeroVideo().then(() => {
+          // Never reveal a paused poster/play UI — keep last still until playing
+          const liftStills = () => {
             imageItems.forEach((el) => el.classList.remove("is-active"));
-          });
-          // Failsafe remove stills even if play promise is slow
-          window.setTimeout(() => {
-            imageItems.forEach((el) => el.classList.remove("is-active"));
-            tryPlayHeroVideo();
-          }, 200);
+            if (video) video.removeAttribute("poster");
+          };
+
+          let attempts = 0;
+          const waitPlaying = () => {
+            attempts += 1;
+            tryPlayHeroVideo().then((ok) => {
+              if ((ok || (video && !video.paused)) && video && video.readyState >= 2) {
+                liftStills();
+                return;
+              }
+              if (attempts < 30) {
+                window.setTimeout(waitPlaying, 250);
+              } else {
+                // Last resort: still lift, but keep retrying play silently
+                liftStills();
+                keepTryingAutoplay();
+              }
+            });
+          };
+          waitPlaying();
         };
 
         const runImageSequence = () => {
