@@ -1561,21 +1561,26 @@
   .section_loader .loader_title {
     margin-left: 0;
     padding-inline: 0;
-    overflow-wrap: anywhere;
   }
 
-  /* Desktop: keep the hero line strong but not viewport-filling */
-  @media (min-width: 992px) {
-    .section_loader .loader_title.u-text-style-display {
-      font-size: clamp(2.75rem, 5.2vw, 4.25rem) !important;
-      line-height: 0.95;
-      max-width: 12ch;
-    }
+  /*
+   * Hero display scale — one fluid curve for all viewports:
+   * big enough to read as a poster line, capped so it never
+   * swallows the image (was ~25cqw / then too small at 4.25rem).
+   */
+  .section_loader .loader_title.u-text-style-display {
+    font-size: clamp(2.75rem, 1.35rem + 6.2vw, 6.75rem) !important;
+    line-height: 0.92;
+    max-width: min(16ch, 90vw);
+    overflow-wrap: normal;
+    hyphens: none;
+    text-wrap: balance;
+  }
 
-    .section_loader .loader_subtitle {
-      font-size: clamp(0.8rem, 1.05vw, 1rem);
-      letter-spacing: 0.04em;
-    }
+  .section_loader .loader_subtitle {
+    font-size: clamp(0.8125rem, 0.7rem + 0.4vw, 1.0625rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   @media (max-width: 991px) {
