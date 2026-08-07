@@ -276,6 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "images/slider-1-attico-frontelago-lago-iseo-lake-valle-camonica.jpg",
     "images/slider-2-attico-frontelago-lago-iseo-lake-valle-camonica.jpg",
     "images/slider-3-attico-frontelago-lago-iseo-lake-valle-camonica.jpg",
+    "images/slider-4-attico-frontelago-lago-iseo-lake-valle-camonica.jpg",
     "assets/hero-video-poster.jpg",
   ];
 
@@ -2121,7 +2122,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // Text first → attic images 1→2→3 (3s each) → video
+      // Text first → attic images 1→2→3→4 (3s each) → video
       if (mediaRoot) {
         const imageItems = Array.from(
           mediaRoot.querySelectorAll('[data-hero-media-item="image"]')
@@ -2320,7 +2321,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showVideo();
             return;
           }
-          // Hold text on first image for 3s, then images 2 and 3 (3s each) → video
+          // Hold text on first image for 3s, then images 2–4 (3s each) → video
           window.setTimeout(runImageSequence, TEXT_HOLD_MS);
         };
 
