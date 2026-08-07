@@ -2021,20 +2021,20 @@ document.addEventListener("DOMContentLoaded", function () {
           video.muted = true;
           video.defaultMuted = true;
           video.volume = 0;
+          video.autoplay = true;
           video.playsInline = true;
+          video.setAttribute("autoplay", "");
           video.setAttribute("muted", "");
           video.setAttribute("playsinline", "");
           video.setAttribute("webkit-playsinline", "");
-          video.setAttribute("x-webkit-airplay", "allow");
           video.preload = "auto";
           if (!video.getAttribute("poster")) {
             video.setAttribute("poster", "assets/hero-video-poster.jpg");
           }
-          // Prefer direct src — more reliable for iOS autoplay than late <source>
-          const current = video.getAttribute("src") || "";
-          if (!current || !current.includes("frontelago-hero-")) {
+          if ((video.getAttribute("src") || "") !== src) {
             video.src = src;
           }
+          if (videoItem) videoItem.classList.add("is-active", "is-video-bed");
         };
 
         const tryPlayHeroVideo = () => {
@@ -2049,9 +2049,21 @@ document.addEventListener("DOMContentLoaded", function () {
           return Promise.resolve(!video.paused);
         };
 
-        const unlockHeroVideoOnGesture = () => {
-          if (!video || !video.paused) return;
-          tryPlayHeroVideo();
+        // Keep hammering play until it sticks (no gesture required for muted)
+        const keepTryingAutoplay = () => {
+          if (!video) return;
+          let tries = 0;
+          const tick = () => {
+            if (!video.paused && !video.ended) return;
+            tries += 1;
+            tryPlayHeroVideo().then((ok) => {
+              if (ok || !video.paused) return;
+              if (tries < 20) window.setTimeout(tick, 400);
+            });
+          };
+          tick();
+          video.addEventListener("canplay", () => tryPlayHeroVideo(), { once: true });
+          video.addEventListener("loadeddata", () => tryPlayHeroVideo(), { once: true });
         };
 
         const showVideo = () => {
@@ -2059,58 +2071,17 @@ document.addEventListener("DOMContentLoaded", function () {
           switched = true;
           if (section) section.setAttribute("data-hero-scene", "video");
 
-          let revealed = false;
-          const finishCrossfade = () => {
-            if (revealed) return;
-            revealed = true;
-            imageItems.forEach((el) => el.classList.remove("is-active"));
-          };
-
-          // Make the video layer visible BEFORE play() — iOS often blocks
-          // autoplay on opacity:0 / offscreen media.
-          videoItem.classList.add("is-active");
+          // Video has been playing under stills — just lift the stills away
+          videoItem.classList.add("is-active", "is-video-bed");
           ensureHeroVideoReady();
-
-          if (!video) {
-            finishCrossfade();
-            return;
-          }
-
-          const onPlaying = () => {
-            window.setTimeout(finishCrossfade, 120);
-          };
-          video.addEventListener("playing", onPlaying, { once: true });
-
-          const attemptPlay = (triesLeft) => {
-            tryPlayHeroVideo().then((ok) => {
-              if (ok || !video.paused) {
-                onPlaying();
-                return;
-              }
-              if (triesLeft > 0) {
-                window.setTimeout(() => attemptPlay(triesLeft - 1), 350);
-              } else {
-                // Last resort: unlock on next user gesture (iOS policy)
-                window.addEventListener("touchstart", unlockHeroVideoOnGesture, {
-                  once: true,
-                  passive: true,
-                });
-                window.addEventListener("scroll", unlockHeroVideoOnGesture, {
-                  once: true,
-                  passive: true,
-                });
-                finishCrossfade();
-              }
-            });
-          };
-
-          // Wait a frame so the active opacity transition applies
-          window.requestAnimationFrame(() => {
-            window.requestAnimationFrame(() => attemptPlay(4));
+          tryPlayHeroVideo().then(() => {
+            imageItems.forEach((el) => el.classList.remove("is-active"));
           });
-
-          // Failsafe: never leave stills stuck over the video layer
-          window.setTimeout(finishCrossfade, 2200);
+          // Failsafe remove stills even if play promise is slow
+          window.setTimeout(() => {
+            imageItems.forEach((el) => el.classList.remove("is-active"));
+            tryPlayHeroVideo();
+          }, 200);
         };
 
         const runImageSequence = () => {
@@ -2141,13 +2112,9 @@ document.addEventListener("DOMContentLoaded", function () {
           sequenceStarted = true;
           activateImage(0);
           revealHeroCopy();
-          // Buffer only — do NOT play while hidden (iOS kills that autoplay)
+          // Start muted autoplay immediately under the stills (iOS-friendly)
           ensureHeroVideoReady();
-          try {
-            video && video.load && video.readyState < 2 && video.pause();
-          } catch (_) {
-            /* ignore */
-          }
+          keepTryingAutoplay();
           if (reducedMotion) {
             showVideo();
             return;
