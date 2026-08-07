@@ -3375,7 +3375,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <img class="loader_media_img" data-slide="2" src="images/slider-2-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago – camera" width="1920" height="1440" decoding="async"/>
 </div>
 <div class="loader_media" data-hero-media-item="video">
-<video loop muted playsinline webkit-playsinline id="hero_video" class="loader_video" poster="assets/hero-video-poster.jpg" preload="auto"></video>
+<video loop muted playsinline webkit-playsinline id="hero_video" class="loader_video" poster="assets/hero-video-poster.jpg" preload="auto" src="assets/frontelago-hero-mobile.mp4"></video>
 </div>
 <div class="loader_waves" aria-hidden="true">
 <canvas class="loader_waves_canvas" data-hero-waves=""></canvas>
@@ -3763,19 +3763,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const video = document.getElementById("hero_video");
     if (!video) return;
 
-    const src = window.matchMedia("(min-width: 768px)").matches
+    const desktop = window.matchMedia("(min-width: 768px)").matches;
+    const src = desktop
       ? "assets/frontelago-hero-desktop.mp4"
       : "assets/frontelago-hero-mobile.mp4";
 
     video.muted = true;
     video.defaultMuted = true;
+    video.volume = 0;
     video.playsInline = true;
     video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
     video.preload = "auto";
 
-    if (!video.getAttribute("src") && !video.querySelector("source")) {
+    if (video.getAttribute("src") !== src) {
       video.src = src;
     }
   })();
