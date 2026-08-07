@@ -1714,6 +1714,76 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeRoomsShowcase();
 
     /////////////////////////////////
+    /* FEATURE VIDEO (16:9 block before Leistungen) */
+    /////////////////////////////////
+
+    function initializeFeatureVideo() {
+      const section = document.querySelector("[data-feature-video]");
+      const video = section?.querySelector("[data-feature-video-el]");
+      if (!section || !video) return;
+
+      const src =
+        window.__frontelagoHeroVideoSrc ||
+        (window.matchMedia("(min-width: 768px)").matches
+          ? "assets/frontelago-hero-desktop.mp4"
+          : "assets/frontelago-hero-mobile.mp4");
+
+      video.muted = true;
+      video.defaultMuted = true;
+      video.volume = 0;
+      video.autoplay = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.controls = false;
+      video.removeAttribute("controls");
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      video.setAttribute("autoplay", "");
+      video.setAttribute("loop", "");
+      if ("disableRemotePlayback" in video) {
+        video.disableRemotePlayback = true;
+      }
+
+      if ((video.getAttribute("src") || "") !== src) {
+        video.src = src;
+      }
+
+      const tryPlay = () => {
+        video.muted = true;
+        video.volume = 0;
+        const play = video.play();
+        if (play && typeof play.catch === "function") {
+          play.catch(() => {});
+        }
+      };
+
+      if ("IntersectionObserver" in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                tryPlay();
+              } else if (!video.paused) {
+                video.pause();
+              }
+            });
+          },
+          { threshold: 0.25 }
+        );
+        io.observe(section);
+      } else {
+        tryPlay();
+      }
+
+      ["touchstart", "scroll", "pageshow"].forEach((evt) => {
+        window.addEventListener(evt, tryPlay, { passive: true, once: true });
+      });
+    }
+
+    initializeFeatureVideo();
+
+    /////////////////////////////////
     /* STICKY FEATURES (Bend Club style) */
     /////////////////////////////////
 
