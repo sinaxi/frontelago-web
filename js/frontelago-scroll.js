@@ -2020,7 +2020,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!video.getAttribute("poster")) {
               video.setAttribute(
                 "poster",
-                "assets/hero-waves-poster.webp"
+                "assets/hero-video-poster.jpg"
               );
             }
             try {
