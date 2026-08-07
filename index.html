@@ -1556,6 +1556,15 @@
     z-index: 1 !important;
     opacity: 1 !important;
   }
+  /* Hide paused video pixels — iOS draws a native play button on visible paused <video> */
+  .loader_media[data-hero-media-item="video"]:not(.is-playing) .loader_video {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+  .loader_media[data-hero-media-item="video"].is-playing .loader_video {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
   .loader_media[data-hero-media-item="image"]:not(.is-active) {
     z-index: 2;
   }
@@ -1735,18 +1744,25 @@
   .loader_video {
     pointer-events: none !important;
     -webkit-touch-callout: none;
+    /* Extra insurance vs Safari’s big play glyph */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
   }
   .loader_video::-webkit-media-controls,
   .loader_video::-webkit-media-controls-enclosure,
   .loader_video::-webkit-media-controls-panel,
   .loader_video::-webkit-media-controls-start-playback-button,
-  .loader_video::-webkit-media-controls-overlay-play-button {
+  .loader_video::-webkit-media-controls-overlay-play-button,
+  .loader_video::-webkit-media-controls-play-button {
     display: none !important;
     -webkit-appearance: none !important;
+    appearance: none !important;
     opacity: 0 !important;
     width: 0 !important;
     height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
     pointer-events: none !important;
+    z-index: -1 !important;
   }
 
   .loader_media_img[data-slide="1"] {
@@ -3424,8 +3440,8 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <div class="loader_media" data-hero-media-item="image" data-hero-slide="3">
 <img class="loader_media_img" data-slide="3" src="images/slider-3-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago – living" width="1920" height="1440" decoding="async"/>
 </div>
-<div class="loader_media is-active is-video-bed" data-hero-media-item="video">
-<video autoplay loop muted playsinline webkit-playsinline id="hero_video" class="loader_video" poster="assets/hero-video-poster.jpg" preload="auto"></video>
+<div class="loader_media is-video-bed" data-hero-media-item="video">
+<video autoplay loop muted playsinline webkit-playsinline disablepictureinpicture id="hero_video" class="loader_video" preload="auto" controlslist="nodownload nofullscreen noremoteplayback" x-webkit-airplay="deny"></video>
 </div>
 <div class="loader_waves" aria-hidden="true">
 <canvas class="loader_waves_canvas" data-hero-waves=""></canvas>
@@ -3813,24 +3829,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const video = document.getElementById("hero_video");
     if (!video) return;
 
-    const src =
-      window.__frontelagoHeroVideoSrc ||
-      (window.matchMedia("(min-width: 768px)").matches
-        ? "assets/frontelago-hero-desktop.mp4"
-        : "assets/frontelago-hero-mobile.mp4");
-
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
+    video.controls = false;
     video.playsInline = true;
+    video.removeAttribute("controls");
+    video.removeAttribute("poster");
     video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("autoplay", "");
     video.preload = "auto";
 
-    // Welcome preloader owns the network fetch — don't start a second download here
-    if (!window.__frontelagoHeroVideoPreload && !video.getAttribute("src")) {
-      video.src = src;
+    // Welcome preloader owns the network fetch / object URL — don't start a second download
+    if (
+      !window.__frontelagoHeroVideoPreload &&
+      !window.__frontelagoHeroVideoObjectUrl &&
+      !video.getAttribute("src")
+    ) {
+      video.src =
+        window.__frontelagoHeroVideoSrc ||
+        (window.matchMedia("(min-width: 768px)").matches
+          ? "assets/frontelago-hero-desktop.mp4"
+          : "assets/frontelago-hero-mobile.mp4");
     }
   })();
 </script></body></html><!--/$-->

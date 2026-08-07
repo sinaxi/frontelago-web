@@ -405,6 +405,37 @@ document.addEventListener("DOMContentLoaded", function () {
     return false;
   }
 
+  function configureHeroVideoElement(video, src) {
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    video.autoplay = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.controls = false;
+    video.removeAttribute("controls");
+    video.removeAttribute("poster");
+    video.setAttribute("autoplay", "");
+    video.setAttribute("muted", "");
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("loop", "");
+    video.setAttribute("disablepictureinpicture", "");
+    video.setAttribute("controlslist", "nodownload nofullscreen noremoteplayback");
+    video.setAttribute("x-webkit-airplay", "deny");
+    if ("disableRemotePlayback" in video) {
+      video.disableRemotePlayback = true;
+    }
+    video.preload = "auto";
+
+    const preferred =
+      window.__frontelagoHeroVideoObjectUrl || src || getHeroVideoSrc();
+    if ((video.getAttribute("src") || "") !== preferred) {
+      video.src = preferred;
+    }
+  }
+
   function preloadHeroVideo() {
     return new Promise((resolve) => {
       const src = getHeroVideoSrc();
@@ -415,22 +446,22 @@ document.addEventListener("DOMContentLoaded", function () {
         resolve(true);
       };
 
-      const attachVideo = () => {
+      const attachVideo = (blob) => {
         const video = document.getElementById("hero_video");
         if (!video) return;
-        video.muted = true;
-        video.defaultMuted = true;
-        video.volume = 0;
-        video.autoplay = true;
-        video.playsInline = true;
-        video.setAttribute("autoplay", "");
-        video.setAttribute("muted", "");
-        video.setAttribute("playsinline", "");
-        video.setAttribute("webkit-playsinline", "");
-        video.preload = "auto";
-        if ((video.getAttribute("src") || "") !== src) {
-          video.src = src;
+
+        if (blob instanceof Blob) {
+          if (window.__frontelagoHeroVideoObjectUrl) {
+            try {
+              URL.revokeObjectURL(window.__frontelagoHeroVideoObjectUrl);
+            } catch (_) {
+              /* ignore */
+            }
+          }
+          window.__frontelagoHeroVideoObjectUrl = URL.createObjectURL(blob);
         }
+
+        configureHeroVideoElement(video, src);
         try {
           video.load();
         } catch (_) {
@@ -442,7 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       };
 
-      // One network trip: early head fetch warms cache, then bind <video>
+      // One network trip: early head fetch warms cache / provides local blob
       const early =
         window.__frontelagoHeroVideoPreload ||
         window
@@ -451,12 +482,12 @@ document.addEventListener("DOMContentLoaded", function () {
           .catch(() => null);
 
       Promise.resolve(early)
-        .then(() => {
-          attachVideo();
+        .then((blob) => {
+          attachVideo(blob);
           finish();
         })
         .catch(() => {
-          attachVideo();
+          attachVideo(null);
           const video = document.getElementById("hero_video");
           if (!video) {
             finish();
@@ -2153,66 +2184,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const ensureHeroVideoReady = () => {
           if (!video) return;
-          const src = isMobileHero()
-            ? "assets/frontelago-hero-mobile.mp4"
-            : "assets/frontelago-hero-desktop.mp4";
+          configureHeroVideoElement(video, getHeroVideoSrc());
+          if (videoItem) videoItem.classList.add("is-video-bed");
+        };
 
-          video.muted = true;
-          video.defaultMuted = true;
-          video.volume = 0;
-          video.autoplay = true;
-          video.playsInline = true;
-          video.setAttribute("autoplay", "");
-          video.setAttribute("muted", "");
-          video.setAttribute("playsinline", "");
-          video.setAttribute("webkit-playsinline", "");
-          video.preload = "auto";
-          if (!video.getAttribute("poster")) {
-            video.setAttribute("poster", "assets/hero-video-poster.jpg");
-          }
-          if ((video.getAttribute("src") || "") !== src) {
-            video.src = src;
-          }
-          if (videoItem) videoItem.classList.add("is-active", "is-video-bed");
+        const markVideoPlaying = () => {
+          if (videoItem) videoItem.classList.add("is-playing", "is-active");
         };
 
         const tryPlayHeroVideo = () => {
           if (!video) return Promise.resolve(false);
           ensureHeroVideoReady();
           video.muted = true;
+          video.defaultMuted = true;
           video.volume = 0;
           const play = video.play();
           if (play && typeof play.then === "function") {
-            return play.then(() => true).catch(() => false);
+            return play
+              .then(() => {
+                if (!video.paused) markVideoPlaying();
+                return !video.paused;
+              })
+              .catch(() => false);
           }
+          if (!video.paused) markVideoPlaying();
           return Promise.resolve(!video.paused);
         };
 
-        // Keep hammering play until it sticks (muted autoplay — no UI)
+        // Keep hammering play until it sticks (muted autoplay — never show a play UI)
         const keepTryingAutoplay = () => {
           if (!video) return;
           let tries = 0;
           const tick = () => {
-            if (!video.paused && !video.ended) return;
+            if (!video.paused && !video.ended) {
+              markVideoPlaying();
+              return;
+            }
             tries += 1;
             tryPlayHeroVideo().then((ok) => {
-              if (ok || !video.paused) return;
-              if (tries < 40) window.setTimeout(tick, 300);
+              if (ok || !video.paused) {
+                markVideoPlaying();
+                return;
+              }
+              if (tries < 80) window.setTimeout(tick, 250);
             });
           };
           tick();
           video.addEventListener("canplay", () => tryPlayHeroVideo());
           video.addEventListener("loadeddata", () => tryPlayHeroVideo());
-          // Any passive page activity can unlock iOS without a visible play button
-          ["touchstart", "touchend", "scroll", "wheel", "pageshow"].forEach((evt) => {
-            window.addEventListener(
-              evt,
-              () => {
-                tryPlayHeroVideo();
-              },
-              { passive: true }
-            );
-          });
+          video.addEventListener("playing", () => markVideoPlaying());
+          // Passive gestures can unlock iOS without ever showing a play button
+          ["touchstart", "touchend", "scroll", "wheel", "pageshow", "visibilitychange"].forEach(
+            (evt) => {
+              window.addEventListener(
+                evt,
+                () => {
+                  tryPlayHeroVideo();
+                },
+                { passive: true }
+              );
+            }
+          );
         };
 
         const showVideo = () => {
@@ -2222,26 +2254,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
           videoItem.classList.add("is-active", "is-video-bed");
           ensureHeroVideoReady();
-          // Never reveal a paused poster/play UI — keep last still until playing
+
+          // Never reveal a paused <video> — iOS paints a native play button on it
           const liftStills = () => {
+            if (!video || video.paused || video.readyState < 2) return false;
+            markVideoPlaying();
             imageItems.forEach((el) => el.classList.remove("is-active"));
-            if (video) video.removeAttribute("poster");
+            video.removeAttribute("poster");
+            return true;
           };
 
           let attempts = 0;
           const waitPlaying = () => {
             attempts += 1;
             tryPlayHeroVideo().then((ok) => {
-              if ((ok || (video && !video.paused)) && video && video.readyState >= 2) {
+              if (ok || (video && !video.paused && video.readyState >= 2)) {
                 liftStills();
                 return;
               }
-              if (attempts < 30) {
+              if (attempts < 40) {
                 window.setTimeout(waitPlaying, 250);
               } else {
-                // Last resort: still lift, but keep retrying play silently
-                liftStills();
+                // Keep last still covering the video; retry silently forever-ish
+                activateImage(imageItems.length - 1);
                 keepTryingAutoplay();
+                const watch = window.setInterval(() => {
+                  if (liftStills()) window.clearInterval(watch);
+                }, 300);
+                window.setTimeout(() => window.clearInterval(watch), 60000);
               }
             });
           };
