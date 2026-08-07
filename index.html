@@ -1704,6 +1704,24 @@
     display: block;
   }
 
+  /* Never show iOS/Safari native play overlay on the hero video */
+  .loader_video {
+    pointer-events: none !important;
+    -webkit-touch-callout: none;
+  }
+  .loader_video::-webkit-media-controls,
+  .loader_video::-webkit-media-controls-enclosure,
+  .loader_video::-webkit-media-controls-panel,
+  .loader_video::-webkit-media-controls-start-playback-button,
+  .loader_video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+    -webkit-appearance: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+  }
+
   .loader_media_img[data-slide="1"] {
     object-position: 72% 48%;
   }
@@ -3377,32 +3395,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <img class="loader_media_img" data-slide="2" src="images/slider-2-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago – camera" width="1920" height="1440" decoding="async"/>
 </div>
 <div class="loader_media is-active is-video-bed" data-hero-media-item="video">
-<video autoplay loop muted playsinline webkit-playsinline disablepictureinpicture disableremoteplayback id="hero_video" class="loader_video" poster="assets/hero-video-poster.jpg" preload="auto" src="assets/frontelago-hero-mobile.mp4"></video>
-<script>
-(function () {
-  var v = document.getElementById("hero_video");
-  if (!v) return;
-  v.muted = true;
-  v.defaultMuted = true;
-  v.volume = 0;
-  v.playsInline = true;
-  v.setAttribute("muted", "");
-  v.setAttribute("playsinline", "");
-  v.setAttribute("webkit-playsinline", "");
-  var kick = function () {
-    v.muted = true;
-    v.volume = 0;
-    var p = v.play();
-    if (p && p.catch) p.catch(function () {});
-  };
-  kick();
-  v.addEventListener("loadeddata", kick, { once: true });
-  v.addEventListener("canplay", kick, { once: true });
-  document.addEventListener("visibilitychange", function () {
-    if (!document.hidden) kick();
-  });
-})();
-</script>
+<video autoplay loop muted playsinline webkit-playsinline id="hero_video" class="loader_video" poster="assets/hero-video-poster.jpg" preload="auto" src="assets/frontelago-hero-mobile.mp4"></video>
 </div>
 <div class="loader_waves" aria-hidden="true">
 <canvas class="loader_waves_canvas" data-hero-waves=""></canvas>
