@@ -1597,14 +1597,13 @@
     z-index: 1 !important;
     opacity: 1 !important;
   }
-  /* Hide paused video pixels — iOS draws a native play button on visible paused <video> */
+  /* Keep paused video covered by stills (opacity only — visibility:hidden breaks iOS autoplay) */
   .loader_media[data-hero-media-item="video"]:not(.is-playing) .loader_video {
     opacity: 0 !important;
-    visibility: hidden !important;
   }
-  .loader_media[data-hero-media-item="video"].is-playing .loader_video {
+  .loader_media[data-hero-media-item="video"].is-playing .loader_video,
+  .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="video"] .loader_video {
     opacity: 1 !important;
-    visibility: visible !important;
   }
   .loader_media[data-hero-media-item="image"]:not(.is-active) {
     z-index: 2;

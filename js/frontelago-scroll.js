@@ -2257,7 +2257,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         const markVideoPlaying = () => {
-          if (videoItem) videoItem.classList.add("is-playing", "is-active");
+          if (videoItem) videoItem.classList.add("is-playing", "is-active", "is-video-bed");
         };
 
         const tryPlayHeroVideo = () => {
@@ -2266,6 +2266,8 @@ document.addEventListener("DOMContentLoaded", function () {
           video.muted = true;
           video.defaultMuted = true;
           video.volume = 0;
+          // iOS: keep element paintable (opacity 0 is fine; visibility:hidden is not)
+          video.style.opacity = "";
           const play = video.play();
           if (play && typeof play.then === "function") {
             return play
@@ -2281,7 +2283,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Keep hammering play until it sticks (muted autoplay — never show a play UI)
         const keepTryingAutoplay = () => {
-          if (!video) return;
+          if (!video || video.dataset.autoplayWatch === "1") return;
+          video.dataset.autoplayWatch = "1";
           let tries = 0;
           const tick = () => {
             if (!video.paused && !video.ended) {
@@ -2300,14 +2303,22 @@ document.addEventListener("DOMContentLoaded", function () {
           tick();
           video.addEventListener("canplay", () => tryPlayHeroVideo());
           video.addEventListener("loadeddata", () => tryPlayHeroVideo());
-          video.addEventListener("playing", () => markVideoPlaying());
-          // Passive gestures can unlock iOS without ever showing a play button
+          video.addEventListener("playing", () => {
+            markVideoPlaying();
+            // Once playing, lift any leftover stills
+            imageItems.forEach((el) => el.classList.remove("is-active"));
+          });
           ["touchstart", "touchend", "scroll", "wheel", "pageshow", "visibilitychange"].forEach(
             (evt) => {
               window.addEventListener(
                 evt,
                 () => {
-                  tryPlayHeroVideo();
+                  tryPlayHeroVideo().then((ok) => {
+                    if (ok || (video && !video.paused)) {
+                      markVideoPlaying();
+                      imageItems.forEach((el) => el.classList.remove("is-active"));
+                    }
+                  });
                 },
                 { passive: true }
               );
@@ -2323,33 +2334,26 @@ document.addEventListener("DOMContentLoaded", function () {
           videoItem.classList.add("is-active", "is-video-bed");
           ensureHeroVideoReady();
 
-          // Never reveal a paused <video> — iOS paints a native play button on it
-          const liftStills = () => {
-            if (!video || video.paused || video.readyState < 2) return false;
+          const revealVideoLayer = () => {
             markVideoPlaying();
             imageItems.forEach((el) => el.classList.remove("is-active"));
-            video.removeAttribute("poster");
-            return true;
+            if (video) video.removeAttribute("poster");
           };
 
           let attempts = 0;
           const waitPlaying = () => {
             attempts += 1;
             tryPlayHeroVideo().then((ok) => {
-              if (ok || (video && !video.paused && video.readyState >= 2)) {
-                liftStills();
+              if (ok || (video && !video.paused)) {
+                revealVideoLayer();
                 return;
               }
-              if (attempts < 40) {
-                window.setTimeout(waitPlaying, 250);
+              // Don't stay stuck on slide 4 — reveal after ~1.5s and keep retrying play
+              if (attempts < 8) {
+                window.setTimeout(waitPlaying, 200);
               } else {
-                // Keep last still covering the video; retry silently forever-ish
-                activateImage(imageItems.length - 1);
+                revealVideoLayer();
                 keepTryingAutoplay();
-                const watch = window.setInterval(() => {
-                  if (liftStills()) window.clearInterval(watch);
-                }, 300);
-                window.setTimeout(() => window.clearInterval(watch), 60000);
               }
             });
           };
