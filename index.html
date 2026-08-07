@@ -924,6 +924,31 @@
     max-width: none;
   }
 
+  .rooms-showcase_card.has-statement {
+    gap: 1.25rem;
+  }
+
+  .rooms-showcase_card.has-statement .rooms-showcase_card-media {
+    flex: 0 0 auto;
+  }
+
+  .rooms-showcase_statement {
+    margin: 0;
+    color: var(--royal-primary);
+    font-family: "Syne", "Montserrat", sans-serif;
+    font-size: clamp(1.35rem, 4.2vw, 1.85rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) {
+    .rooms-showcase_statement {
+      font-size: clamp(1.5rem, 2vw, 1.85rem);
+    }
+  }
+
   @media (min-width: 768px) {
     .rooms-showcase_card {
       border-radius: 1.75rem;
@@ -3292,9 +3317,12 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
             </article>
           </div>
           <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card is-photo-only">
+            <article class="rooms-showcase_card is-photo-only has-statement">
               <div class="rooms-showcase_card-media">
                 <img data-slide="2" src="images/slider-2-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago Lago d'Iseo – camera da letto" width="1920" height="1440" loading="lazy" decoding="async"/>
+              </div>
+              <div class="rooms-showcase_card-copy">
+                <h4 class="rooms-showcase_statement">SPAZI PER<br/>ABITARE LA BELLEZZA.</h4>
               </div>
             </article>
           </div>
