@@ -1583,30 +1583,44 @@
 
   .section_loader .loader_subtitle {
     font-size: clamp(1rem, 0.85rem + 0.65vw, 1.35rem);
-    letter-spacing: 0.01em;
-    text-transform: none;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     font-weight: 400;
     max-width: none;
     white-space: nowrap;
   }
 
+  .loader_subtitle-break {
+    display: none;
+  }
+
   @media (max-width: 991px) {
+    /* Section defaults to flex-end — that pinned copy above the dock */
+    .section_loader {
+      justify-content: flex-start !important;
+    }
+
     .section_loader .loader_contain {
-      /* Sit the copy under the centered hero logo */
+      position: relative;
+      z-index: 100;
       justify-content: flex-start !important;
       align-items: center !important;
+      /* Logo top + logo size + small gap */
       padding-top: calc(
-        clamp(2.5rem, 6.5vw, 4.25rem) + clamp(9.5rem, 34vw, 16rem) + 0.85rem
-      );
-      padding-bottom: 1.25rem;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+        clamp(2.5rem, 6.5vw, 4.25rem) + clamp(9.5rem, 34vw, 16rem) + 0.65rem
+      ) !important;
+      padding-bottom: 0 !important;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      margin-top: 0;
+      width: 100%;
     }
 
     .section_loader .loader_layout {
       align-items: center;
       text-align: center;
-      gap: 0.65rem;
+      gap: 0.75rem;
+      width: 100%;
     }
 
     .section_loader .loader_title_wrap,
@@ -1615,27 +1629,30 @@
       text-align: center;
     }
 
-    .loader_title-break {
-      display: none;
+    .loader_title-break,
+    .loader_subtitle-break {
+      display: block;
     }
 
     .section_loader .loader_title.u-text-style-display {
       margin-left: 0 !important;
       margin-inline: auto;
-      max-width: none;
-      white-space: nowrap;
+      max-width: 12ch;
+      white-space: normal;
       text-align: center;
-      /* One line on mobile — scale to fit the viewport */
-      font-size: clamp(1.05rem, 5.5vw, 1.75rem) !important;
-      line-height: 1;
-      letter-spacing: -0.02em;
+      font-size: clamp(2.15rem, 10.5vw, 3.15rem) !important;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
     }
 
     .section_loader .loader_subtitle {
-      white-space: nowrap;
-      max-width: none;
+      white-space: normal;
+      max-width: 14ch;
       text-align: center;
-      font-size: clamp(0.72rem, 3.4vw, 0.95rem);
+      text-transform: uppercase;
+      font-size: clamp(0.95rem, 4.2vw, 1.2rem);
+      letter-spacing: 0.04em;
+      line-height: 1.15;
       margin-inline: auto;
     }
   }
@@ -3344,7 +3361,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <div class="loader_waves" aria-hidden="true">
 <canvas class="loader_waves_canvas" data-hero-waves=""></canvas>
 </div>
-</div><div class="loader_contain u-container-full"><div class="loader_layout"><div class="loader_title_wrap"><h1 data-animate-heading="on-load" class="loader_title u-text-style-display">SPAZI PER ABITARE<br class="loader_title-break" aria-hidden="true"/>LA BELLEZZA.</h1></div><div id="w-node-_8ec8a5c3-adf4-37f3-aabb-265d07175fe0-abb9c638" class="loader_text_wrap"><h2 data-animate-text="on-load" class="loader_subtitle">Un rifugio sospeso tra cielo e acqua</h2></div></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="s" class="u-spacer w-variant-07a25096-adf6-3d33-f9a5-25aa6c9664ba"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="xs" class="u-spacer w-variant-e3a47723-b914-0592-cbb1-1a58e95c6f6f"></div></div></div></section><section data-animate-theme-to="babypink" class="section_hero"><div class="hero_contain u-container-full"><div class="hero_slider"><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">15+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Inhouse-Experten</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">400+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Influencer</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">150+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Zufriedene Kunden</p></div></div></div></div></div></div></section><section id="services" data-animate-theme-to="light" class="section_services"><div class="w-embed"><style>
+</div><div class="loader_contain u-container-full"><div class="loader_layout"><div class="loader_title_wrap"><h1 data-animate-heading="on-load" class="loader_title u-text-style-display">SPAZI PER ABITARE<br class="loader_title-break" aria-hidden="true"/>LA BELLEZZA.</h1></div><div id="w-node-_8ec8a5c3-adf4-37f3-aabb-265d07175fe0-abb9c638" class="loader_text_wrap"><h2 data-animate-text="on-load" class="loader_subtitle">UNA TERRAZZA<br class="loader_subtitle-break" aria-hidden="true"/>SUL LAGO.</h2></div></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="s" class="u-spacer w-variant-07a25096-adf6-3d33-f9a5-25aa6c9664ba"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="xs" class="u-spacer w-variant-e3a47723-b914-0592-cbb1-1a58e95c6f6f"></div></div></div></section><section data-animate-theme-to="babypink" class="section_hero"><div class="hero_contain u-container-full"><div class="hero_slider"><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">15+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Inhouse-Experten</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">400+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Influencer</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">150+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Zufriedene Kunden</p></div></div></div></div></div></div></section><section id="services" data-animate-theme-to="light" class="section_services"><div class="w-embed"><style>
   /* Title + CTA + copy stacked from the top (not space-between) */
   .section_services .card_stack_content {
     justify-content: flex-start;
