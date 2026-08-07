@@ -2179,9 +2179,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         };
 
-        const isMobileHero = () =>
-          window.matchMedia("(max-width: 767px)").matches;
-
         const ensureHeroVideoReady = () => {
           if (!video) return;
           configureHeroVideoElement(video, getHeroVideoSrc());
