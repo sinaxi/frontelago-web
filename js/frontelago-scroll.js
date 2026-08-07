@@ -2009,6 +2009,49 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         };
 
+        const ensureHeroVideoReady = () => {
+          if (!video) return;
+          const src = window.matchMedia("(min-width: 768px)").matches
+            ? "assets/frontelago-hero-desktop.mp4"
+            : "assets/frontelago-hero-mobile.mp4";
+
+          video.muted = true;
+          video.defaultMuted = true;
+          video.playsInline = true;
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
+          video.preload = "auto";
+          if (!video.getAttribute("poster")) {
+            video.setAttribute("poster", "assets/hero-video-poster.jpg");
+          }
+          if (!video.currentSrc && !video.getAttribute("src")) {
+            video.src = src;
+          }
+        };
+
+        const tryPlayHeroVideo = () => {
+          if (!video) return Promise.resolve();
+          ensureHeroVideoReady();
+          const play = video.play();
+          if (play && typeof play.catch === "function") {
+            return play.catch(() => {
+              return new Promise((resolve) => {
+                window.setTimeout(() => {
+                  video.muted = true;
+                  const retry = video.play();
+                  if (retry && typeof retry.catch === "function") {
+                    retry.catch(() => {}).finally(resolve);
+                  } else {
+                    resolve();
+                  }
+                }, 250);
+              });
+            });
+          }
+          return Promise.resolve();
+        };
+
         const showVideo = () => {
           if (switched || !videoItem || !imageItems.length) return;
           switched = true;
@@ -2022,44 +2065,33 @@ document.addEventListener("DOMContentLoaded", function () {
           };
 
           videoItem.classList.add("is-active");
+          ensureHeroVideoReady();
 
           if (video) {
-            if (!video.getAttribute("poster")) {
-              video.setAttribute("poster", "assets/hero-video-poster.jpg");
-            }
-            try {
-              video.load();
-            } catch (_) {
-              /* ignore */
-            }
-
-            const tryPlay = () => {
-              const play = video.play();
-              if (play && typeof play.catch === "function") {
-                play.catch(() => finishCrossfade());
-              }
+            const onPlaying = () => {
+              window.setTimeout(finishCrossfade, 160);
             };
 
-            const onReady = () => {
-              tryPlay();
-              window.requestAnimationFrame(() => {
-                window.setTimeout(finishCrossfade, 220);
+            video.addEventListener("playing", onPlaying, { once: true });
+
+            const kick = () => {
+              tryPlayHeroVideo().then(() => {
+                if (!video.paused) onPlaying();
               });
             };
 
             if (video.readyState >= 2) {
-              onReady();
+              kick();
             } else {
-              video.addEventListener("loadeddata", onReady, { once: true });
-              video.addEventListener(
-                "playing",
-                () => {
-                  window.setTimeout(finishCrossfade, 180);
-                },
-                { once: true }
-              );
-              tryPlay();
-              window.setTimeout(finishCrossfade, 1600);
+              video.addEventListener("loadeddata", kick, { once: true });
+              video.addEventListener("canplay", kick, { once: true });
+              try {
+                video.load();
+              } catch (_) {
+                /* ignore */
+              }
+              kick();
+              window.setTimeout(finishCrossfade, 1800);
             }
           } else {
             finishCrossfade();
@@ -2094,6 +2126,9 @@ document.addEventListener("DOMContentLoaded", function () {
           sequenceStarted = true;
           activateImage(0);
           revealHeroCopy();
+          // Warm/buffer the hero video under the stills so autoplay is ready
+          ensureHeroVideoReady();
+          tryPlayHeroVideo();
           if (reducedMotion) {
             showVideo();
             return;
