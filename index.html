@@ -1613,30 +1613,13 @@
     z-index: 1 !important;
     opacity: 1 !important;
   }
-  /* Video element stays fully opaque under stills/cover so iOS autoplay can start.
-     Play button is never visible because images + cover sit above it. */
+  /* Video runs under the stills; stills hide any iOS Play glyph */
   .loader_media[data-hero-media-item="video"] .loader_video {
     opacity: 1 !important;
   }
 
-  /* Opaque still cover above the video bed until real playback */
   .loader_video_cover {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    opacity: 1;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
-  }
-  .section_loader[data-hero-scene="video"] .loader_video_cover:not(.is-hidden) {
-    z-index: 5; /* above last still while waiting for play */
-  }
-  .loader_video_cover.is-hidden {
-    opacity: 0;
-    visibility: hidden;
+    display: none !important;
   }
 
   .loader_media[data-hero-media-item="image"]:not(.is-active) {

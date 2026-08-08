@@ -2231,7 +2231,6 @@ document.addEventListener("DOMContentLoaded", function () {
           imageItems.forEach((el, i) => {
             el.classList.toggle("is-active", i === index);
           });
-          syncVideoCover(index);
         };
 
         const revealHeroCopy = () => {
@@ -2271,39 +2270,19 @@ document.addEventListener("DOMContentLoaded", function () {
         const ensureHeroVideoReady = () => {
           if (!video) return;
           configureHeroVideoElement(video, getHeroVideoSrc());
-          if (videoItem) videoItem.classList.add("is-video-bed");
+          if (videoItem) videoItem.classList.add("is-video-bed", "is-active");
         };
-
-        const videoCover = mediaRoot.querySelector("[data-hero-video-cover]");
 
         const markVideoPlaying = () => {
           if (videoItem) videoItem.classList.add("is-playing", "is-active", "is-video-bed");
         };
 
-        const syncVideoCover = (index) => {
-          if (!videoCover || !imageItems.length) return;
-          const safeIndex = Math.max(0, Math.min(index, imageItems.length - 1));
-          const img = imageItems[safeIndex]?.querySelector("img");
-          const src = img?.currentSrc || img?.getAttribute("src");
-          if (src) {
-            videoCover.style.backgroundImage = `url("${src}")`;
-          }
-        };
-
-        const hideVideoCover = () => {
-          if (videoCover) videoCover.classList.add("is-hidden");
-        };
-
-        const showVideoCover = () => {
-          if (videoCover) videoCover.classList.remove("is-hidden");
-        };
-
         const revealPlayingVideo = () => {
-          if (!video || video.paused) return false;
+          // Only lift stills once the slideshow is done AND video is really playing
+          if (!switched || !video || video.paused) return false;
           markVideoPlaying();
           imageItems.forEach((el) => el.classList.remove("is-active"));
           video.removeAttribute("poster");
-          hideVideoCover();
           return true;
         };
 
@@ -2313,7 +2292,6 @@ document.addEventListener("DOMContentLoaded", function () {
           video.muted = true;
           video.defaultMuted = true;
           video.volume = 0;
-          // Force inline muted flags again right before play (iOS is picky)
           video.setAttribute("muted", "");
           video.setAttribute("playsinline", "");
           video.setAttribute("webkit-playsinline", "");
@@ -2321,28 +2299,29 @@ document.addEventListener("DOMContentLoaded", function () {
           if (play && typeof play.then === "function") {
             return play
               .then(() => {
-                if (!video.paused) revealPlayingVideo();
-                return !video.paused;
+                const ok = !video.paused;
+                if (ok) revealPlayingVideo();
+                return ok;
               })
               .catch(() => false);
           }
-          if (!video.paused) revealPlayingVideo();
-          return Promise.resolve(!video.paused);
+          const ok = !video.paused;
+          if (ok) revealPlayingVideo();
+          return Promise.resolve(ok);
         };
 
-        // Keep hammering play until it sticks — cover hides the native Play glyph
         const keepTryingAutoplay = () => {
           if (!video || video.dataset.autoplayWatch === "1") return;
           video.dataset.autoplayWatch = "1";
           let tries = 0;
           const tick = () => {
             if (!video.paused && !video.ended) {
-              if (switched) revealPlayingVideo();
+              revealPlayingVideo();
               return;
             }
             tries += 1;
             tryPlayHeroVideo().then((ok) => {
-              if ((ok || !video.paused) && switched) {
+              if (ok || !video.paused) {
                 revealPlayingVideo();
                 return;
               }
@@ -2350,33 +2329,18 @@ document.addEventListener("DOMContentLoaded", function () {
             });
           };
           tick();
-          video.addEventListener("playing", () => {
-            if (switched) revealPlayingVideo();
-          });
+          video.addEventListener("playing", () => revealPlayingVideo());
           video.addEventListener("canplay", () => tryPlayHeroVideo());
           video.addEventListener("loadeddata", () => tryPlayHeroVideo());
           ["touchstart", "touchend", "pointerdown", "scroll", "wheel", "pageshow"].forEach(
             (evt) => {
-              window.addEventListener(
-                evt,
-                () => {
-                  tryPlayHeroVideo().then((ok) => {
-                    if ((ok || (video && !video.paused)) && switched) {
-                      revealPlayingVideo();
-                    }
-                  });
-                },
-                { passive: true }
-              );
+              window.addEventListener(evt, () => tryPlayHeroVideo(), { passive: true });
             }
           );
         };
 
-        // First tap on the welcome splash unlocks muted autoplay on iOS
         if (preloaderWrap) {
-          const unlock = () => {
-            tryPlayHeroVideo();
-          };
+          const unlock = () => tryPlayHeroVideo();
           ["touchstart", "pointerdown"].forEach((evt) => {
             preloaderWrap.addEventListener(evt, unlock, { passive: true, once: true });
           });
@@ -2387,20 +2351,15 @@ document.addEventListener("DOMContentLoaded", function () {
           switched = true;
           if (section) section.setAttribute("data-hero-scene", "video");
 
-          syncVideoCover(imageItems.length - 1);
-          showVideoCover();
-          // Keep last still briefly; cover sits above it while we confirm playback
-          activateImage(imageItems.length - 1);
+          // Already on image 4 from the slideshow — do not re-activate it (avoids double flash)
           videoItem.classList.add("is-active", "is-video-bed");
           ensureHeroVideoReady();
+          keepTryingAutoplay();
 
-          // If autoplay already stuck during the slideshow, reveal immediately
           if (video && !video.paused) {
             revealPlayingVideo();
             return;
           }
-
-          keepTryingAutoplay();
 
           let attempts = 0;
           const waitPlaying = () => {
@@ -2410,15 +2369,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              if (attempts < 60) {
-                window.setTimeout(waitPlaying, 150);
-              } else {
-                // Last resort: lift stills but keep the photo cover until playing
-                // so the iOS Play button never appears; cover drops on "playing"
-                imageItems.forEach((el) => el.classList.remove("is-active"));
-                showVideoCover();
-                keepTryingAutoplay();
-              }
+              if (attempts < 50) window.setTimeout(waitPlaying, 150);
             });
           };
           waitPlaying();
@@ -2442,7 +2393,6 @@ document.addEventListener("DOMContentLoaded", function () {
             window.setTimeout(tick, SLIDE_HOLD_MS);
           };
 
-          // Text already held 3s on slide 1 — advance to slide 2 now
           tick();
         };
 
@@ -2450,18 +2400,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const startHeroSequence = () => {
           if (sequenceStarted) return;
           sequenceStarted = true;
-          syncVideoCover(0);
-          showVideoCover();
           activateImage(0);
           revealHeroCopy();
-          // Start muted autoplay immediately under the stills (iOS-friendly)
           ensureHeroVideoReady();
           keepTryingAutoplay();
           if (reducedMotion) {
             showVideo();
             return;
           }
-          // Hold text on first image for 2s, then images 2–4 (2s each) → video
           window.setTimeout(runImageSequence, TEXT_HOLD_MS);
         };
 
