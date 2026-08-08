@@ -1613,11 +1613,9 @@
     z-index: 1 !important;
     opacity: 1 !important;
   }
-  /* Video stays under stills until .is-playing — never paint a paused <video> (iOS Play button) */
-  .loader_media[data-hero-media-item="video"]:not(.is-playing) .loader_video {
-    opacity: 0 !important;
-  }
-  .loader_media[data-hero-media-item="video"].is-playing .loader_video {
+  /* Video element stays fully opaque under stills/cover so iOS autoplay can start.
+     Play button is never visible because images + cover sit above it. */
+  .loader_media[data-hero-media-item="video"] .loader_video {
     opacity: 1 !important;
   }
 
@@ -1630,8 +1628,11 @@
     background-size: cover;
     background-repeat: no-repeat;
     opacity: 1;
-    transition: opacity 0.45s ease;
+    transition: opacity 0.35s ease;
     pointer-events: none;
+  }
+  .section_loader[data-hero-scene="video"] .loader_video_cover:not(.is-hidden) {
+    z-index: 5; /* above last still while waiting for play */
   }
   .loader_video_cover.is-hidden {
     opacity: 0;

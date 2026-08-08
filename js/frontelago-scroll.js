@@ -430,10 +430,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     video.preload = "auto";
 
-    // Prefer the real file URL (HTTP cache). Blob URLs often fail muted autoplay on iOS.
     const preferred = src || getHeroVideoSrc();
-    const current = video.getAttribute("src") || "";
-    if (!current || current.startsWith("blob:") || current !== preferred) {
+    let alreadySet = false;
+    try {
+      const abs = new URL(preferred, window.location.href).href;
+      alreadySet =
+        (video.getAttribute("src") || "") === preferred ||
+        video.src === abs ||
+        video.currentSrc === abs;
+    } catch (_) {
+      alreadySet = (video.getAttribute("src") || "") === preferred;
+    }
+
+    // Never reassign src while playing — that pauses and shows the iOS Play button
+    if (!alreadySet && video.paused) {
       video.src = preferred;
     }
   }
@@ -2303,6 +2313,10 @@ document.addEventListener("DOMContentLoaded", function () {
           video.muted = true;
           video.defaultMuted = true;
           video.volume = 0;
+          // Force inline muted flags again right before play (iOS is picky)
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
           const play = video.play();
           if (play && typeof play.then === "function") {
             return play
@@ -2316,19 +2330,19 @@ document.addEventListener("DOMContentLoaded", function () {
           return Promise.resolve(!video.paused);
         };
 
-        // Keep hammering play until it sticks — never expose a paused <video>
+        // Keep hammering play until it sticks — cover hides the native Play glyph
         const keepTryingAutoplay = () => {
           if (!video || video.dataset.autoplayWatch === "1") return;
           video.dataset.autoplayWatch = "1";
           let tries = 0;
           const tick = () => {
             if (!video.paused && !video.ended) {
-              revealPlayingVideo();
+              if (switched) revealPlayingVideo();
               return;
             }
             tries += 1;
             tryPlayHeroVideo().then((ok) => {
-              if (ok || !video.paused) {
+              if ((ok || !video.paused) && switched) {
                 revealPlayingVideo();
                 return;
               }
@@ -2336,7 +2350,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
           };
           tick();
-          video.addEventListener("playing", () => revealPlayingVideo());
+          video.addEventListener("playing", () => {
+            if (switched) revealPlayingVideo();
+          });
           video.addEventListener("canplay", () => tryPlayHeroVideo());
           video.addEventListener("loadeddata", () => tryPlayHeroVideo());
           ["touchstart", "touchend", "pointerdown", "scroll", "wheel", "pageshow"].forEach(
@@ -2344,7 +2360,11 @@ document.addEventListener("DOMContentLoaded", function () {
               window.addEventListener(
                 evt,
                 () => {
-                  tryPlayHeroVideo();
+                  tryPlayHeroVideo().then((ok) => {
+                    if ((ok || (video && !video.paused)) && switched) {
+                      revealPlayingVideo();
+                    }
+                  });
                 },
                 { passive: true }
               );
@@ -2367,13 +2387,19 @@ document.addEventListener("DOMContentLoaded", function () {
           switched = true;
           if (section) section.setAttribute("data-hero-scene", "video");
 
-          // Keep last still + cover until the video is actually playing
-          activateImage(imageItems.length - 1);
           syncVideoCover(imageItems.length - 1);
           showVideoCover();
+          // Keep last still briefly; cover sits above it while we confirm playback
+          activateImage(imageItems.length - 1);
           videoItem.classList.add("is-active", "is-video-bed");
-          videoItem.classList.remove("is-playing");
           ensureHeroVideoReady();
+
+          // If autoplay already stuck during the slideshow, reveal immediately
+          if (video && !video.paused) {
+            revealPlayingVideo();
+            return;
+          }
+
           keepTryingAutoplay();
 
           let attempts = 0;
@@ -2384,8 +2410,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              // Stay on still/cover — never show iOS Play. Keep retrying.
-              if (attempts < 100) window.setTimeout(waitPlaying, 200);
+              if (attempts < 60) {
+                window.setTimeout(waitPlaying, 150);
+              } else {
+                // Last resort: lift stills but keep the photo cover until playing
+                // so the iOS Play button never appears; cover drops on "playing"
+                imageItems.forEach((el) => el.classList.remove("is-active"));
+                showVideoCover();
+                keepTryingAutoplay();
+              }
             });
           };
           waitPlaying();
