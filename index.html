@@ -225,6 +225,22 @@
     -webkit-touch-callout: none;
   }
 
+  .feature-video_cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+      center / cover no-repeat
+      url("assets/hero-video-poster.jpg");
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .feature-video_frame.is-playing .feature-video_cover {
+    opacity: 0;
+    visibility: hidden;
+  }
+
   .feature-video_el::-webkit-media-controls,
   .feature-video_el::-webkit-media-controls-start-playback-button,
   .feature-video_el::-webkit-media-controls-overlay-play-button {
@@ -1597,14 +1613,31 @@
     z-index: 1 !important;
     opacity: 1 !important;
   }
-  /* Keep paused video covered by stills (opacity only — visibility:hidden breaks iOS autoplay) */
+  /* Video stays under stills until .is-playing — never paint a paused <video> (iOS Play button) */
   .loader_media[data-hero-media-item="video"]:not(.is-playing) .loader_video {
     opacity: 0 !important;
   }
-  .loader_media[data-hero-media-item="video"].is-playing .loader_video,
-  .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="video"] .loader_video {
+  .loader_media[data-hero-media-item="video"].is-playing .loader_video {
     opacity: 1 !important;
   }
+
+  /* Opaque still cover above the video bed until real playback */
+  .loader_video_cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 1;
+    transition: opacity 0.45s ease;
+    pointer-events: none;
+  }
+  .loader_video_cover.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
   .loader_media[data-hero-media-item="image"]:not(.is-active) {
     z-index: 2;
   }
@@ -3489,6 +3522,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <div class="loader_media is-video-bed" data-hero-media-item="video">
 <video autoplay loop muted playsinline webkit-playsinline disablepictureinpicture id="hero_video" class="loader_video" preload="auto" controlslist="nodownload nofullscreen noremoteplayback" x-webkit-airplay="deny"></video>
 </div>
+<div class="loader_video_cover" data-hero-video-cover aria-hidden="true"></div>
 <div class="loader_waves" aria-hidden="true">
 <canvas class="loader_waves_canvas" data-hero-waves=""></canvas>
 </div>
@@ -3504,11 +3538,11 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
       playsinline
       webkit-playsinline
       preload="metadata"
-      poster="assets/hero-video-poster.jpg"
       controlslist="nodownload nofullscreen noremoteplayback"
       disablepictureinpicture
       x-webkit-airplay="deny"
     ></video>
+    <div class="feature-video_cover" aria-hidden="true"></div>
   </div>
 </section>
 <section id="services" data-animate-theme-to="light" class="section_services"><div class="w-embed"><style>
