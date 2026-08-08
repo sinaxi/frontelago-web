@@ -416,7 +416,10 @@ document.addEventListener("DOMContentLoaded", function () {
     video.playsInline = true;
     video.controls = false;
     video.removeAttribute("controls");
-    video.removeAttribute("poster");
+    // Keep a still until playback starts (helps iOS paint a frame before play)
+    if (!video.getAttribute("poster")) {
+      video.setAttribute("poster", "assets/hero-video-poster.jpg");
+    }
     video.setAttribute("autoplay", "");
     video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
@@ -448,6 +451,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function forceHeroVideoPlay(video) {
+    if (!video) return Promise.resolve(false);
+    configureHeroVideoElement(video, getHeroVideoSrc());
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    try {
+      video.setAttribute("muted", "");
+      // iOS: ensure playsInline before any play() call
+      video.playsInline = true;
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+    } catch (_) {
+      /* ignore */
+    }
+    const play = video.play();
+    if (play && typeof play.then === "function") {
+      return play
+        .then(() => !video.paused)
+        .catch(() => false);
+    }
+    return Promise.resolve(!video.paused);
+  }
+
   function preloadHeroVideo() {
     return new Promise((resolve) => {
       const src = getHeroVideoSrc();
@@ -470,10 +497,7 @@ document.addEventListener("DOMContentLoaded", function () {
             /* ignore */
           }
         }
-        const playAttempt = video.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {});
-        }
+        forceHeroVideoPlay(video);
       };
 
       // Warm HTTP cache, then bind the file URL (not a blob:) for reliable iOS autoplay
@@ -2288,32 +2312,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const tryPlayHeroVideo = () => {
           if (!video) return Promise.resolve(false);
-          ensureHeroVideoReady();
-          video.muted = true;
-          video.defaultMuted = true;
-          video.volume = 0;
-          video.setAttribute("muted", "");
-          video.setAttribute("playsinline", "");
-          video.setAttribute("webkit-playsinline", "");
-          const play = video.play();
-          if (play && typeof play.then === "function") {
-            return play
-              .then(() => {
-                const ok = !video.paused;
-                if (ok) revealPlayingVideo();
-                return ok;
-              })
-              .catch(() => false);
-          }
-          const ok = !video.paused;
-          if (ok) revealPlayingVideo();
-          return Promise.resolve(ok);
+          return forceHeroVideoPlay(video).then((ok) => {
+            if (ok) revealPlayingVideo();
+            return ok;
+          });
         };
 
         const keepTryingAutoplay = () => {
           if (!video || video.dataset.autoplayWatch === "1") return;
           video.dataset.autoplayWatch = "1";
           let tries = 0;
+          const isCoarse =
+            window.matchMedia("(hover: none), (pointer: coarse)").matches ||
+            /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "");
+
           const tick = () => {
             if (!video.paused && !video.ended) {
               revealPlayingVideo();
@@ -2325,18 +2337,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              if (tries < 120) window.setTimeout(tick, 200);
+              // Mobile: keep trying longer — Low Power Mode / Safari often needs retries
+              const maxTries = isCoarse ? 200 : 120;
+              if (tries < maxTries) {
+                window.setTimeout(tick, isCoarse ? 120 : 200);
+              }
             });
           };
           tick();
           video.addEventListener("playing", () => revealPlayingVideo());
           video.addEventListener("canplay", () => tryPlayHeroVideo());
           video.addEventListener("loadeddata", () => tryPlayHeroVideo());
-          ["touchstart", "touchend", "pointerdown", "scroll", "wheel", "pageshow"].forEach(
-            (evt) => {
-              window.addEventListener(evt, () => tryPlayHeroVideo(), { passive: true });
-            }
-          );
+          [
+            "touchstart",
+            "touchend",
+            "pointerdown",
+            "scroll",
+            "wheel",
+            "pageshow",
+            "visibilitychange",
+          ].forEach((evt) => {
+            window.addEventListener(
+              evt,
+              () => {
+                if (document.visibilityState === "hidden") return;
+                tryPlayHeroVideo();
+              },
+              { passive: true }
+            );
+          });
+          // Any gesture on the hero itself unlocks iOS autoplay
+          if (mediaRoot) {
+            mediaRoot.addEventListener(
+              "touchstart",
+              () => tryPlayHeroVideo(),
+              { passive: true }
+            );
+          }
         };
 
         if (preloaderWrap) {

@@ -3504,7 +3504,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <img class="loader_media_img" data-slide="4" src="images/slider-4-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago – camera con vista lago" width="1920" height="1440" decoding="async"/>
 </div>
 <div class="loader_media is-video-bed" data-hero-media-item="video">
-<video autoplay loop muted playsinline webkit-playsinline disablepictureinpicture id="hero_video" class="loader_video" preload="auto" controlslist="nodownload nofullscreen noremoteplayback" x-webkit-airplay="deny"></video>
+<video autoplay loop muted playsinline webkit-playsinline disablepictureinpicture id="hero_video" class="loader_video" poster="assets/hero-video-poster.jpg" preload="auto" controlslist="nodownload nofullscreen noremoteplayback" x-webkit-airplay="deny"></video>
 </div>
 <div class="loader_video_cover" data-hero-video-cover aria-hidden="true"></div>
 <div class="loader_waves" aria-hidden="true">
@@ -3918,7 +3918,9 @@ document.addEventListener("DOMContentLoaded", function () {
     video.controls = false;
     video.playsInline = true;
     video.removeAttribute("controls");
-    video.removeAttribute("poster");
+    if (!video.getAttribute("poster")) {
+      video.setAttribute("poster", "assets/hero-video-poster.jpg");
+    }
     video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
@@ -3937,5 +3939,17 @@ document.addEventListener("DOMContentLoaded", function () {
           ? "assets/frontelago-hero-desktop.mp4"
           : "assets/frontelago-hero-mobile.mp4");
     }
+
+    // Mobile: attempt muted autoplay as soon as the element exists
+    var kick = function () {
+      video.muted = true;
+      video.volume = 0;
+      var p = video.play();
+      if (p && typeof p.catch === "function") p.catch(function () {});
+    };
+    kick();
+    video.addEventListener("loadeddata", kick, { once: true });
+    video.addEventListener("canplay", kick, { once: true });
+    document.addEventListener("touchstart", kick, { passive: true, once: true });
   })();
 </script></body></html><!--/$-->
