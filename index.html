@@ -679,10 +679,10 @@
 
   .rooms-showcase_panel {
     position: relative;
+    isolation: isolate;
     overflow: hidden;
     border-radius: 2rem;
-    /* Underlay is the photo stack; keep a dark fallback only if media fails */
-    background: #1a1815;
+    background: #000;
     padding: 1rem;
     color: #fff;
   }
@@ -704,10 +704,6 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    /* Hold the opening photo under crossfades so gaps never read as empty */
-    background:
-      center / cover no-repeat
-      url("https://cdn.sanity.io/images/6od6ct5d/production/ab82bdf777f9b456affef79360d3338225acd7f9-1920x1280.jpg?auto=format&fit=max&w=1920&q=65");
   }
 
   .rooms-showcase_bg img {
@@ -717,24 +713,16 @@
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    z-index: 1;
-    transition: opacity 0.55s ease;
-  }
-
-  .rooms-showcase_bg img.is-base {
-    opacity: 1;
-    z-index: 1;
+    transition: opacity 0.3s ease;
   }
 
   .rooms-showcase_bg img.is-active {
     opacity: 1;
-    z-index: 2;
   }
 
   .rooms-showcase_bg-glow {
     position: absolute;
     inset: 0;
-    z-index: 3;
     border-radius: inherit;
     box-shadow: 0 0 20px 10px var(--royal-glow) inset;
   }
@@ -742,7 +730,6 @@
   .rooms-showcase_bg-dim {
     position: absolute;
     inset: 0;
-    z-index: 3;
     background: rgba(0, 0, 0, 0.3);
   }
 
@@ -993,47 +980,58 @@
   .rooms-showcase_card {
     display: flex;
     height: 100%;
-    min-height: 0;
+    min-height: 400px;
     max-width: 600px;
     flex-direction: column;
     gap: 0;
     border-radius: 1.5rem;
     background: var(--royal-card);
-    padding: 0.75rem;
+    padding: 1rem;
     color: var(--royal-primary);
   }
 
   .rooms-showcase_card.is-photo-only {
     max-width: none;
+    min-height: 0;
+    gap: 0;
   }
 
   @media (min-width: 768px) {
     .rooms-showcase_card {
+      min-height: 440px;
       border-radius: 1.75rem;
+      padding: 1.25rem;
+    }
+
+    .rooms-showcase_card.is-photo-only {
+      min-height: 0;
       padding: 1rem;
     }
   }
 
   .rooms-showcase_card-media {
     position: relative;
-    /* Tall crop on mobile so interiors stay readable in portrait */
-    height: min(68svh, 32rem);
-    min-height: 22rem;
+    height: 16.875rem;
     overflow: hidden;
     border-radius: 1rem;
     padding: 0;
+  }
+
+  .rooms-showcase_card.is-photo-only .rooms-showcase_card-media {
+    height: min(52svh, 26rem);
+    min-height: 18rem;
     flex: 1 1 auto;
   }
 
   @media (min-width: 768px) {
-    .rooms-showcase_card-media {
+    .rooms-showcase_card.is-photo-only .rooms-showcase_card-media {
       height: 22rem;
       min-height: 22rem;
     }
   }
 
   @media (min-width: 992px) {
-    .rooms-showcase_card-media {
+    .rooms-showcase_card.is-photo-only .rooms-showcase_card-media {
       height: 24rem;
       min-height: 24rem;
     }

@@ -1577,22 +1577,9 @@ document.addEventListener("DOMContentLoaded", function () {
           if (on) pane.removeAttribute("hidden");
           else pane.setAttribute("hidden", "");
         });
-        // Layered crossfade: keep previous image as base under the new one
-        // so the panel never flashes black between tabs.
-        const nextBg = bgs.find((img) => img.getAttribute("data-bg") === name);
-        const prevBg = bgs.find((img) => img.classList.contains("is-active"));
         bgs.forEach((img) => {
-          img.classList.remove("is-base");
-          if (img === prevBg && prevBg !== nextBg) img.classList.add("is-base");
-          img.classList.toggle("is-active", img === nextBg);
+          img.classList.toggle("is-active", img.getAttribute("data-bg") === name);
         });
-        if (prevBg && nextBg && prevBg !== nextBg) {
-          window.setTimeout(() => {
-            bgs.forEach((img) => {
-              if (img !== nextBg) img.classList.remove("is-base", "is-active");
-            });
-          }, 560);
-        }
         if (mobileLabel) {
           const source = tabs.find(
             (t) =>
