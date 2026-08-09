@@ -668,6 +668,14 @@
   }
 
   /* Vacation amenities grid (ex partners logos) */
+  .section_amenities.section_partners,
+  .section_amenities {
+    background: color-mix(
+      in srgb,
+      var(--palette-senape, #c9971c) 76%,
+      #f6edd9 24%
+    ) !important;
+  }
   .section_amenities .partners_title {
     color: #ffffff !important;
   }
@@ -703,7 +711,12 @@
     border: 1px solid color-mix(in srgb, #f3e6c4 70%, var(--palette-senape, #c9971c) 30%);
     border-radius: 1.1rem;
     overflow: hidden;
-    background: color-mix(in srgb, var(--palette-senape, #c9971c) 72%, #1a1815 28%);
+    /* Slightly richer yellow than the lighter section field — not darker/muddier */
+    background: color-mix(
+      in srgb,
+      var(--palette-senape, #c9971c) 94%,
+      #b88914 6%
+    );
   }
   .amenity-content {
     display: flex;
