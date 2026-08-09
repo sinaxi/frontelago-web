@@ -300,7 +300,7 @@
     pointer-events: none !important;
   }
 
-  /* Solid wave cuts only — no animated line strokes on this block */
+  /* Two wave layers per edge — different undulation, inner layer soft over video */
   .feature-video_edge {
     position: absolute;
     left: 0;
@@ -308,39 +308,90 @@
     width: 100%;
     pointer-events: none;
     z-index: 4;
+    overflow: visible;
   }
 
   .feature-video_edge--top {
     top: 0;
-    height: clamp(3.25rem, 9vw, 7rem);
+    height: clamp(3.75rem, 11vw, 8rem);
   }
 
   .feature-video_edge--bottom {
     bottom: 0;
-    height: clamp(3.25rem, 9vw, 7rem);
+    height: clamp(3.75rem, 11vw, 8rem);
   }
 
   @media (max-width: 767px) {
     .feature-video_edge--top,
     .feature-video_edge--bottom {
-      height: clamp(2.5rem, 9vw, 3.75rem);
+      height: clamp(3rem, 11vw, 4.5rem);
     }
   }
 
   .feature-video_cut {
     position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
+    left: -8%;
+    width: 116%;
     height: 100%;
+    display: block;
+    will-change: transform;
   }
 
   .feature-video_edge--top .feature-video_cut {
+    top: 0;
     color: #ffffff;
   }
 
   .feature-video_edge--bottom .feature-video_cut {
+    bottom: 0;
     color: var(--palette-avorio, #f5efe0);
+  }
+
+  /* Inner layer: reaches further into the video, semi-transparent */
+  .feature-video_cut--back {
+    z-index: 1;
+    height: 135%;
+    opacity: 0.42;
+  }
+
+  .feature-video_edge--top .feature-video_cut--back {
+    top: 0;
+  }
+
+  .feature-video_edge--bottom .feature-video_cut--back {
+    bottom: 0;
+    height: 135%;
+  }
+
+  /* Outer layer: denser cut at the edge */
+  .feature-video_cut--front {
+    z-index: 2;
+    opacity: 1;
+  }
+
+  .feature-video_cut--back {
+    animation: feature-wave-drift-a 11s ease-in-out infinite alternate;
+  }
+
+  .feature-video_cut--front {
+    animation: feature-wave-drift-b 7.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes feature-wave-drift-a {
+    from { transform: translate3d(-2.5%, 0, 0); }
+    to { transform: translate3d(2.5%, 0, 0); }
+  }
+
+  @keyframes feature-wave-drift-b {
+    from { transform: translate3d(2%, 0, 0); }
+    to { transform: translate3d(-2%, 0, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-video_cut--back,
+    .feature-video_cut--front {
+      animation: none;
+    }
   }
 
   /*
