@@ -993,30 +993,50 @@
   .rooms-showcase_card {
     display: flex;
     height: 100%;
-    min-height: 400px;
+    min-height: 0;
     max-width: 600px;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0;
     border-radius: 1.5rem;
     background: var(--royal-card);
-    padding: 1rem;
+    padding: 0.75rem;
     color: var(--royal-primary);
+  }
+
+  .rooms-showcase_card.is-photo-only {
+    max-width: none;
   }
 
   @media (min-width: 768px) {
     .rooms-showcase_card {
-      min-height: 440px;
       border-radius: 1.75rem;
-      padding: 1.25rem;
+      padding: 1rem;
     }
   }
 
   .rooms-showcase_card-media {
     position: relative;
-    height: 16.875rem;
+    /* Tall crop on mobile so interiors stay readable in portrait */
+    height: min(68svh, 32rem);
+    min-height: 22rem;
     overflow: hidden;
     border-radius: 1rem;
-    padding: 0.75rem;
+    padding: 0;
+    flex: 1 1 auto;
+  }
+
+  @media (min-width: 768px) {
+    .rooms-showcase_card-media {
+      height: 22rem;
+      min-height: 22rem;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .rooms-showcase_card-media {
+      height: 24rem;
+      min-height: 24rem;
+    }
   }
 
   .rooms-showcase_card-media img {
@@ -1025,6 +1045,30 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 45%;
+  }
+
+  /* Focal points tuned for portrait crop on mobile */
+  .rooms-showcase_card-media img[data-slide="1"] {
+    object-position: 72% 48%;
+  }
+  .rooms-showcase_card-media img[data-slide="2"] {
+    object-position: 52% 42%;
+  }
+  .rooms-showcase_card-media img[data-slide="3"] {
+    object-position: 58% 50%;
+  }
+
+  @media (min-width: 768px) {
+    .rooms-showcase_card-media img[data-slide="1"] {
+      object-position: 65% 50%;
+    }
+    .rooms-showcase_card-media img[data-slide="2"] {
+      object-position: 50% 45%;
+    }
+    .rooms-showcase_card-media img[data-slide="3"] {
+      object-position: 50% 50%;
+    }
   }
 
   .rooms-showcase_badge {
@@ -3530,9 +3574,9 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <section id="rooms" class="section_rooms-showcase" data-rooms-showcase="" data-animate-theme-to="light" aria-label="Rooms showcase">
   <div class="rooms-showcase_panel">
     <div class="rooms-showcase_bg" aria-hidden="true">
-      <img class="is-active" data-bg="rooms" src="https://cdn.sanity.io/images/6od6ct5d/production/ab82bdf777f9b456affef79360d3338225acd7f9-1920x1280.jpg?auto=format&amp;fit=max&amp;w=1920&amp;q=65" alt="" decoding="async"/>
-      <img data-bg="amenities" src="https://cdn.sanity.io/images/6od6ct5d/production/016f425881c15666eb0fe853cc26f5ac20ed907d-1920x1280.jpg?auto=format&amp;fit=max&amp;w=1920&amp;q=65" alt="" loading="lazy" decoding="async"/>
-      <img data-bg="sustainability" src="https://cdn.sanity.io/images/6od6ct5d/production/d4320f4fca13fa2bb7339e0e0f2093e8b1a6c25f-1820x1024.png?auto=format&amp;fit=max&amp;w=1920&amp;q=65" alt="" loading="lazy" decoding="async"/>
+      <img class="is-active" data-bg="rooms" src="images/slider-1-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="" decoding="async"/>
+      <img data-bg="amenities" src="images/slider-3-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="" loading="lazy" decoding="async"/>
+      <img data-bg="sustainability" src="images/slider-2-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="" loading="lazy" decoding="async"/>
       <div class="rooms-showcase_bg-glow"></div>
       <div class="rooms-showcase_bg-dim"></div>
     </div>
@@ -3557,103 +3601,28 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 
     <div class="rooms-showcase_body">
       <div class="rooms-showcase_pane is-active" data-pane="rooms" role="tabpanel">
-        <h3 class="rooms-showcase_heading">Cozy comfort rooms and spacious apartments</h3>
+        <h3 class="rooms-showcase_heading">Attico Frontelago sul Lago d’Iseo</h3>
         <div class="rooms-showcase_slider-wrap">
           <div class="rooms-showcase_viewport" data-rooms-viewport="">
             <div class="rooms-showcase_track" data-rooms-track="">
           <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
+            <article class="rooms-showcase_card is-photo-only">
               <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/8c1307231ff586025919c544f0bd9e5e17b53d34-2500x1667.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Mount Elmo deluxe" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 210 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Mount Elmo deluxe</h4>
-                <p>Comfortable room with views of Mount Elmo, high-quality furnishings, and parking directly in front of the hotel. Pets are not allowed.</p>
+                <img data-slide="1" src="images/slider-1-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago Lago d'Iseo – soggiorno con vista lago" width="1920" height="1440" loading="eager" decoding="async" fetchpriority="high"/>
               </div>
             </article>
           </div>
           <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
+            <article class="rooms-showcase_card is-photo-only">
               <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/8bf17646c7e9409788f8b59634d3006fd4a3badd-2500x1667.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Croda Rossa" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 190 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Croda Rossa</h4>
-                <p>Balcony with views of Croda Rossa, comfortably furnished, with outdoor parking space. Pets are not allowed.</p>
+                <img data-slide="2" src="images/slider-2-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago Lago d'Iseo – camera da letto" width="1920" height="1440" loading="lazy" decoding="async"/>
               </div>
             </article>
           </div>
           <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
+            <article class="rooms-showcase_card is-photo-only">
               <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/112bf6d70cba2a6471d8ec5b0e2cb5f436166c2c-2500x1667.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Panorama" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 200 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Panorama</h4>
-                <p>Panoramic balcony with views of the Sexten Sundial, comfortably furnished and with underground parking space. Pets are not allowed.</p>
-              </div>
-            </article>
-          </div>
-          <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
-              <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/6df4d2d0d4c8f6da7cb60c2a5c620a49632afe00-2500x1667.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Tower Deluxe" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 215 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Tower Deluxe</h4>
-                <p>Spacious room with panoramic balcony facing the Sexten Sundial, high-quality furnishings, and underground parking space. Pets are not allowed.</p>
-              </div>
-            </article>
-          </div>
-          <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
-              <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/661192e70fee11d2ba41f4689d6e5e7b891b81da-2500x1667.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Meridiana deluxe" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 215 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Meridiana deluxe</h4>
-                <p>Panoramic balcony with views of the Sexten Sundial, modern amenities, and underground parking space. Pets are not allowed.</p>
-              </div>
-            </article>
-          </div>
-          <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
-              <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/ae73989aa6366b4713d0743f7c164aa622f965df-6500x4333.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Panorama deluxe" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 215 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Panorama deluxe</h4>
-                <p>Panoramic balcony with views of the Sexten Sundial, modern amenities, and underground parking space. Pets are not allowed.</p>
-              </div>
-            </article>
-          </div>
-          <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
-              <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/e4fb748286a42e1f32db3b418e7c11d61148894e-2500x1667.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Apartment Hotel Royal" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 110 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Apartment Hotel Royal</h4>
-                <p>Apartment with south-facing balcony, kitchen, and optional daily sauna access in the hotel. Pets welcome.</p>
-              </div>
-            </article>
-          </div>
-          <div class="rooms-showcase_slide">
-            <article class="rooms-showcase_card">
-              <div class="rooms-showcase_card-media">
-                <img src="https://cdn.sanity.io/images/6od6ct5d/production/85333f720a98ac02c42f4f0a88961f686f8dde4b-2500x1667.jpg?auto=format&amp;fit=max&amp;w=1200&amp;q=65" alt="Apartment Hotel Royal" loading="lazy" decoding="async"/>
-                <div class="rooms-showcase_badge">From 130 €</div>
-              </div>
-              <div class="rooms-showcase_card-copy">
-                <h4>Apartment Hotel Royal</h4>
-                <p>Apartment with south-facing balcony, kitchen, and optional daily sauna access in the hotel. Pets welcome.</p>
+                <img data-slide="3" src="images/slider-3-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago Lago d'Iseo – living" width="1920" height="1440" loading="lazy" decoding="async"/>
               </div>
             </article>
           </div>
