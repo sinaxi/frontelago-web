@@ -740,8 +740,14 @@
     isolation: isolate;
     overflow: hidden;
     border-radius: 2rem;
-    /* Solid brand fill — no lifestyle photo behind UI */
-    background: var(--palette-nero, #1a1815);
+    /* Brand senape fill — coherent with Frontelago, no photo underlay */
+    background:
+      linear-gradient(
+        155deg,
+        color-mix(in srgb, var(--palette-senape, #c9971c) 86%, #fff 14%) 0%,
+        var(--palette-senape, #c9971c) 48%,
+        color-mix(in srgb, var(--palette-senape, #c9971c) 78%, var(--palette-nero, #1a1815) 22%) 100%
+      );
     padding: 1rem;
     color: #fff;
   }
@@ -847,8 +853,8 @@
     justify-content: space-between;
     gap: 1rem;
     border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    background: rgba(26, 24, 21, 0.14);
     color: #fff;
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
