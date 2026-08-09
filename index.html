@@ -242,7 +242,8 @@
     margin: 0;
     padding: 0;
     background: #0c0b0a;
-    overflow: hidden;
+    overflow: visible;
+    z-index: 3;
   }
 
   .feature-video_frame {
@@ -289,6 +290,67 @@
     -webkit-appearance: none !important;
     opacity: 0 !important;
     pointer-events: none !important;
+  }
+
+  /* Wave cuts that slice into the horizontal reel */
+  .feature-video_edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .feature-video_edge--top {
+    top: 0;
+    height: clamp(4.5rem, 14vw, 8.5rem);
+  }
+
+  .feature-video_edge--bottom {
+    bottom: 0;
+    height: clamp(4.5rem, 14vw, 8.5rem);
+  }
+
+  .feature-video_cut {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .feature-video_edge--top .feature-video_cut {
+    color: #ffffff;
+  }
+
+  .feature-video_edge--bottom .feature-video_cut {
+    color: var(--palette-avorio, #f5efe0);
+  }
+
+  .feature-video_edge .site-wave-lines {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    bottom: auto;
+    top: 0;
+    z-index: 1;
+  }
+
+  .feature-video_edge--top .site-wave-lines__canvas {
+    opacity: 0.85;
+  }
+
+  .feature-video_edge--bottom .site-wave-lines__canvas {
+    opacity: 0.9;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-video_edge .site-wave-lines {
+      display: none;
+    }
   }
 
   /*
@@ -3558,6 +3620,26 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
       x-webkit-airplay="deny"
     ></video>
     <div class="feature-video_cover" aria-hidden="true"></div>
+
+    <div class="feature-video_edge feature-video_edge--top" aria-hidden="true">
+      <svg class="feature-video_cut" viewBox="0 0 1440 160" preserveAspectRatio="none" focusable="false">
+        <path fill="currentColor" d="M0 0h1440v78c-120 42-280 68-450 68-210 0-390-48-570-68C270 58 120 42 0 58V0Z"></path>
+        <path fill="currentColor" opacity="0.55" d="M0 0h1440v52c-160 34-340 58-540 58S300 62 0 34V0Z"></path>
+      </svg>
+      <div class="site-wave-lines">
+        <canvas class="site-wave-lines__canvas" data-wave-lines="" data-wave-stroke="#ffffff"></canvas>
+      </div>
+    </div>
+
+    <div class="feature-video_edge feature-video_edge--bottom" aria-hidden="true">
+      <svg class="feature-video_cut" viewBox="0 0 1440 160" preserveAspectRatio="none" focusable="false">
+        <path fill="currentColor" d="M0 160h1440V82c-120-42-280-68-450-68-210 0-390 48-570 68C270 102 120 118 0 102v58Z"></path>
+        <path fill="currentColor" opacity="0.6" d="M0 160h1440v-52c-160-34-340-58-540-58S300 98 0 126v34Z"></path>
+      </svg>
+      <div class="site-wave-lines">
+        <canvas class="site-wave-lines__canvas" data-wave-lines="" data-wave-stroke="#d9d2c3"></canvas>
+      </div>
+    </div>
   </div>
 </section>
 <section id="rooms" class="section_rooms-showcase" data-rooms-showcase="" data-animate-theme-to="light" aria-label="Rooms showcase">

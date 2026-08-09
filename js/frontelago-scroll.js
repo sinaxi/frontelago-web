@@ -2010,10 +2010,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const scale = options.scale || 1;
       const lineWidth = options.lineWidth || 2.25;
       const strokeAlpha = options.strokeAlpha || 0.72;
+      const strokeColor = options.strokeColor || "white";
       const timeStep = options.timeStep || 0.012;
       const observeEl =
         options.observe ||
-        canvas.closest("section, [data-sticky-features], .card_stack_img_wrap") ||
+        canvas.closest(
+          "section, [data-sticky-features], .card_stack_img_wrap, .feature-video_frame"
+        ) ||
         canvas.parentElement;
 
       // Same 4 sine strokes as the hero first scene
@@ -2074,7 +2077,7 @@ document.addEventListener("DOMContentLoaded", function () {
             wave.amplitude;
           ctx.lineTo(x, cssHeight / 2 + wave.verticalOffset + y);
         }
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = strokeColor;
         ctx.lineWidth = lineWidth;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
@@ -2139,13 +2142,16 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll("[data-wave-lines]").forEach((canvas) => {
         const isPink = !!canvas.closest('[data-long-scroll="pink"]');
         const isCard = !!canvas.closest(".card_stack_img_wrap");
+        const isFeature = !!canvas.closest(".section_feature-video");
+        const strokeAttr = canvas.getAttribute("data-wave-stroke");
         createWaveLinesAnimator(canvas, {
-          scale: isCard ? 0.55 : isPink ? 0.85 : 0.7,
-          lineWidth: isCard ? 1.75 : 2.25,
-          strokeAlpha: isPink ? 0.5 : 0.72,
+          scale: isFeature ? 0.42 : isCard ? 0.55 : isPink ? 0.85 : 0.7,
+          lineWidth: isFeature ? 2 : isCard ? 1.75 : 2.25,
+          strokeAlpha: isFeature ? 0.78 : isPink ? 0.5 : 0.72,
+          strokeColor: strokeAttr || "white",
           observe:
             canvas.closest(
-              ".sticky-features_img-item, .card_stack_img_wrap, .section_long-scroll, [data-sticky-features]"
+              ".sticky-features_img-item, .card_stack_img_wrap, .section_long-scroll, [data-sticky-features], .section_feature-video, .feature-video_frame"
             ) || canvas.parentElement,
         });
       });
