@@ -280,8 +280,13 @@ document.addEventListener("DOMContentLoaded", function () {
     "assets/hero-video-poster.jpg",
   ];
 
-  const PRELOADER_MIN_MS = 2800;
-  const PRELOADER_MAX_MS = 14000;
+  const isCoarsePointer =
+    window.matchMedia("(hover: none), (pointer: coarse)").matches ||
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "");
+
+  // Mobile: never hold the welcome screen on the full video download
+  const PRELOADER_MIN_MS = isCoarsePointer ? 1800 : 2800;
+  const PRELOADER_MAX_MS = isCoarsePointer ? 4500 : 9000;
 
   const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
   const preloaderWelcomeText = document.querySelector(
@@ -498,42 +503,41 @@ document.addEventListener("DOMContentLoaded", function () {
         forceHeroVideoPlay(video);
       };
 
-      // Warm HTTP cache, then bind the file URL (not a blob:) for reliable iOS autoplay
-      const early =
-        window.__frontelagoHeroVideoPreload ||
-        window
-          .fetch(src, { credentials: "same-origin", cache: "force-cache" })
-          .then((res) => (res.ok ? res.blob() : null))
-          .catch(() => null);
+      // Bind src immediately — do NOT wait for the full MP4 blob (kills mobile).
+      attachVideo();
 
-      Promise.resolve(early)
-        .then(() => {
-          attachVideo();
-          finish();
-        })
-        .catch(() => {
-          attachVideo();
-          const video = document.getElementById("hero_video");
-          if (!video) {
-            finish();
-            return;
-          }
-          const onReady = () => {
-            if (videoHasPlayableBuffer(video)) finish();
-          };
-          video.addEventListener("canplaythrough", onReady);
-          video.addEventListener("canplay", onReady);
-          video.addEventListener("loadeddata", onReady);
-          window.setTimeout(finish, 4000);
-        });
+      const video = document.getElementById("hero_video");
+      if (!video) {
+        finish();
+        return;
+      }
+
+      const onReady = () => finish();
+      video.addEventListener("loadeddata", onReady, { once: true });
+      video.addEventListener("canplay", onReady, { once: true });
+
+      // Keep warming the cache in the background without blocking dismiss
+      Promise.resolve(window.__frontelagoHeroVideoPreload).catch(() => null);
+
+      // Cap how long the welcome screen can wait on video
+      window.setTimeout(finish, isCoarsePointer ? 1200 : 2500);
     });
   }
 
   function preloadHeroMedia() {
-    return Promise.all([
-      ...HERO_PRELOAD_IMAGES.map(preloadImage),
-      preloadHeroVideo(),
-    ]);
+    const firstStill = preloadImage(HERO_PRELOAD_IMAGES[0]);
+    const rest = HERO_PRELOAD_IMAGES.slice(1).map(preloadImage);
+    // Dismiss as soon as the first still + a short video kick are ready;
+    // remaining stills keep loading in the background.
+    return Promise.race([
+      Promise.all([firstStill, preloadHeroVideo()]),
+      new Promise((resolve) =>
+        window.setTimeout(() => resolve(true), isCoarsePointer ? 2000 : 4000)
+      ),
+    ]).then(() => {
+      Promise.all(rest).catch(() => {});
+      return true;
+    });
   }
 
   function runWelcomeCycle(onMinDone) {
@@ -587,12 +591,23 @@ document.addEventListener("DOMContentLoaded", function () {
     maybeDismissPreloader();
   });
 
-  // Never hang forever on slow networks
+  // Never hang forever on slow networks / mobile video
   window.setTimeout(() => {
     welcomeMinDone = true;
     heroMediaReady = true;
     dismissPreloader();
   }, PRELOADER_MAX_MS);
+
+  // Extra hard failsafe — hide via DOM even if dismiss state got stuck
+  window.setTimeout(() => {
+    try {
+      hidePreloaderWrap();
+      document.body.classList.remove("u-live-noscroll");
+      unlockAfterPreloader();
+    } catch (_) {
+      /* ignore */
+    }
+  }, PRELOADER_MAX_MS + 1500);
 
   /////////////////////////////////
   /* ALL OTHER ANIMATIONS - WAIT FOR FONTS */
