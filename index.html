@@ -1947,12 +1947,13 @@
    * swallows the image (was ~25cqw / then too small at 4.25rem).
    */
   .section_loader .loader_title.u-text-style-display {
-    font-size: clamp(2.75rem, 1.35rem + 6.2vw, 6.75rem) !important;
-    line-height: 0.92;
-    max-width: min(18ch, 92vw);
+    font-size: clamp(2.35rem, 1.1rem + 5.4vw, 5.75rem) !important;
+    line-height: 0.95;
+    max-width: none;
     overflow-wrap: normal;
     hyphens: none;
-    text-wrap: balance;
+    text-wrap: nowrap;
+    white-space: nowrap;
   }
 
   .section_loader .loader_subtitle {
@@ -2048,7 +2049,13 @@
     }
 
     .loader_title-break {
-      display: block;
+      display: none;
+    }
+
+    .section_loader .loader_title.u-text-style-display {
+      white-space: nowrap !important;
+      text-wrap: nowrap !important;
+      max-width: none !important;
     }
 
     .section_loader .loader_subtitle {
@@ -3817,7 +3824,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <div class="loader_waves" aria-hidden="true">
 <canvas class="loader_waves_canvas" data-hero-waves=""></canvas>
 </div>
-</div><div class="loader_contain u-container-full"><div class="loader_layout"><div class="loader_title_wrap"><h1 data-animate-heading="on-load" class="loader_title u-text-style-display">LA TERRAZZA<br class="loader_title-break" aria-hidden="true"/> SUL LAGO</h1></div><div id="w-node-_8ec8a5c3-adf4-37f3-aabb-265d07175fe0-abb9c638" class="loader_text_wrap"><h2 data-animate-text="on-load" class="loader_subtitle">Un rifugio sospeso tra cielo e acqua</h2></div></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="s" class="u-spacer w-variant-07a25096-adf6-3d33-f9a5-25aa6c9664ba"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="xs" class="u-spacer w-variant-e3a47723-b914-0592-cbb1-1a58e95c6f6f"></div></div></div></section><section data-animate-theme-to="babypink" class="section_hero"><div class="hero_contain u-container-full"><div class="hero_slider"><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">15+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Inhouse-Experten</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">400+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Influencer</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">150+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Zufriedene Kunden</p></div></div></div></div></div></div></section>
+</div><div class="loader_contain u-container-full"><div class="loader_layout"><div class="loader_title_wrap"><h1 data-animate-heading="on-load" class="loader_title u-text-style-display">ATTICO FRONTELAGO</h1></div><div id="w-node-_8ec8a5c3-adf4-37f3-aabb-265d07175fe0-abb9c638" class="loader_text_wrap"><h2 data-animate-text="on-load" class="loader_subtitle">Un rifugio sospeso tra cielo e acqua</h2></div></div></div><div class="spacer_desktop"><div><div data-wf--global-spacer--space="s" class="u-spacer w-variant-07a25096-adf6-3d33-f9a5-25aa6c9664ba"></div></div></div><div class="spacer_mobile"><div><div data-wf--global-spacer--space="xs" class="u-spacer w-variant-e3a47723-b914-0592-cbb1-1a58e95c6f6f"></div></div></div></section><section data-animate-theme-to="babypink" class="section_hero"><div class="hero_contain u-container-full"><div class="hero_slider"><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">15+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Inhouse-Experten</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">400+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Influencer</p></div></div></div></div><div class="hero_slide"><div class="hero_slide_content"><div class="hero_title_wrap u-container-inline-size"><h2 data-animate-heading="h1" class="hero_title u-text-style-display">150+</h2></div><div class="hero_subtitle_wrap u-alignment-center"><div lang="" data-hyphen="" data-animate-text="hero-sub" class="g_paragraph w-richtext u-text-style-main u-max-width-50ch u-child-contain u-rich-text"><p>Zufriedene Kunden</p></div></div></div></div></div></div></section>
 <section id="services" data-animate-theme-to="light" class="section_services"><div class="w-embed"><style>
   /* Title + CTA + copy stacked from the top (not space-between) */
   .section_services .card_stack_content {
