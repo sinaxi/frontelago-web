@@ -1553,16 +1553,65 @@ document.addEventListener("DOMContentLoaded", function () {
     // Service card images: pure fade-in every time they enter view (no zoom / slide)
     const allCardsWrappers = gsap.utils.toArray(".slide-wrapper");
 
+    const whenMediaReady = (el) => {
+      if (!el) return Promise.resolve();
+      if (el.tagName === "IMG") {
+        if (el.complete && el.naturalWidth > 0) {
+          return el.decode
+            ? el.decode().catch(() => {})
+            : Promise.resolve();
+        }
+        return new Promise((resolve) => {
+          const done = () => resolve();
+          el.addEventListener("load", done, { once: true });
+          el.addEventListener("error", done, { once: true });
+        }).then(() =>
+          el.decode ? el.decode().catch(() => {}) : undefined
+        );
+      }
+      if (el.tagName === "VIDEO") {
+        if (el.readyState >= 2) return Promise.resolve();
+        return new Promise((resolve) => {
+          const done = () => resolve();
+          el.addEventListener("loadeddata", done, { once: true });
+          el.addEventListener("error", done, { once: true });
+          window.setTimeout(done, 1200);
+        });
+      }
+      return Promise.resolve();
+    };
+
+    // Warm local service visuals early so the first card never paints empty
+    allCardsWrappers.forEach((wrapper, index) => {
+      const img = wrapper.querySelector("[data-gsap-image] img");
+      if (!img || !img.getAttribute("src")) return;
+      if (index === 0) {
+        img.loading = "eager";
+        img.setAttribute("fetchpriority", "high");
+        try {
+          const warm = new Image();
+          warm.decoding = "async";
+          warm.src = img.currentSrc || img.src;
+        } catch (_) {
+          /* ignore */
+        }
+      } else {
+        img.loading = "lazy";
+        img.setAttribute("fetchpriority", "low");
+      }
+    });
+
     allCardsWrappers.forEach((wrapper) => {
       const imageWrap = wrapper.querySelector("[data-gsap-image]");
       if (!imageWrap) return;
 
+      const mediaEl =
+        imageWrap.querySelector("img") || imageWrap.querySelector("video");
       const fadeTargets = gsap.utils.toArray(
         [
           imageWrap,
           imageWrap.querySelector(".g_visual_wrap"),
-          imageWrap.querySelector("img"),
-          imageWrap.querySelector("video"),
+          mediaEl,
         ].filter(Boolean)
       );
 
@@ -1585,26 +1634,31 @@ document.addEventListener("DOMContentLoaded", function () {
         yPercent: 0,
       });
 
+      const fadeIn = () => {
+        whenMediaReady(mediaEl).then(() => {
+          imageWrap.classList.add("is-ready");
+          gsap.to(fadeTargets, {
+            opacity: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        });
+      };
+
+      // Decode first card ASAP (don't wait for scroll to start the network)
+      if (mediaEl && mediaEl.tagName === "IMG" && mediaEl.loading === "eager") {
+        whenMediaReady(mediaEl).then(() => {
+          imageWrap.classList.add("is-ready");
+        });
+      }
+
       ScrollTrigger.create({
         trigger: imageWrap,
-        start: "top 85%",
-        end: "bottom 15%",
-        onEnter: () => {
-          gsap.to(fadeTargets, {
-            opacity: 1,
-            duration: 0.85,
-            ease: "power2.out",
-            overwrite: true,
-          });
-        },
-        onEnterBack: () => {
-          gsap.to(fadeTargets, {
-            opacity: 1,
-            duration: 0.85,
-            ease: "power2.out",
-            overwrite: true,
-          });
-        },
+        start: "top 92%",
+        end: "bottom 8%",
+        onEnter: fadeIn,
+        onEnterBack: fadeIn,
         onLeave: () => {
           gsap.set(fadeTargets, { opacity: 0 });
         },
