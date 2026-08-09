@@ -13,9 +13,8 @@
     window.__frontelagoHeroVideoSrc = src;
     var link = document.createElement("link");
     link.rel = "preload";
-    link.as = "fetch";
+    link.as = "video";
     link.href = src;
-    link.crossOrigin = "anonymous";
     if (link.fetchPriority !== undefined) link.fetchPriority = "high";
     document.head.appendChild(link);
     // Warm HTTP cache during the welcome screen (video is the heavy asset)
@@ -1580,6 +1579,17 @@
   }
   /* Video runs under the stills; stills hide any iOS Play glyph */
   .loader_media[data-hero-media-item="video"] .loader_video {
+    opacity: 1 !important;
+  }
+
+  /* Once we enter the video scene, lift the video and clear stills for real */
+  .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="image"] {
+    opacity: 0 !important;
+    z-index: 0 !important;
+  }
+  .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="video"],
+  .section_loader[data-hero-scene="video"] .loader_media.is-video-bed {
+    z-index: 4 !important;
     opacity: 1 !important;
   }
 
@@ -3870,11 +3880,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const video = document.getElementById("hero_video");
     if (!video) return;
 
+    const src =
+      window.__frontelagoHeroVideoSrc ||
+      (window.matchMedia("(min-width: 768px)").matches
+        ? "assets/frontelago-hero-desktop.mp4"
+        : "assets/frontelago-hero-mobile.mp4");
+
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
     video.controls = false;
     video.playsInline = true;
+    video.autoplay = true;
+    video.loop = true;
     video.removeAttribute("controls");
     if (!video.getAttribute("poster")) {
       video.setAttribute("poster", "assets/hero-video-poster.jpg");
@@ -3883,31 +3901,26 @@ document.addEventListener("DOMContentLoaded", function () {
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
     video.setAttribute("autoplay", "");
+    video.setAttribute("loop", "");
     video.preload = "auto";
 
-    // Welcome preloader owns the network fetch / object URL — don't start a second download
-    if (
-      !window.__frontelagoHeroVideoPreload &&
-      !window.__frontelagoHeroVideoObjectUrl &&
-      !video.getAttribute("src")
-    ) {
-      video.src =
-        window.__frontelagoHeroVideoSrc ||
-        (window.matchMedia("(min-width: 768px)").matches
-          ? "assets/frontelago-hero-desktop.mp4"
-          : "assets/frontelago-hero-mobile.mp4");
+    // Always bind the file URL — preload Promise must not block src assignment
+    if (!video.getAttribute("src")) {
+      video.src = src;
     }
 
-    // Mobile: attempt muted autoplay as soon as the element exists
     var kick = function () {
       video.muted = true;
+      video.defaultMuted = true;
       video.volume = 0;
+      video.setAttribute("muted", "");
       var p = video.play();
       if (p && typeof p.catch === "function") p.catch(function () {});
     };
     kick();
-    video.addEventListener("loadeddata", kick, { once: true });
-    video.addEventListener("canplay", kick, { once: true });
-    document.addEventListener("touchstart", kick, { passive: true, once: true });
+    video.addEventListener("loadeddata", kick);
+    video.addEventListener("canplay", kick);
+    document.addEventListener("touchstart", kick, { passive: true });
+    document.addEventListener("pointerdown", kick, { passive: true, once: true });
   })();
 </script></body></html><!--/$-->

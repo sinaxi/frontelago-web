@@ -416,7 +416,6 @@ document.addEventListener("DOMContentLoaded", function () {
     video.playsInline = true;
     video.controls = false;
     video.removeAttribute("controls");
-    // Keep a still until playback starts (helps iOS paint a frame before play)
     if (!video.getAttribute("poster")) {
       video.setAttribute("poster", "assets/hero-video-poster.jpg");
     }
@@ -445,9 +444,12 @@ document.addEventListener("DOMContentLoaded", function () {
       alreadySet = (video.getAttribute("src") || "") === preferred;
     }
 
-    // Never reassign src while playing — that pauses and shows the iOS Play button
-    if (!alreadySet && video.paused) {
-      video.src = preferred;
+    // Always bind a file URL if missing; avoid resetting while actively playing
+    if (!alreadySet) {
+      const hadSrc = !!(video.getAttribute("src") || video.currentSrc);
+      if (!hadSrc || video.paused) {
+        video.src = preferred;
+      }
     }
   }
 
@@ -459,12 +461,16 @@ document.addEventListener("DOMContentLoaded", function () {
     video.volume = 0;
     try {
       video.setAttribute("muted", "");
-      // iOS: ensure playsInline before any play() call
       video.playsInline = true;
       video.setAttribute("playsinline", "");
       video.setAttribute("webkit-playsinline", "");
+      video.setAttribute("autoplay", "");
     } catch (_) {
       /* ignore */
+    }
+    // If nothing is buffered yet, nudge the element without a hard reset mid-play
+    if (!video.getAttribute("src") && !video.currentSrc) {
+      video.src = getHeroVideoSrc();
     }
     const play = video.play();
     if (play && typeof play.then === "function") {
@@ -489,14 +495,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const video = document.getElementById("hero_video");
         if (!video) return;
         configureHeroVideoElement(video, src);
-        // Do not call load() if already buffering the same src — it resets iOS sessions
-        if (video.readyState < 2) {
-          try {
-            video.load();
-          } catch (_) {
-            /* ignore */
-          }
-        }
         forceHeroVideoPlay(video);
       };
 
@@ -2285,18 +2283,21 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         const revealPlayingVideo = () => {
-          // Only lift stills once the slideshow is done AND video is really playing
-          if (!switched || !video || video.paused) return false;
+          if (!switched) return false;
           markVideoPlaying();
           imageItems.forEach((el) => el.classList.remove("is-active"));
-          video.removeAttribute("poster");
-          return true;
+          if (video && !video.paused) {
+            video.removeAttribute("poster");
+          }
+          return !!(video && !video.paused);
         };
 
         const tryPlayHeroVideo = () => {
           if (!video) return Promise.resolve(false);
           return forceHeroVideoPlay(video).then((ok) => {
-            if (ok) revealPlayingVideo();
+            // Always clear stills once the video scene has started —
+            // poster/frame shows even if play() is still catching up
+            if (switched) revealPlayingVideo();
             return ok;
           });
         };
@@ -2320,10 +2321,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              // Mobile: keep trying longer — Low Power Mode / Safari often needs retries
-              const maxTries = isCoarse ? 200 : 120;
+              const maxTries = isCoarse ? 250 : 150;
               if (tries < maxTries) {
-                window.setTimeout(tick, isCoarse ? 120 : 200);
+                window.setTimeout(tick, isCoarse ? 100 : 160);
               }
             });
           };
@@ -2349,7 +2349,6 @@ document.addEventListener("DOMContentLoaded", function () {
               { passive: true }
             );
           });
-          // Any gesture on the hero itself unlocks iOS autoplay
           if (mediaRoot) {
             mediaRoot.addEventListener(
               "touchstart",
@@ -2371,15 +2370,12 @@ document.addEventListener("DOMContentLoaded", function () {
           switched = true;
           if (section) section.setAttribute("data-hero-scene", "video");
 
-          // Already on image 4 from the slideshow — do not re-activate it (avoids double flash)
-          videoItem.classList.add("is-active", "is-video-bed");
+          videoItem.classList.add("is-active", "is-video-bed", "is-playing");
+          // Clear stills immediately so the video layer is visible (poster → frames)
+          imageItems.forEach((el) => el.classList.remove("is-active"));
           ensureHeroVideoReady();
           keepTryingAutoplay();
-
-          if (video && !video.paused) {
-            revealPlayingVideo();
-            return;
-          }
+          tryPlayHeroVideo();
 
           let attempts = 0;
           const waitPlaying = () => {
@@ -2389,7 +2385,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              if (attempts < 50) window.setTimeout(waitPlaying, 150);
+              if (attempts < 80) window.setTimeout(waitPlaying, 120);
             });
           };
           waitPlaying();
