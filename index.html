@@ -518,10 +518,43 @@
     height: clamp(3.75rem, 11vw, 8rem);
   }
 
+  /* Seal the bottom cut so a 1px dark hairline never peeks between reel and Rooms */
+  .feature-video_frame::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 4px;
+    background: var(--palette-avorio, #f5efe0);
+    z-index: 5;
+    pointer-events: none;
+  }
+
   @media (max-width: 767px) {
     .feature-video_edge--top,
     .feature-video_edge--bottom {
       height: clamp(3rem, 11vw, 4.5rem);
+    }
+
+    .feature-video_edge--bottom {
+      bottom: -2px;
+      height: calc(clamp(3rem, 11vw, 4.5rem) + 2px);
+    }
+
+    .section_feature-video {
+      background: var(--palette-avorio, #f5efe0);
+    }
+
+    .feature-video_frame::after {
+      bottom: -2px;
+      height: 6px;
+    }
+
+    .section_rooms-showcase {
+      border-top: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
     }
   }
 
