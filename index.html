@@ -671,40 +671,76 @@
   .section_amenities .partners_title {
     color: #ffffff !important;
   }
+  .section_amenities .grid-lines {
+    display: none !important;
+  }
   .section_amenities .partners_cms_list.amenity-grid {
     --_column-count---value: 4;
+    --_gap---size: 0.85rem;
+    gap: 0.85rem;
+    padding: 0.85rem;
+    box-sizing: border-box;
   }
   @media (max-width: 991px) {
     .section_amenities .partners_cms_list.amenity-grid {
       --_column-count---value: 2;
+      --_gap---size: 0.7rem;
+      gap: 0.7rem;
+      padding: 0.7rem;
     }
   }
+  .section_amenities .partners_cms_item.amenity-item {
+    margin-top: 0 !important;
+    transform: none;
+  }
+  .section_amenities .amenity-card,
   .amenity-card {
     color: #ffffff;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    border-radius: 1.1rem;
+    overflow: hidden;
+    background: transparent;
   }
   .amenity-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.25rem;
+    gap: 1.1rem;
     text-align: center;
-    padding: clamp(1.25rem, 2.5vw, 2rem) 0.75rem;
+    width: 100%;
+    height: 100%;
+    padding: clamp(1rem, 2.2vw, 1.75rem) 0.7rem;
+    box-sizing: border-box;
   }
   .amenity-icon-svg {
-    width: clamp(4.25rem, 14vw, 5.25rem);
-    height: clamp(4.25rem, 14vw, 5.25rem);
+    width: clamp(3.75rem, 12vw, 5rem);
+    height: clamp(3.75rem, 12vw, 5rem);
     color: #ffffff;
     stroke-width: 1.7;
+    flex-shrink: 0;
   }
   @media (min-width: 992px) {
+    .section_amenities .partners_cms_list.amenity-grid {
+      --_gap---size: 1rem;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .section_amenities .amenity-card,
+    .amenity-card {
+      border-radius: 1.25rem;
+    }
     .amenity-content {
-      gap: 1.35rem;
-      padding: clamp(1.75rem, 2.8vw, 2.75rem) 1.25rem;
+      gap: 1.25rem;
+      padding: clamp(1.35rem, 2.4vw, 2.25rem) 1rem;
     }
     .amenity-icon-svg {
-      width: clamp(4.5rem, 5.5vw, 6.25rem);
-      height: clamp(4.5rem, 5.5vw, 6.25rem);
+      width: clamp(4.25rem, 5vw, 5.75rem);
+      height: clamp(4.25rem, 5vw, 5.75rem);
       stroke-width: 1.65;
     }
     .amenity-label {
@@ -714,7 +750,7 @@
   }
   .amenity-label {
     font-family: Montserrat, "Inter Variable", system-ui, sans-serif;
-    font-size: clamp(0.875rem, 2.8vw, 1.0625rem);
+    font-size: clamp(0.8125rem, 2.6vw, 1.0625rem);
     font-weight: 600;
     letter-spacing: 0.03em;
     text-transform: none;
@@ -724,20 +760,7 @@
   }
   .section_amenities .partner_line-hr,
   .section_amenities .partner_line-vertical {
-    border-color: color-mix(in srgb, #ffffff 28%, transparent);
-    background-color: color-mix(in srgb, #ffffff 28%, transparent);
-  }
-  .section_amenities .partner_line-hr {
-    border-top-color: color-mix(in srgb, #ffffff 28%, transparent);
-    border-bottom-color: color-mix(in srgb, #ffffff 28%, transparent);
-  }
-  @media (min-width: 992px) {
-    .section_amenities .partners_cms_list .partners_cms_item:nth-child(4n) .partner_line-vertical {
-      opacity: 0;
-    }
-    .section_amenities .partners_cms_list .partners_cms_item:nth-child(5n) .partner_line-vertical {
-      opacity: 1;
-    }
+    display: none !important;
   }
 
   .section_services .g_paragraph,
