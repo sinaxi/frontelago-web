@@ -304,8 +304,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return window.__frontelagoHeroVideoSrc;
     }
     return window.matchMedia("(min-width: 768px)").matches
-      ? "assets/frontelago-hero-desktop.mp4"
-      : "assets/frontelago-hero-mobile.mp4";
+      ? "assets/frontelago-sito.mp4"
+      : "assets/frontelago-sito-mobile.mp4";
   }
 
   function unlockAfterPreloader() {
@@ -1736,7 +1736,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeRoomsShowcase();
 
     /////////////////////////////////
-    /* FEATURE VIDEO (16:9 block before Leistungen) */
+    /* FEATURE VIDEO (16:9 block before Rooms) */
     /////////////////////////////////
 
     function initializeFeatureVideo() {
@@ -1748,8 +1748,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const src =
         window.__frontelagoHeroVideoSrc ||
         (window.matchMedia("(min-width: 768px)").matches
-          ? "assets/frontelago-hero-desktop.mp4"
-          : "assets/frontelago-hero-mobile.mp4");
+          ? "assets/frontelago-sito.mp4"
+          : "assets/frontelago-sito-mobile.mp4");
 
       video.muted = true;
       video.defaultMuted = true;
@@ -1757,6 +1757,7 @@ document.addEventListener("DOMContentLoaded", function () {
       video.autoplay = true;
       video.loop = true;
       video.playsInline = true;
+      video.preload = "auto";
       video.controls = false;
       video.removeAttribute("controls");
       video.removeAttribute("poster");
@@ -1765,6 +1766,7 @@ document.addEventListener("DOMContentLoaded", function () {
       video.setAttribute("webkit-playsinline", "");
       video.setAttribute("autoplay", "");
       video.setAttribute("loop", "");
+      video.setAttribute("preload", "auto");
       if ("disableRemotePlayback" in video) {
         video.disableRemotePlayback = true;
       }
