@@ -28,6 +28,37 @@
           })
       : Promise.resolve(null);
 
+    // Bind hero video src ASAP so autoplay can start after the stills
+    window.__frontelagoBindHeroVideo = function () {
+      var video = document.getElementById("hero_video");
+      if (!video) return false;
+      video.muted = true;
+      video.defaultMuted = true;
+      video.volume = 0;
+      video.autoplay = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.setAttribute("muted", "muted");
+      video.setAttribute("autoplay", "autoplay");
+      video.setAttribute("playsinline", "true");
+      video.setAttribute("webkit-playsinline", "true");
+      video.setAttribute("loop", "loop");
+      video.preload = "auto";
+      if ((video.getAttribute("src") || "") !== src) {
+        video.setAttribute("src", src);
+        video.src = src;
+        try {
+          video.load();
+        } catch (e) {}
+      }
+      var play = video.play();
+      if (play && typeof play.catch === "function") play.catch(function () {});
+      return true;
+    };
+    document.addEventListener("DOMContentLoaded", function () {
+      window.__frontelagoBindHeroVideo();
+    });
+
     // Hard failsafe: always kill the welcome screen on mobile even if JS hangs
     window.setTimeout(function () {
       var wrap = document.querySelector(".preloader_wrap");
@@ -3462,7 +3493,12 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <img class="loader_media_img" data-slide="4" src="images/slider-4-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago – camera con vista lago" width="1920" height="1440" decoding="async"/>
 </div>
 <div class="loader_media is-video-bed" data-hero-media-item="video">
-<video autoplay loop muted playsinline webkit-playsinline disablepictureinpicture id="hero_video" class="loader_video" poster="assets/hero-video-poster.jpg" preload="auto" controlslist="nodownload nofullscreen noremoteplayback" x-webkit-airplay="deny"></video>
+<video id="hero_video" class="loader_video" autoplay="autoplay" muted="muted" loop="loop" playsinline="true" webkit-playsinline="true" disablepictureinpicture poster="assets/hero-video-poster.jpg" preload="auto" controlslist="nodownload nofullscreen noremoteplayback" x-webkit-airplay="deny"></video>
+<script>
+  (function () {
+    if (window.__frontelagoBindHeroVideo) window.__frontelagoBindHeroVideo();
+  })();
+</script>
 </div>
 <div class="loader_video_cover" data-hero-video-cover aria-hidden="true"></div>
 <div class="loader_waves" aria-hidden="true">
@@ -3954,30 +3990,41 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!video.getAttribute("poster")) {
       video.setAttribute("poster", "assets/hero-video-poster.jpg");
     }
-    video.setAttribute("muted", "");
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-    video.setAttribute("autoplay", "");
-    video.setAttribute("loop", "");
+    video.setAttribute("muted", "muted");
+    video.setAttribute("playsinline", "true");
+    video.setAttribute("webkit-playsinline", "true");
+    video.setAttribute("autoplay", "autoplay");
+    video.setAttribute("loop", "loop");
     video.preload = "auto";
 
-    // Always bind the file URL — preload Promise must not block src assignment
-    if (!video.getAttribute("src")) {
+    if ((video.getAttribute("src") || "") !== src) {
+      video.setAttribute("src", src);
       video.src = src;
+      try {
+        video.load();
+      } catch (e) {}
     }
 
     var kick = function () {
       video.muted = true;
       video.defaultMuted = true;
       video.volume = 0;
-      video.setAttribute("muted", "");
+      video.setAttribute("muted", "muted");
       var p = video.play();
       if (p && typeof p.catch === "function") p.catch(function () {});
     };
     kick();
     video.addEventListener("loadeddata", kick);
     video.addEventListener("canplay", kick);
+    video.addEventListener("playing", kick);
     document.addEventListener("touchstart", kick, { passive: true });
-    document.addEventListener("pointerdown", kick, { passive: true, once: true });
+    document.addEventListener("pointerdown", kick, { passive: true });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") kick();
+    });
+    window.setInterval(function () {
+      var scene = document.querySelector('.section_loader[data-hero-scene="video"]');
+      if (scene && video.paused) kick();
+    }, 1200);
   })();
 </script></body></html><!--/$-->

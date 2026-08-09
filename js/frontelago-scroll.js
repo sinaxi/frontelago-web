@@ -424,11 +424,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!video.getAttribute("poster")) {
       video.setAttribute("poster", "assets/hero-video-poster.jpg");
     }
-    video.setAttribute("autoplay", "");
-    video.setAttribute("muted", "");
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-    video.setAttribute("loop", "");
+    video.setAttribute("autoplay", "autoplay");
+    video.setAttribute("muted", "muted");
+    video.setAttribute("playsinline", "true");
+    video.setAttribute("webkit-playsinline", "true");
+    video.setAttribute("loop", "loop");
     video.setAttribute("disablepictureinpicture", "");
     video.setAttribute("controlslist", "nodownload nofullscreen noremoteplayback");
     video.setAttribute("x-webkit-airplay", "deny");
@@ -453,6 +453,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!alreadySet) {
       const hadSrc = !!(video.getAttribute("src") || video.currentSrc);
       if (!hadSrc || video.paused) {
+        video.setAttribute("src", preferred);
         video.src = preferred;
       }
     }
@@ -465,25 +466,64 @@ document.addEventListener("DOMContentLoaded", function () {
     video.defaultMuted = true;
     video.volume = 0;
     try {
-      video.setAttribute("muted", "");
+      video.setAttribute("muted", "muted");
       video.playsInline = true;
-      video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
-      video.setAttribute("autoplay", "");
+      video.setAttribute("playsinline", "true");
+      video.setAttribute("webkit-playsinline", "true");
+      video.setAttribute("autoplay", "autoplay");
     } catch (_) {
       /* ignore */
     }
-    // If nothing is buffered yet, nudge the element without a hard reset mid-play
     if (!video.getAttribute("src") && !video.currentSrc) {
-      video.src = getHeroVideoSrc();
+      const src = getHeroVideoSrc();
+      video.setAttribute("src", src);
+      video.src = src;
     }
-    const play = video.play();
-    if (play && typeof play.then === "function") {
-      return play
-        .then(() => !video.paused)
-        .catch(() => false);
+
+    const attemptPlay = () => {
+      // Re-assert muted right before play — required for iOS/Safari autoplay
+      video.muted = true;
+      video.defaultMuted = true;
+      video.volume = 0;
+      const play = video.play();
+      if (play && typeof play.then === "function") {
+        return play
+          .then(() => !video.paused)
+          .catch(() => false);
+      }
+      return Promise.resolve(!video.paused);
+    };
+
+    if (video.readyState >= 2) {
+      return attemptPlay();
     }
-    return Promise.resolve(!video.paused);
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (ok) => {
+        if (settled) return;
+        settled = true;
+        resolve(!!ok);
+      };
+      const onReady = () => {
+        attemptPlay().then(finish);
+      };
+      video.addEventListener("loadeddata", onReady, { once: true });
+      video.addEventListener("canplay", onReady, { once: true });
+      try {
+        if (video.networkState === 3 || video.readyState === 0) {
+          video.load();
+        }
+      } catch (_) {
+        /* ignore */
+      }
+      attemptPlay().then((ok) => {
+        if (ok) finish(true);
+      });
+      window.setTimeout(() => {
+        attemptPlay().then(finish);
+      }, 400);
+    });
   }
 
   function preloadHeroVideo() {
@@ -2390,6 +2430,10 @@ document.addEventListener("DOMContentLoaded", function () {
           videoItem.classList.add("is-active", "is-video-bed", "is-playing");
           // Clear stills immediately so the video layer is visible (poster → frames)
           imageItems.forEach((el) => el.classList.remove("is-active"));
+          if (video) {
+            // Restart autoplay watch when the video scene begins
+            delete video.dataset.autoplayWatch;
+          }
           ensureHeroVideoReady();
           keepTryingAutoplay();
           tryPlayHeroVideo();
@@ -2402,7 +2446,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              if (attempts < 80) window.setTimeout(waitPlaying, 120);
+              if (attempts < 120) window.setTimeout(waitPlaying, 100);
             });
           };
           waitPlaying();
