@@ -2495,30 +2495,43 @@ document.addEventListener("DOMContentLoaded", function () {
         const ensureHeroVideoReady = () => {
           if (!video) return;
           configureHeroVideoElement(video, getHeroVideoSrc());
+          video.muted = true;
+          video.defaultMuted = true;
+          video.volume = 0;
+          video.controls = false;
+          video.removeAttribute("controls");
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
+          video.setAttribute("autoplay", "");
+          video.preload = "auto";
+          video.setAttribute("preload", "auto");
           if (videoItem) videoItem.classList.add("is-video-bed", "is-active");
         };
 
         const markVideoPlaying = () => {
           if (videoItem) videoItem.classList.add("is-playing", "is-active", "is-video-bed");
+          if (section) section.setAttribute("data-hero-video", "playing");
         };
 
         const revealPlayingVideo = () => {
           if (!switched) return false;
+          if (!video || video.paused) return false;
           markVideoPlaying();
           imageItems.forEach((el) => el.classList.remove("is-active"));
-          if (video && !video.paused) {
+          try {
             video.removeAttribute("poster");
+          } catch (_) {
+            /* ignore */
           }
-          return !!(video && !video.paused);
+          return true;
         };
 
         const tryPlayHeroVideo = () => {
           if (!video) return Promise.resolve(false);
           return forceHeroVideoPlay(video).then((ok) => {
-            // Always clear stills once the video scene has started —
-            // poster/frame shows even if play() is still catching up
-            if (switched) revealPlayingVideo();
-            return ok;
+            if ((ok || !video.paused) && switched) revealPlayingVideo();
+            return ok || !video.paused;
           });
         };
 
@@ -2541,9 +2554,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              const maxTries = isCoarse ? 40 : 150;
+              const maxTries = isCoarse ? 80 : 150;
               if (tries < maxTries) {
-                window.setTimeout(tick, isCoarse ? 180 : 160);
+                window.setTimeout(tick, isCoarse ? 140 : 160);
               }
             });
           };
@@ -2588,13 +2601,19 @@ document.addEventListener("DOMContentLoaded", function () {
         const showVideo = () => {
           if (switched || !videoItem || !imageItems.length) return;
           switched = true;
-          if (section) section.setAttribute("data-hero-scene", "video");
+          if (section) {
+            section.setAttribute("data-hero-scene", "video");
+            section.removeAttribute("data-hero-video");
+          }
 
-          videoItem.classList.add("is-active", "is-video-bed", "is-playing");
-          // Clear stills immediately so the video layer is visible (poster → frames)
+          // Keep the last still covering the video until autoplay is confirmed
+          const lastStill = imageItems[imageItems.length - 1];
           imageItems.forEach((el) => el.classList.remove("is-active"));
+          if (lastStill) lastStill.classList.add("is-active");
+
+          videoItem.classList.add("is-active", "is-video-bed");
+          videoItem.classList.remove("is-playing");
           if (video) {
-            // Restart autoplay watch when the video scene begins
             delete video.dataset.autoplayWatch;
           }
           ensureHeroVideoReady();
@@ -2609,12 +2628,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              // Don't spin for tens of seconds on mobile — poster stays until play sticks
-              const max = isCoarsePointer ? 24 : 120;
-              if (attempts < max) window.setTimeout(waitPlaying, isCoarsePointer ? 200 : 100);
+              const max = isCoarsePointer ? 60 : 120;
+              if (attempts < max) {
+                window.setTimeout(waitPlaying, isCoarsePointer ? 150 : 100);
+              }
             });
           };
           waitPlaying();
+        };
+
+        const warmHeroVideoDuringStills = () => {
+          if (!video) return;
+          ensureHeroVideoReady();
+          // Soft muted play during stills primes iOS autoplay without showing the layer
+          const soft = video.play();
+          if (soft && typeof soft.then === "function") {
+            soft
+              .then(() => {
+                try {
+                  video.pause();
+                  video.currentTime = 0;
+                } catch (_) {
+                  /* ignore */
+                }
+              })
+              .catch(() => {});
+          }
         };
 
         const runImageSequence = () => {
@@ -2623,6 +2662,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
           if (section) section.setAttribute("data-hero-scene", "slideshow");
+          warmHeroVideoDuringStills();
 
           let i = 0;
           const tick = () => {
@@ -2632,6 +2672,9 @@ document.addEventListener("DOMContentLoaded", function () {
               return;
             }
             activateImage(i);
+            if (i === Math.max(1, imageItems.length - 2)) {
+              warmHeroVideoDuringStills();
+            }
             window.setTimeout(tick, SLIDE_HOLD_MS);
           };
 
@@ -2645,7 +2688,6 @@ document.addEventListener("DOMContentLoaded", function () {
           activateImage(0);
           revealHeroCopy();
           ensureHeroVideoReady();
-          keepTryingAutoplay();
           if (reducedMotion) {
             showVideo();
             return;

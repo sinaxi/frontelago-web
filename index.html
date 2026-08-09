@@ -1964,19 +1964,46 @@
     opacity: 1 !important;
   }
 
-  /* Once we enter the video scene, lift the video and clear stills for real */
-  .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="image"] {
-    opacity: 0 !important;
-    z-index: 0 !important;
+  /* Once we enter the video scene, keep the last still on top until autoplay sticks.
+     iOS shows a native Play glyph on paused <video> — never expose that. */
+  .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="image"].is-active {
+    opacity: 1 !important;
+    z-index: 5 !important;
   }
   .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="video"],
   .section_loader[data-hero-scene="video"] .loader_media.is-video-bed {
+    z-index: 1 !important;
+    opacity: 1 !important;
+  }
+  .section_loader[data-hero-video="playing"] .loader_media[data-hero-media-item="image"] {
+    opacity: 0 !important;
+    z-index: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  .section_loader[data-hero-video="playing"] .loader_media[data-hero-media-item="video"],
+  .section_loader[data-hero-video="playing"] .loader_media.is-video-bed {
     z-index: 4 !important;
     opacity: 1 !important;
   }
 
   .loader_video_cover {
-    display: none !important;
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    background:
+      center / cover no-repeat
+      url("assets/hero-video-poster.jpg");
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .section_loader[data-hero-scene="video"]:not([data-hero-video="playing"]) .loader_video_cover {
+    opacity: 1;
+  }
+  .section_loader[data-hero-video="playing"] .loader_video_cover {
+    opacity: 0;
+    visibility: hidden;
   }
 
   .loader_media[data-hero-media-item="image"]:not(.is-active) {
@@ -2173,7 +2200,13 @@
   .loader_video::-webkit-media-controls-panel,
   .loader_video::-webkit-media-controls-start-playback-button,
   .loader_video::-webkit-media-controls-overlay-play-button,
-  .loader_video::-webkit-media-controls-play-button {
+  .loader_video::-webkit-media-controls-play-button,
+  .feature-video_el::-webkit-media-controls,
+  .feature-video_el::-webkit-media-controls-enclosure,
+  .feature-video_el::-webkit-media-controls-panel,
+  .feature-video_el::-webkit-media-controls-start-playback-button,
+  .feature-video_el::-webkit-media-controls-overlay-play-button,
+  .feature-video_el::-webkit-media-controls-play-button {
     display: none !important;
     -webkit-appearance: none !important;
     appearance: none !important;
@@ -2182,8 +2215,11 @@
     height: 0 !important;
     max-width: 0 !important;
     max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     pointer-events: none !important;
     z-index: -1 !important;
+    transform: scale(0) !important;
   }
 
   .loader_media_img[data-slide="1"] {
@@ -3892,7 +3928,7 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <img class="loader_media_img" data-slide="4" src="images/slider-4-attico-frontelago-lago-iseo-lake-valle-camonica.jpg" alt="Attico Frontelago – camera con vista lago" width="1920" height="1440" decoding="async"/>
 </div>
 <div class="loader_media is-video-bed" data-hero-media-item="video">
-<video id="hero_video" class="loader_video" autoplay="autoplay" muted="muted" loop="loop" playsinline="true" webkit-playsinline="true" disablepictureinpicture poster="assets/hero-video-poster.jpg" preload="auto" controlslist="nodownload nofullscreen noremoteplayback" x-webkit-airplay="deny"></video>
+<video id="hero_video" class="loader_video" autoplay muted loop playsinline webkit-playsinline disablepictureinpicture poster="assets/hero-video-poster.jpg" preload="auto" controlslist="nodownload nofullscreen noremoteplayback noplaybackrate" x-webkit-airplay="deny" disableRemotePlayback></video>
 <script>
   (function () {
     if (window.__frontelagoBindHeroVideo) window.__frontelagoBindHeroVideo();
