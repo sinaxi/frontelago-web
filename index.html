@@ -33,17 +33,17 @@
       video.loop = true;
       video.playsInline = true;
       video.controls = false;
-      // Mobile: metadata first so we don't saturate the network during welcome
-      video.preload = mobile ? "metadata" : "auto";
+      // Always preload auto — muted inline autoplay needs a real buffer on iOS
+      video.preload = "auto";
       try {
         video.removeAttribute("controls");
       } catch (e) {}
       video.setAttribute("muted", "");
       video.setAttribute("autoplay", "");
       video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
+      video.setAttribute("webkit-playsinline", "true");
       video.setAttribute("loop", "");
-      video.setAttribute("preload", mobile ? "metadata" : "auto");
+      video.setAttribute("preload", "auto");
       if ("disableRemotePlayback" in video) {
         video.disableRemotePlayback = true;
       }
@@ -91,7 +91,7 @@
 
     function bindHeroOnly() {
       var hero = document.getElementById("hero_video");
-      if (hero) prepare(hero, { forceAutoPreload: !mobile });
+      if (hero) prepare(hero, { forceAutoPreload: true });
       return { hero: hero, feature: null };
     }
 
@@ -116,7 +116,7 @@
     link.as = "video";
     link.href = src;
     if (link.fetchPriority !== undefined) {
-      link.fetchPriority = mobile ? "low" : "high";
+      link.fetchPriority = "high";
     }
     document.head.appendChild(link);
 
@@ -206,7 +206,7 @@
         );
         if (hero) {
           prepare(hero, { forceAutoPreload: true });
-          if (heroScene || !mobile) tasks.push(play(hero));
+          tasks.push(play(hero));
         }
         if (feature) {
           var section = document.querySelector("[data-feature-video]");
@@ -226,7 +226,7 @@
 
     window.__frontelagoBindHeroVideo = function () {
       var els = bindHeroOnly();
-      if (els.hero && !mobile) play(els.hero);
+      if (els.hero) play(els.hero);
       return !!els.hero;
     };
 

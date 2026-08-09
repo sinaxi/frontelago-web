@@ -323,6 +323,14 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (_) {
       /* ignore */
     }
+    // Gesture-adjacent: start muted hero play as soon as welcome ends
+    const heroVideo = document.getElementById("hero_video");
+    if (heroVideo) {
+      forceHeroVideoPlay(heroVideo);
+    }
+    if (window.__frontelagoVideo && window.__frontelagoVideo.play && heroVideo) {
+      window.__frontelagoVideo.play(heroVideo);
+    }
     window.dispatchEvent(new CustomEvent("frontelago:preloader-done"));
   }
 
@@ -560,22 +568,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function preloadHeroVideo() {
     return new Promise((resolve) => {
-      // Mobile: do not wait on video at all — stills unlock the page, video warms behind
-      if (isCoarsePointer) {
-        const video = document.getElementById("hero_video");
-        const api = window.__frontelagoVideo;
-        if (video) {
-          if (api && typeof api.prepare === "function") {
-            api.prepare(video, { forceAutoPreload: false });
-          } else {
-            configureHeroVideoElement(video, getHeroVideoSrc());
-          }
-        }
-        Promise.resolve(window.__frontelagoHeroVideoPreload).catch(() => null);
-        resolve(true);
-        return;
-      }
-
       const src = getHeroVideoSrc();
       let settled = false;
       const finish = () => {
@@ -595,6 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const video = document.getElementById("hero_video");
         if (!video) return;
         configureHeroVideoElement(video, src);
+        // Start muted playback ASAP — keep it running under stills on mobile
         forceHeroVideoPlay(video);
       };
 
@@ -603,6 +596,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const video = document.getElementById("hero_video");
       if (!video) {
         finish();
+        return;
+      }
+
+      // Mobile: never block welcome on buffer — kick play and finish quickly
+      if (isCoarsePointer) {
+        Promise.resolve(window.__frontelagoHeroVideoPreload).catch(() => null);
+        window.setTimeout(finish, 200);
         return;
       }
 
@@ -625,7 +625,10 @@ document.addEventListener("DOMContentLoaded", function () {
   function preloadHeroMedia() {
     const firstStill = preloadImage(HERO_PRELOAD_IMAGES[0]);
     const rest = HERO_PRELOAD_IMAGES.slice(1).map(preloadImage);
-    // Mobile: unlock on first still only; desktop still waits briefly for video kick
+    // Unlock on first still; start video play in parallel without waiting
+    if (isCoarsePointer) {
+      preloadHeroVideo().catch(() => {});
+    }
     const gate = isCoarsePointer
       ? firstStill
       : Promise.all([firstStill, preloadHeroVideo()]);
@@ -636,12 +639,6 @@ document.addEventListener("DOMContentLoaded", function () {
       ),
     ]).then(() => {
       Promise.all(rest).catch(() => {});
-      if (isCoarsePointer) {
-        // Soft-start hero buffer after welcome is free
-        window.setTimeout(() => {
-          preloadHeroVideo().catch(() => {});
-        }, 50);
-      }
       return true;
     });
   }
@@ -2606,7 +2603,7 @@ document.addEventListener("DOMContentLoaded", function () {
             section.removeAttribute("data-hero-video");
           }
 
-          // Keep the last still covering the video until autoplay is confirmed
+          // Keep the last still covering until we confirm playback
           const lastStill = imageItems[imageItems.length - 1];
           imageItems.forEach((el) => el.classList.remove("is-active"));
           if (lastStill) lastStill.classList.add("is-active");
@@ -2617,6 +2614,12 @@ document.addEventListener("DOMContentLoaded", function () {
             delete video.dataset.autoplayWatch;
           }
           ensureHeroVideoReady();
+
+          // If already playing under stills, reveal immediately
+          if (video && !video.paused) {
+            revealPlayingVideo();
+          }
+
           keepTryingAutoplay();
           tryPlayHeroVideo();
 
@@ -2628,9 +2631,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              const max = isCoarsePointer ? 60 : 120;
+              const max = isCoarsePointer ? 100 : 120;
               if (attempts < max) {
-                window.setTimeout(waitPlaying, isCoarsePointer ? 150 : 100);
+                window.setTimeout(waitPlaying, isCoarsePointer ? 120 : 100);
+              } else if (lastStill) {
+                // Last resort: still keep cover, but keep retrying on gesture
+                keepTryingAutoplay();
               }
             });
           };
@@ -2640,20 +2646,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const warmHeroVideoDuringStills = () => {
           if (!video) return;
           ensureHeroVideoReady();
-          // Soft muted play during stills primes iOS autoplay without showing the layer
-          const soft = video.play();
-          if (soft && typeof soft.then === "function") {
-            soft
-              .then(() => {
-                try {
-                  video.pause();
-                  video.currentTime = 0;
-                } catch (_) {
-                  /* ignore */
-                }
-              })
-              .catch(() => {});
-          }
+          // Keep muted playback running UNDER the stills.
+          // Never pause afterwards — iOS will block later play() calls.
+          forceHeroVideoPlay(video).then((ok) => {
+            if (!ok && video.paused) {
+              const p = video.play();
+              if (p && typeof p.catch === "function") p.catch(() => {});
+            }
+          });
         };
 
         const runImageSequence = () => {
@@ -2672,9 +2672,8 @@ document.addEventListener("DOMContentLoaded", function () {
               return;
             }
             activateImage(i);
-            if (i === Math.max(1, imageItems.length - 2)) {
-              warmHeroVideoDuringStills();
-            }
+            // Re-assert muted play on every slide (gesture-friendly)
+            warmHeroVideoDuringStills();
             window.setTimeout(tick, SLIDE_HOLD_MS);
           };
 
@@ -2688,6 +2687,7 @@ document.addEventListener("DOMContentLoaded", function () {
           activateImage(0);
           revealHeroCopy();
           ensureHeroVideoReady();
+          warmHeroVideoDuringStills();
           if (reducedMotion) {
             showVideo();
             return;
