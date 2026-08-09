@@ -1542,6 +1542,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const tabs = gsap.utils.toArray(section.querySelectorAll("[data-rooms-tab]"));
       const panes = gsap.utils.toArray(section.querySelectorAll("[data-pane]"));
+      const bgs = gsap.utils.toArray(section.querySelectorAll("[data-bg]"));
       const track = section.querySelector("[data-rooms-track]");
       const slides = gsap.utils.toArray(section.querySelectorAll(".rooms-showcase_slide"));
       const prevBtn = section.querySelector("[data-rooms-prev]");
@@ -1573,6 +1574,9 @@ document.addEventListener("DOMContentLoaded", function () {
           pane.classList.toggle("is-active", on);
           if (on) pane.removeAttribute("hidden");
           else pane.setAttribute("hidden", "");
+        });
+        bgs.forEach((img) => {
+          img.classList.toggle("is-active", img.getAttribute("data-bg") === name);
         });
         if (mobileLabel) {
           const source = tabs.find(
