@@ -304,8 +304,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return window.__frontelagoHeroVideoSrc;
     }
     return window.matchMedia("(min-width: 768px)").matches
-      ? "assets/frontelago-sito.mp4"
-      : "assets/frontelago-sito-mobile.mp4";
+      ? "assets/attico-frontelago-pisogne-iseo-lake-brescia.mp4"
+      : "assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4";
   }
 
   function unlockAfterPreloader() {
@@ -1839,8 +1839,8 @@ document.addEventListener("DOMContentLoaded", function () {
         (api && api.src) ||
         window.__frontelagoHeroVideoSrc ||
         (window.matchMedia("(min-width: 768px)").matches
-          ? "assets/frontelago-sito.mp4"
-          : "assets/frontelago-sito-mobile.mp4");
+          ? "assets/attico-frontelago-pisogne-iseo-lake-brescia.mp4"
+          : "assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4");
 
       // Bind early from shared preload pipeline (same MP4 as hero)
       if (api && typeof api.prepare === "function") {
