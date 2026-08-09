@@ -285,8 +285,8 @@ document.addEventListener("DOMContentLoaded", function () {
     /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "");
 
   // Mobile: never hold the welcome screen on the full video download
-  const PRELOADER_MIN_MS = isCoarsePointer ? 1800 : 2800;
-  const PRELOADER_MAX_MS = isCoarsePointer ? 4500 : 9000;
+  const PRELOADER_MIN_MS = isCoarsePointer ? 1200 : 2800;
+  const PRELOADER_MAX_MS = isCoarsePointer ? 2600 : 9000;
 
   const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
   const preloaderWelcomeText = document.querySelector(
@@ -415,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!video) return;
     const api = window.__frontelagoVideo;
     if (api && typeof api.prepare === "function") {
-      api.prepare(video);
+      api.prepare(video, { forceAutoPreload: true });
       if (!video.getAttribute("poster")) {
         video.setAttribute("poster", "assets/hero-video-poster.jpg");
       }
@@ -560,6 +560,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function preloadHeroVideo() {
     return new Promise((resolve) => {
+      // Mobile: do not wait on video at all — stills unlock the page, video warms behind
+      if (isCoarsePointer) {
+        const video = document.getElementById("hero_video");
+        const api = window.__frontelagoVideo;
+        if (video) {
+          if (api && typeof api.prepare === "function") {
+            api.prepare(video, { forceAutoPreload: false });
+          } else {
+            configureHeroVideoElement(video, getHeroVideoSrc());
+          }
+        }
+        Promise.resolve(window.__frontelagoHeroVideoPreload).catch(() => null);
+        resolve(true);
+        return;
+      }
+
       const src = getHeroVideoSrc();
       let settled = false;
       const finish = () => {
@@ -569,7 +585,9 @@ document.addEventListener("DOMContentLoaded", function () {
       };
 
       const api = window.__frontelagoVideo;
-      if (api && typeof api.bindAll === "function") {
+      if (api && typeof api.bindHeroOnly === "function") {
+        api.bindHeroOnly();
+      } else if (api && typeof api.bindAll === "function") {
         api.bindAll();
       }
 
@@ -578,15 +596,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!video) return;
         configureHeroVideoElement(video, src);
         forceHeroVideoPlay(video);
-        // Also prime the feature reel from the same preloaded source
-        const feature = document.querySelector("[data-feature-video-el]");
-        if (feature) {
-          if (api && api.prepare) api.prepare(feature);
-          else configureHeroVideoElement(feature, src);
-        }
       };
 
-      // Bind src immediately — do NOT wait for the full MP4 blob (kills mobile).
       attachVideo();
 
       const video = document.getElementById("hero_video");
@@ -599,32 +610,38 @@ document.addEventListener("DOMContentLoaded", function () {
       video.addEventListener("loadeddata", onReady, { once: true });
       video.addEventListener("canplay", onReady, { once: true });
 
-      // Keep warming the cache in the background without blocking dismiss
       Promise.resolve(window.__frontelagoHeroVideoPreload).catch(() => null);
       if (api && typeof api.whenReady === "function") {
         Promise.race([
           api.whenReady(),
-          new Promise((r) => window.setTimeout(r, isCoarsePointer ? 900 : 1800)),
+          new Promise((r) => window.setTimeout(r, 1800)),
         ]).then(attachVideo);
       }
 
-      // Cap how long the welcome screen can wait on video
-      window.setTimeout(finish, isCoarsePointer ? 1200 : 2500);
+      window.setTimeout(finish, 2500);
     });
   }
 
   function preloadHeroMedia() {
     const firstStill = preloadImage(HERO_PRELOAD_IMAGES[0]);
     const rest = HERO_PRELOAD_IMAGES.slice(1).map(preloadImage);
-    // Dismiss as soon as the first still + a short video kick are ready;
-    // remaining stills keep loading in the background.
+    // Mobile: unlock on first still only; desktop still waits briefly for video kick
+    const gate = isCoarsePointer
+      ? firstStill
+      : Promise.all([firstStill, preloadHeroVideo()]);
     return Promise.race([
-      Promise.all([firstStill, preloadHeroVideo()]),
+      gate,
       new Promise((resolve) =>
-        window.setTimeout(() => resolve(true), isCoarsePointer ? 2000 : 4000)
+        window.setTimeout(() => resolve(true), isCoarsePointer ? 1400 : 4000)
       ),
     ]).then(() => {
       Promise.all(rest).catch(() => {});
+      if (isCoarsePointer) {
+        // Soft-start hero buffer after welcome is free
+        window.setTimeout(() => {
+          preloadHeroVideo().catch(() => {});
+        }, 50);
+      }
       return true;
     });
   }
@@ -1889,6 +1906,10 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!section || !video) return;
 
       const api = window.__frontelagoVideo;
+      const mobile =
+        (api && api.mobile) ||
+        isCoarsePointer ||
+        !window.matchMedia("(min-width: 768px)").matches;
       const src =
         (api && api.src) ||
         window.__frontelagoHeroVideoSrc ||
@@ -1896,38 +1917,42 @@ document.addEventListener("DOMContentLoaded", function () {
           ? "assets/attico-frontelago-pisogne-iseo-lake-brescia.mp4"
           : "assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4");
 
-      // Bind early from shared preload pipeline (same MP4 as hero)
-      if (api && typeof api.prepare === "function") {
-        api.prepare(video);
-      } else {
-        video.muted = true;
-        video.defaultMuted = true;
-        video.volume = 0;
-        video.autoplay = true;
-        video.loop = true;
-        video.playsInline = true;
-        video.preload = "auto";
-        video.controls = false;
-        video.removeAttribute("controls");
-        video.removeAttribute("poster");
-        video.setAttribute("muted", "");
-        video.setAttribute("playsinline", "");
-        video.setAttribute("webkit-playsinline", "");
-        video.setAttribute("autoplay", "");
-        video.setAttribute("loop", "");
-        video.setAttribute("preload", "auto");
-        if ("disableRemotePlayback" in video) {
-          video.disableRemotePlayback = true;
-        }
-        if ((video.getAttribute("src") || "") !== src) {
-          video.src = src;
-          try {
-            video.load();
-          } catch (_) {
-            /* ignore */
+      const bindFeature = () => {
+        if (api && typeof api.prepare === "function") {
+          api.prepare(video, { forceAutoPreload: true });
+        } else {
+          video.muted = true;
+          video.defaultMuted = true;
+          video.volume = 0;
+          video.autoplay = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.preload = "auto";
+          video.controls = false;
+          video.removeAttribute("controls");
+          video.removeAttribute("poster");
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
+          video.setAttribute("autoplay", "");
+          video.setAttribute("loop", "");
+          video.setAttribute("preload", "auto");
+          if ("disableRemotePlayback" in video) {
+            video.disableRemotePlayback = true;
+          }
+          if ((video.getAttribute("src") || "") !== src) {
+            video.src = src;
+            try {
+              video.load();
+            } catch (_) {
+              /* ignore */
+            }
           }
         }
-      }
+      };
+
+      // Desktop can bind early; mobile waits until near viewport (hero needs the pipe)
+      if (!mobile) bindFeature();
 
       const isNearViewport = () => {
         const rect = section.getBoundingClientRect();
@@ -1941,6 +1966,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const tryPlay = (force = false) => {
         if (!force && !isNearViewport()) return;
+        bindFeature();
         const playPromise =
           api && typeof api.play === "function"
             ? api.play(video)
@@ -1959,7 +1985,6 @@ document.addEventListener("DOMContentLoaded", function () {
       };
 
       video.addEventListener("playing", markPlaying);
-      // Buffer early; play only when near (avoid double-decoding with hero)
       video.addEventListener("loadeddata", () => tryPlay());
       video.addEventListener("canplay", () => tryPlay());
 
@@ -2516,9 +2541,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              const maxTries = isCoarse ? 250 : 150;
+              const maxTries = isCoarse ? 40 : 150;
               if (tries < maxTries) {
-                window.setTimeout(tick, isCoarse ? 100 : 160);
+                window.setTimeout(tick, isCoarse ? 180 : 160);
               }
             });
           };
@@ -2584,7 +2609,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              if (attempts < 120) window.setTimeout(waitPlaying, 100);
+              // Don't spin for tens of seconds on mobile — poster stays until play sticks
+              const max = isCoarsePointer ? 24 : 120;
+              if (attempts < max) window.setTimeout(waitPlaying, isCoarsePointer ? 200 : 100);
             });
           };
           waitPlaying();
