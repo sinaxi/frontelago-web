@@ -52,6 +52,9 @@
     function play(video) {
       if (!video) return Promise.resolve(false);
       muteForAutoplay(video);
+      video.playsInline = true;
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "true");
       if (!video.getAttribute("src") && !video.currentSrc) {
         prepare(video, { preload: "auto" });
       }
@@ -2160,8 +2163,6 @@
   .loader_video {
     pointer-events: none !important;
     -webkit-touch-callout: none;
-    /* Extra insurance vs Safari’s big play glyph */
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
   }
   .loader_video::-webkit-media-controls,
   .loader_video::-webkit-media-controls-enclosure,
