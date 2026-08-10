@@ -598,7 +598,10 @@ document.addEventListener("DOMContentLoaded", function () {
     preloadHeroVideo().catch(() => {});
 
     const firstStill = preloadImage(HERO_PRELOAD_IMAGES[0]);
-    const rest = HERO_PRELOAD_IMAGES.slice(1).map(preloadImage);
+    // On mobile, don't prefetch remaining stills — they steal bandwidth from the reel
+    const rest = isCoarsePointer
+      ? []
+      : HERO_PRELOAD_IMAGES.slice(1).map(preloadImage);
     return Promise.race([
       firstStill,
       new Promise((resolve) =>
