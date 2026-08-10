@@ -40,11 +40,10 @@
       video.preload = opts.preload || "auto";
       video.setAttribute("preload", video.preload);
       var current = video.getAttribute("src") || "";
+      // Only bind once — calling load() again aborts/restarts the download
       if (current !== src) {
         video.setAttribute("src", src);
         video.src = src;
-        try { video.load(); } catch (e) {}
-      } else if (video.readyState === 0) {
         try { video.load(); } catch (e) {}
       }
       return true;
