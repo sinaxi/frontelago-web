@@ -1953,12 +1953,13 @@
     z-index: 3;
   }
 
-  /* Keep the reel fully hidden until autoplay is confirmed — never show iOS Play */
+  /* Reel stays visible (iOS suspends hidden videos and blocks autoplay)
+     but always UNDER opaque stills/cover so the Play glyph can never show */
   .loader_media[data-hero-media-item="video"],
   .loader_media.is-video-bed {
-    z-index: 0 !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
+    z-index: 1 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
   .loader_media[data-hero-media-item="video"] .loader_video {
     opacity: 1 !important;
@@ -1973,8 +1974,8 @@
   .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="video"],
   .section_loader[data-hero-scene="video"] .loader_media.is-video-bed {
     z-index: 1 !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
   .section_loader[data-hero-video="playing"] .loader_media[data-hero-media-item="image"] {
     opacity: 0 !important;
