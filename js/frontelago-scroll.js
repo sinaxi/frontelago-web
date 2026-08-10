@@ -284,9 +284,9 @@ document.addEventListener("DOMContentLoaded", function () {
     window.matchMedia("(hover: none), (pointer: coarse)").matches ||
     /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "");
 
-  // Mobile: never hold the welcome screen on the full video download
-  const PRELOADER_MIN_MS = isCoarsePointer ? 1200 : 2800;
-  const PRELOADER_MAX_MS = isCoarsePointer ? 2600 : 9000;
+  // Fast welcome — never wait on the MP4
+  const PRELOADER_MIN_MS = isCoarsePointer ? 900 : 1400;
+  const PRELOADER_MAX_MS = isCoarsePointer ? 2000 : 2800;
 
   const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
   const preloaderWelcomeText = document.querySelector(
@@ -314,7 +314,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.remove("u-live-noscroll");
     const heroSection = document.querySelector(".section_loader");
     if (heroSection) {
-      // Sharp image + living pan right away (no blur-to-clear reveal)
       heroSection.classList.add("is-hero-ready", "is-hero-living");
     }
     if (lenis) lenis.start();
@@ -323,15 +322,18 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (_) {
       /* ignore */
     }
-    // Gesture-adjacent: start muted hero play as soon as welcome ends
-    const heroVideo = document.getElementById("hero_video");
-    if (heroVideo) {
-      forceHeroVideoPlay(heroVideo);
-    }
-    if (window.__frontelagoVideo && window.__frontelagoVideo.play && heroVideo) {
-      window.__frontelagoVideo.play(heroVideo);
+    // Now start muted hero download + play (deferred from welcome)
+    if (window.__frontelagoVideo && typeof window.__frontelagoVideo.startHero === "function") {
+      window.__frontelagoVideo.startHero();
+    } else {
+      const heroVideo = document.getElementById("hero_video");
+      if (heroVideo) forceHeroVideoPlay(heroVideo);
     }
     window.dispatchEvent(new CustomEvent("frontelago:preloader-done"));
+    // If the hero sequence registered after welcome already closed, kick it now
+    if (typeof window.__frontelagoStartHeroSequence === "function") {
+      window.__frontelagoStartHeroSequence();
+    }
   }
 
   function hidePreloaderWrap() {
@@ -423,7 +425,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!video) return;
     const api = window.__frontelagoVideo;
     if (api && typeof api.prepare === "function") {
-      api.prepare(video, { forceAutoPreload: true });
+      api.prepare(video, { preload: "auto" });
       if (!video.getAttribute("poster")) {
         video.setAttribute("poster", "assets/hero-video-poster.jpg");
       }
@@ -567,75 +569,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function preloadHeroVideo() {
-    return new Promise((resolve) => {
-      const src = getHeroVideoSrc();
-      let settled = false;
-      const finish = () => {
-        if (settled) return;
-        settled = true;
-        resolve(true);
-      };
-
-      const api = window.__frontelagoVideo;
-      if (api && typeof api.bindHeroOnly === "function") {
-        api.bindHeroOnly();
-      } else if (api && typeof api.bindAll === "function") {
-        api.bindAll();
-      }
-
-      const attachVideo = () => {
-        const video = document.getElementById("hero_video");
-        if (!video) return;
-        configureHeroVideoElement(video, src);
-        // Start muted playback ASAP — keep it running under stills on mobile
-        forceHeroVideoPlay(video);
-      };
-
-      attachVideo();
-
-      const video = document.getElementById("hero_video");
-      if (!video) {
-        finish();
-        return;
-      }
-
-      // Mobile: never block welcome on buffer — kick play and finish quickly
-      if (isCoarsePointer) {
-        Promise.resolve(window.__frontelagoHeroVideoPreload).catch(() => null);
-        window.setTimeout(finish, 200);
-        return;
-      }
-
-      const onReady = () => finish();
-      video.addEventListener("loadeddata", onReady, { once: true });
-      video.addEventListener("canplay", onReady, { once: true });
-
-      Promise.resolve(window.__frontelagoHeroVideoPreload).catch(() => null);
-      if (api && typeof api.whenReady === "function") {
-        Promise.race([
-          api.whenReady(),
-          new Promise((r) => window.setTimeout(r, 1800)),
-        ]).then(attachVideo);
-      }
-
-      window.setTimeout(finish, 2500);
-    });
+    // Deferred: video starts after welcome via startHero / unlockAfterPreloader
+    return Promise.resolve(true);
   }
 
   function preloadHeroMedia() {
     const firstStill = preloadImage(HERO_PRELOAD_IMAGES[0]);
     const rest = HERO_PRELOAD_IMAGES.slice(1).map(preloadImage);
-    // Unlock on first still; start video play in parallel without waiting
-    if (isCoarsePointer) {
-      preloadHeroVideo().catch(() => {});
-    }
-    const gate = isCoarsePointer
-      ? firstStill
-      : Promise.all([firstStill, preloadHeroVideo()]);
     return Promise.race([
-      gate,
+      firstStill,
       new Promise((resolve) =>
-        window.setTimeout(() => resolve(true), isCoarsePointer ? 1400 : 4000)
+        window.setTimeout(() => resolve(true), isCoarsePointer ? 900 : 1600)
       ),
     ]).then(() => {
       Promise.all(rest).catch(() => {});
@@ -2443,8 +2387,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const section =
           mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
-        const SLIDE_HOLD_MS = 2000;
-        const TEXT_HOLD_MS = 2000;
+        const SLIDE_HOLD_MS = isCoarsePointer ? 1600 : 2000;
+        const TEXT_HOLD_MS = isCoarsePointer ? 1400 : 2000;
 
         let switched = false;
         let copyRevealed = false;
@@ -2603,22 +2547,22 @@ document.addEventListener("DOMContentLoaded", function () {
             section.removeAttribute("data-hero-video");
           }
 
-          // Keep the last still covering until we confirm playback
           const lastStill = imageItems[imageItems.length - 1];
           imageItems.forEach((el) => el.classList.remove("is-active"));
           if (lastStill) lastStill.classList.add("is-active");
 
           videoItem.classList.add("is-active", "is-video-bed");
           videoItem.classList.remove("is-playing");
-          if (video) {
-            delete video.dataset.autoplayWatch;
-          }
-          ensureHeroVideoReady();
+          if (video) delete video.dataset.autoplayWatch;
 
-          // If already playing under stills, reveal immediately
-          if (video && !video.paused) {
-            revealPlayingVideo();
+          ensureHeroVideoReady();
+          if (window.__frontelagoVideo && window.__frontelagoVideo.startHero) {
+            window.__frontelagoVideo.startHero().then((ok) => {
+              if (ok) revealPlayingVideo();
+            });
           }
+
+          if (video && !video.paused) revealPlayingVideo();
 
           keepTryingAutoplay();
           tryPlayHeroVideo();
@@ -2631,12 +2575,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              const max = isCoarsePointer ? 100 : 120;
-              if (attempts < max) {
-                window.setTimeout(waitPlaying, isCoarsePointer ? 120 : 100);
-              } else if (lastStill) {
-                // Last resort: still keep cover, but keep retrying on gesture
-                keepTryingAutoplay();
+              if (attempts < 120) {
+                window.setTimeout(waitPlaying, 120);
               }
             });
           };
@@ -2687,27 +2627,35 @@ document.addEventListener("DOMContentLoaded", function () {
           activateImage(0);
           revealHeroCopy();
           ensureHeroVideoReady();
-          warmHeroVideoDuringStills();
+          if (window.__frontelagoVideo && window.__frontelagoVideo.startHero) {
+            window.__frontelagoVideo.startHero();
+          } else {
+            warmHeroVideoDuringStills();
+          }
           if (reducedMotion) {
             showVideo();
             return;
           }
           window.setTimeout(runImageSequence, TEXT_HOLD_MS);
         };
+        window.__frontelagoStartHeroSequence = startHeroSequence;
 
         if (section) section.setAttribute("data-hero-scene", "image");
         activateImage(0);
 
         const preloader = document.querySelector(".preloader_wrap");
         const preloaderVisible =
-          preloader && getComputedStyle(preloader).display !== "none";
-        if (preloaderVisible) {
+          preloader &&
+          !preloader.classList.contains("is-done") &&
+          getComputedStyle(preloader).display !== "none";
+        if (preloaderUnlocked || !preloaderVisible) {
+          startHeroSequence();
+        } else {
           window.addEventListener("frontelago:preloader-done", startHeroSequence, {
             once: true,
           });
-          window.setTimeout(startHeroSequence, 14000);
-        } else {
-          startHeroSequence();
+          // Failsafe — never wait 14s
+          window.setTimeout(startHeroSequence, 4500);
         }
       }
 
