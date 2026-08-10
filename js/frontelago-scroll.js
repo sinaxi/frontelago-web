@@ -2410,10 +2410,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const section =
           mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
-        const SLIDE_HOLD_MS = isCoarsePointer ? 700 : 1500;
-        const TEXT_HOLD_MS = isCoarsePointer ? 600 : 1400;
-        // Mobile: one still then video — keep bandwidth for the reel
-        const MAX_STILLS = isCoarsePointer ? 1 : imageItems.length;
+        const SLIDE_HOLD_MS = isCoarsePointer ? 1400 : 1500;
+        const TEXT_HOLD_MS = isCoarsePointer ? 1100 : 1400;
 
         let switched = false;
         let copyRevealed = false;
@@ -2527,13 +2525,11 @@ document.addEventListener("DOMContentLoaded", function () {
           } catch (_) {
             p = null;
           }
+          // Never skip the stills on touch — only reveal once the sequence reached video
           if (switched && !video.paused) revealPlayingVideo();
           if (p && typeof p.then === "function") {
             p.then(() => {
-              if (!video.paused) {
-                if (!switched) showVideo();
-                revealPlayingVideo();
-              }
+              if (switched && !video.paused) revealPlayingVideo();
             }).catch(() => {});
           }
         };
@@ -2609,7 +2605,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
           const activeStill =
             imageItems.find((el) => el.classList.contains("is-active")) ||
-            imageItems[Math.min(MAX_STILLS, imageItems.length) - 1] ||
             imageItems[imageItems.length - 1];
           imageItems.forEach((el) => el.classList.remove("is-active"));
           if (activeStill) activeStill.classList.add("is-active");
@@ -2668,33 +2663,13 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
           if (section) section.setAttribute("data-hero-scene", "slideshow");
+          // Warm muted reel under the stills — do NOT skip the 4 images when it starts
           warmHeroVideoDuringStills();
 
-          // If the reel is already playing under the first still, reveal ASAP (esp. mobile)
-          const jumpIfPlaying = () => {
-            if (!video) return false;
-            if (!video.paused && video.readyState >= 2) {
-              showVideo();
-              revealPlayingVideo();
-              return true;
-            }
-            return false;
-          };
-          if (jumpIfPlaying()) return;
-          video.addEventListener(
-            "playing",
-            () => {
-              jumpIfPlaying();
-            },
-            { once: true }
-          );
-
           let i = 0;
-          const stillCount = Math.min(MAX_STILLS, imageItems.length);
           const tick = () => {
-            if (jumpIfPlaying()) return;
             i += 1;
-            if (i >= stillCount) {
+            if (i >= imageItems.length) {
               showVideo();
               return;
             }
@@ -2703,7 +2678,7 @@ document.addEventListener("DOMContentLoaded", function () {
             window.setTimeout(tick, SLIDE_HOLD_MS);
           };
 
-          tick();
+          window.setTimeout(tick, SLIDE_HOLD_MS);
         };
 
         let sequenceStarted = false;
