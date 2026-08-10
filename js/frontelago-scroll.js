@@ -561,7 +561,8 @@ document.addEventListener("DOMContentLoaded", function () {
       video.addEventListener("loadeddata", onReady, { once: true });
       video.addEventListener("canplay", onReady, { once: true });
       try {
-        if (video.networkState === 3 || video.readyState === 0) {
+        // Never call load() while already downloading — it aborts and restarts
+        if (video.networkState === 3) {
           video.load();
         }
       } catch (_) {
