@@ -284,9 +284,9 @@ document.addEventListener("DOMContentLoaded", function () {
     window.matchMedia("(hover: none), (pointer: coarse)").matches ||
     /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "");
 
-  // Fast welcome — never wait on the MP4
-  const PRELOADER_MIN_MS = isCoarsePointer ? 900 : 1400;
-  const PRELOADER_MAX_MS = isCoarsePointer ? 2000 : 2800;
+  // Fast welcome — soft video warm runs in parallel, never blocks dismiss
+  const PRELOADER_MIN_MS = isCoarsePointer ? 650 : 950;
+  const PRELOADER_MAX_MS = isCoarsePointer ? 1400 : 1800;
 
   const preloaderWelcome = document.querySelector("[data-preloader-welcome]");
   const preloaderWelcomeText = document.querySelector(
@@ -370,19 +370,27 @@ document.addEventListener("DOMContentLoaded", function () {
       preloaderWrap.classList.add("is-leaving");
     }
 
-    // DOM/CSS close first — do not depend on GSAP ticker
+    // Start full hero download as soon as leave begins (cache already warm)
+    if (
+      window.__frontelagoVideo &&
+      typeof window.__frontelagoVideo.startHero === "function"
+    ) {
+      window.__frontelagoVideo.startHero();
+    }
+
+    // Fast close — do not depend on GSAP ticker
     window.setTimeout(() => {
       hidePreloaderWrap();
       revealPageChrome();
       unlockAfterPreloader();
-    }, 750);
+    }, 420);
 
     // Nuclear failsafe
     window.setTimeout(() => {
       hidePreloaderWrap();
       revealPageChrome();
       unlockAfterPreloader();
-    }, 2000);
+    }, 1100);
   }
 
   function maybeDismissPreloader() {
@@ -569,17 +577,26 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function preloadHeroVideo() {
-    // Deferred: video starts after welcome via startHero / unlockAfterPreloader
+    // Soft Range warm during welcome (non-blocking). Full play starts on dismiss.
+    if (
+      window.__frontelagoVideo &&
+      typeof window.__frontelagoVideo.warm === "function"
+    ) {
+      return window.__frontelagoVideo.warm().then(() => true).catch(() => true);
+    }
     return Promise.resolve(true);
   }
 
   function preloadHeroMedia() {
+    // Kick soft video warm immediately while first still loads
+    preloadHeroVideo().catch(() => {});
+
     const firstStill = preloadImage(HERO_PRELOAD_IMAGES[0]);
     const rest = HERO_PRELOAD_IMAGES.slice(1).map(preloadImage);
     return Promise.race([
       firstStill,
       new Promise((resolve) =>
-        window.setTimeout(() => resolve(true), isCoarsePointer ? 900 : 1600)
+        window.setTimeout(() => resolve(true), isCoarsePointer ? 700 : 1100)
       ),
     ]).then(() => {
       Promise.all(rest).catch(() => {});
@@ -638,7 +655,7 @@ document.addEventListener("DOMContentLoaded", function () {
     maybeDismissPreloader();
   });
 
-  // Never hang forever on slow networks / mobile video
+  // Never hang on slow networks — hard dismiss
   window.setTimeout(() => {
     welcomeMinDone = true;
     heroMediaReady = true;
@@ -654,7 +671,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (_) {
       /* ignore */
     }
-  }, PRELOADER_MAX_MS + 1500);
+  }, PRELOADER_MAX_MS + 800);
 
   /////////////////////////////////
   /* ALL OTHER ANIMATIONS - WAIT FOR FONTS */
