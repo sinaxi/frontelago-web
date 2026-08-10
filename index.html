@@ -1933,6 +1933,13 @@
     background: transparent;
   }
 
+  /* Mobile: no crossfade gap (paused video + iOS Play glyph was flashing between stills) */
+  @media (max-width: 767px) {
+    .loader_media {
+      transition: none !important;
+    }
+  }
+
   .loader_media.is-active {
     opacity: 1;
   }
@@ -1945,26 +1952,29 @@
   .loader_media[data-hero-media-item="image"].is-active {
     z-index: 3;
   }
+
+  /* Keep the reel fully hidden until autoplay is confirmed — never show iOS Play */
   .loader_media[data-hero-media-item="video"],
   .loader_media.is-video-bed {
-    z-index: 1 !important;
-    opacity: 1 !important;
+    z-index: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
   }
-  /* Video runs under the stills; stills hide any iOS Play glyph */
   .loader_media[data-hero-media-item="video"] .loader_video {
     opacity: 1 !important;
   }
 
-  /* Once we enter the video scene, keep the last still on top until autoplay sticks.
-     iOS shows a native Play glyph on paused <video> — never expose that. */
+  /* Once we enter the video scene, keep the last still on top until autoplay sticks. */
   .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="image"].is-active {
     opacity: 1 !important;
     z-index: 5 !important;
+    visibility: visible !important;
   }
   .section_loader[data-hero-scene="video"] .loader_media[data-hero-media-item="video"],
   .section_loader[data-hero-scene="video"] .loader_media.is-video-bed {
     z-index: 1 !important;
-    opacity: 1 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
   }
   .section_loader[data-hero-video="playing"] .loader_media[data-hero-media-item="image"] {
     opacity: 0 !important;
@@ -1976,6 +1986,7 @@
   .section_loader[data-hero-video="playing"] .loader_media.is-video-bed {
     z-index: 4 !important;
     opacity: 1 !important;
+    visibility: visible !important;
   }
 
   .loader_video_cover {
@@ -1990,7 +2001,8 @@
     transition: opacity 0.25s ease;
   }
   .section_loader[data-hero-scene="video"]:not([data-hero-video="playing"]) .loader_video_cover {
-    opacity: 1;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
   .section_loader[data-hero-video="playing"] .loader_video_cover {
     opacity: 0;

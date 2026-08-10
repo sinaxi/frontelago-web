@@ -2451,12 +2451,24 @@ document.addEventListener("DOMContentLoaded", function () {
         let copyRevealed = false;
 
         const activateImage = (index) => {
+          // Prefetch next still before swap
+          const upcoming = imageItems[index + 1];
+          if (upcoming) {
+            const nextImg = upcoming.querySelector("img[data-src]");
+            if (nextImg) {
+              const lazy = nextImg.getAttribute("data-src");
+              if (lazy && !nextImg.getAttribute("src")) {
+                nextImg.setAttribute("src", lazy);
+                nextImg.removeAttribute("data-src");
+              }
+            }
+          }
           imageItems.forEach((el, i) => {
             const on = i === index;
             el.classList.toggle("is-active", on);
             if (on) {
               const img = el.querySelector("img[data-src]");
-              if (img && !img.getAttribute("src")) {
+              if (img) {
                 const lazy = img.getAttribute("data-src");
                 if (lazy) {
                   img.setAttribute("src", lazy);
@@ -2510,17 +2522,19 @@ document.addEventListener("DOMContentLoaded", function () {
           video.controls = false;
           video.playsInline = true;
           video.removeAttribute("controls");
-          video.setAttribute("muted", "");
-          video.setAttribute("playsinline", "");
+          video.setAttribute("muted", "true");
+          video.setAttribute("playsinline", "true");
           video.setAttribute("webkit-playsinline", "true");
-          video.setAttribute("autoplay", "");
+          video.setAttribute("autoplay", "true");
           video.preload = "auto";
           video.setAttribute("preload", "auto");
-          if (videoItem) videoItem.classList.add("is-video-bed", "is-active");
+          if (videoItem) videoItem.classList.add("is-video-bed");
         };
 
         const markVideoPlaying = () => {
-          if (videoItem) videoItem.classList.add("is-playing", "is-active", "is-video-bed");
+          if (videoItem) {
+            videoItem.classList.add("is-playing", "is-active", "is-video-bed");
+          }
           if (section) section.setAttribute("data-hero-video", "playing");
         };
 
@@ -2539,22 +2553,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const tryPlayHeroVideo = () => {
           if (!video) return Promise.resolve(false);
+          video.muted = true;
+          video.defaultMuted = true;
+          video.volume = 0;
+          video.playsInline = true;
           return forceHeroVideoPlay(video).then((ok) => {
             if ((ok || !video.paused) && switched) revealPlayingVideo();
             return ok || !video.paused;
           });
         };
 
-        // iOS Low Power Mode: play() must run synchronously inside the gesture
         const unlockFromUserGesture = () => {
           if (!video) return;
           ensureHeroVideoReady();
-          if (
-            window.__frontelagoVideo &&
-            typeof window.__frontelagoVideo.unlockAll === "function"
-          ) {
-            window.__frontelagoVideo.unlockAll();
-          }
           video.muted = true;
           video.defaultMuted = true;
           video.volume = 0;
@@ -2585,23 +2596,16 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         };
 
-        // Bind gesture unlock immediately (not only after stills → video)
-        ["touchstart", "touchend", "pointerdown", "click"].forEach((evt) => {
-          window.addEventListener(evt, unlockFromUserGesture, { passive: true });
-          document.addEventListener(evt, unlockFromUserGesture, {
+        ["touchstart", "pointerdown", "click"].forEach((evt) => {
+          window.addEventListener(evt, unlockFromUserGesture, {
+            capture: true,
             passive: true,
           });
         });
         if (mediaRoot) {
           mediaRoot.addEventListener("touchstart", unlockFromUserGesture, {
+            capture: true,
             passive: true,
-          });
-        }
-        if (preloaderWrap) {
-          ["touchstart", "pointerdown"].forEach((evt) => {
-            preloaderWrap.addEventListener(evt, unlockFromUserGesture, {
-              passive: true,
-            });
           });
         }
 
@@ -2609,12 +2613,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (!video || video.dataset.autoplayWatch === "1") return;
           video.dataset.autoplayWatch = "1";
           let tries = 0;
-          const isCoarse =
-            window.matchMedia("(hover: none), (pointer: coarse)").matches ||
-            /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "");
-
           const tick = () => {
-            if (!video.paused && !video.ended) {
+            if (!video.paused) {
               revealPlayingVideo();
               return;
             }
@@ -2624,26 +2624,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 revealPlayingVideo();
                 return;
               }
-              const maxTries = isCoarse ? 120 : 150;
-              if (tries < maxTries) {
-                window.setTimeout(tick, isCoarse ? 120 : 160);
-              }
+              if (tries < 200) window.setTimeout(tick, 140);
             });
           };
           tick();
           video.addEventListener("playing", () => revealPlayingVideo());
+          video.addEventListener("timeupdate", () => {
+            if (!video.paused && video.currentTime > 0.02) revealPlayingVideo();
+          });
           video.addEventListener("canplay", () => tryPlayHeroVideo());
           video.addEventListener("loadeddata", () => tryPlayHeroVideo());
-          ["scroll", "wheel", "pageshow", "visibilitychange"].forEach((evt) => {
-            window.addEventListener(
-              evt,
-              () => {
-                if (document.visibilityState === "hidden") return;
-                tryPlayHeroVideo();
-              },
-              { passive: true }
-            );
-          });
         };
 
         const showVideo = () => {
@@ -2654,58 +2644,53 @@ document.addEventListener("DOMContentLoaded", function () {
             section.removeAttribute("data-hero-video");
           }
 
-          const activeStill =
-            imageItems.find((el) => el.classList.contains("is-active")) ||
-            imageItems[imageItems.length - 1];
+          // Keep last still opaque — video stays CSS-hidden until playing
+          const lastStill = imageItems[imageItems.length - 1];
           imageItems.forEach((el) => el.classList.remove("is-active"));
-          if (activeStill) activeStill.classList.add("is-active");
+          if (lastStill) {
+            const img = lastStill.querySelector("img[data-src]");
+            if (img) {
+              const lazy = img.getAttribute("data-src");
+              if (lazy) {
+                img.setAttribute("src", lazy);
+                img.removeAttribute("data-src");
+              }
+            }
+            lastStill.classList.add("is-active");
+          }
 
-          videoItem.classList.add("is-active", "is-video-bed");
-          videoItem.classList.remove("is-playing");
+          videoItem.classList.add("is-video-bed");
+          videoItem.classList.remove("is-playing", "is-active");
           if (video) delete video.dataset.autoplayWatch;
 
           ensureHeroVideoReady();
+          try {
+            video.muted = true;
+            video.play();
+          } catch (_) {
+            /* ignore */
+          }
           if (window.__frontelagoVideo && window.__frontelagoVideo.startHero) {
             window.__frontelagoVideo.startHero().then((ok) => {
               if (ok) revealPlayingVideo();
             });
           }
-
           if (video && !video.paused) revealPlayingVideo();
-
           keepTryingAutoplay();
           tryPlayHeroVideo();
-
-          let attempts = 0;
-          const waitPlaying = () => {
-            attempts += 1;
-            tryPlayHeroVideo().then((ok) => {
-              if (ok || (video && !video.paused)) {
-                revealPlayingVideo();
-                return;
-              }
-              if (attempts < 120) {
-                window.setTimeout(waitPlaying, 120);
-              }
-            });
-          };
-          waitPlaying();
         };
 
         const warmHeroVideoDuringStills = () => {
           if (!video) return;
+          // Buffer under CSS-hidden layer — never visible while paused
           ensureHeroVideoReady();
-          // Keep muted playback running UNDER the stills.
-          // Never pause afterwards — iOS will block later play() calls.
-          if (window.__frontelagoVideo && window.__frontelagoVideo.startHero) {
-            window.__frontelagoVideo.startHero();
+          if (window.__frontelagoVideo && window.__frontelagoVideo.prepare) {
+            window.__frontelagoVideo.prepare(video, { preload: "auto" });
           }
-          forceHeroVideoPlay(video).then((ok) => {
-            if (!ok && video.paused) {
-              const p = video.play();
-              if (p && typeof p.catch === "function") p.catch(() => {});
-            }
-          });
+          video.muted = true;
+          video.playsInline = true;
+          const p = video.play();
+          if (p && typeof p.catch === "function") p.catch(() => {});
         };
 
         const runImageSequence = () => {
@@ -2714,7 +2699,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
           if (section) section.setAttribute("data-hero-scene", "slideshow");
-          // Warm muted reel under the stills — do NOT skip the 4 images when it starts
           warmHeroVideoDuringStills();
 
           let i = 0;
@@ -2738,12 +2722,7 @@ document.addEventListener("DOMContentLoaded", function () {
           sequenceStarted = true;
           activateImage(0);
           revealHeroCopy();
-          ensureHeroVideoReady();
-          if (window.__frontelagoVideo && window.__frontelagoVideo.startHero) {
-            window.__frontelagoVideo.startHero();
-          } else {
-            warmHeroVideoDuringStills();
-          }
+          warmHeroVideoDuringStills();
           if (reducedMotion) {
             showVideo();
             return;
