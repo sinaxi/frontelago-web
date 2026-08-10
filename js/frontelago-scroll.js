@@ -2463,10 +2463,11 @@ document.addEventListener("DOMContentLoaded", function () {
           video.defaultMuted = true;
           video.volume = 0;
           video.controls = false;
+          video.playsInline = true;
           video.removeAttribute("controls");
           video.setAttribute("muted", "");
           video.setAttribute("playsinline", "");
-          video.setAttribute("webkit-playsinline", "");
+          video.setAttribute("webkit-playsinline", "true");
           video.setAttribute("autoplay", "");
           video.preload = "auto";
           video.setAttribute("preload", "auto");
