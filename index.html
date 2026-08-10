@@ -8,13 +8,10 @@
       window.matchMedia("(hover: none), (pointer: coarse)").matches ||
       /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "");
     var mobile = !desktop || coarse;
-    var src = desktop
-      ? "assets/attico-frontelago-pisogne-iseo-lake-brescia.mp4"
-      : "assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4";
-    var warmBytes = mobile ? 384 * 1024 : 768 * 1024;
-    var warmPromise = null;
-    var heroStarted = false;
-
+    // Prefer the light cut whenever possible so autoplay starts quickly
+    var src = mobile
+      ? "assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4"
+      : "assets/attico-frontelago-pisogne-iseo-lake-brescia.mp4";
     window.__frontelagoHeroVideoSrc = src;
     window.__frontelagoIsMobileVideo = mobile;
 
@@ -42,9 +39,12 @@
       muteForAutoplay(video);
       video.preload = opts.preload || "auto";
       video.setAttribute("preload", video.preload);
-      if ((video.getAttribute("src") || "") !== src) {
+      var current = video.getAttribute("src") || "";
+      if (current !== src) {
         video.setAttribute("src", src);
         video.src = src;
+        try { video.load(); } catch (e) {}
+      } else if (video.readyState === 0) {
         try { video.load(); } catch (e) {}
       }
       return true;
@@ -58,39 +58,38 @@
       }
       var p = video.play();
       if (p && typeof p.then === "function") {
-        return p.then(function () { return !video.paused; }).catch(function () { return false; });
+        return p
+          .then(function () { return !video.paused; })
+          .catch(function () { return false; });
       }
       return Promise.resolve(!video.paused);
     }
 
-    // Soft Range warm: fills HTTP cache during welcome without saturating bandwidth
-    function warm() {
-      if (warmPromise) return warmPromise;
-      warmPromise = fetch(src, {
-        method: "GET",
-        headers: { Range: "bytes=0-" + (warmBytes - 1) },
-        credentials: "same-origin",
-        cache: "force-cache",
-        priority: "low",
-      })
-        .then(function (res) {
-          return res.arrayBuffer().then(function () { return true; });
-        })
-        .catch(function () { return false; });
-      window.__frontelagoHeroVideoPreload = warmPromise;
-      return warmPromise;
-    }
-
     function startHero() {
-      if (heroStarted) {
-        var h = document.getElementById("hero_video");
-        return play(h);
-      }
-      heroStarted = true;
       var hero = document.getElementById("hero_video");
       if (!hero) return Promise.resolve(false);
       prepare(hero, { preload: "auto" });
-      return play(hero);
+      return play(hero).then(function (ok) {
+        if (ok) return true;
+        return new Promise(function (resolve) {
+          var tries = 0;
+          var tick = function () {
+            tries += 1;
+            muteForAutoplay(hero);
+            play(hero).then(function (again) {
+              if (again || !hero.paused) {
+                resolve(true);
+                return;
+              }
+              if (tries < 60) window.setTimeout(tick, 200);
+              else resolve(false);
+            });
+          };
+          hero.addEventListener("loadeddata", function () { play(hero); }, { once: true });
+          hero.addEventListener("canplay", function () { play(hero); }, { once: true });
+          window.setTimeout(tick, 180);
+        });
+      });
     }
 
     function killWelcome() {
@@ -112,7 +111,7 @@
       mobile: mobile,
       prepare: prepare,
       play: play,
-      warm: warm,
+      warm: function () { return Promise.resolve(true); },
       startHero: startHero,
       bindAll: function () {
         var hero = document.getElementById("hero_video");
@@ -123,18 +122,21 @@
       },
       bindHeroOnly: function () {
         var hero = document.getElementById("hero_video");
-        if (hero) muteForAutoplay(hero);
+        if (hero) prepare(hero, { preload: "auto" });
         return { hero: hero };
       },
       kickVisible: function () {
         var hero = document.getElementById("hero_video");
         var feature = document.querySelector("[data-feature-video-el]");
         var tasks = [];
-        if (hero && (hero.getAttribute("src") || hero.currentSrc)) tasks.push(play(hero));
+        if (hero) tasks.push(startHero());
         if (feature) {
           var section = document.querySelector("[data-feature-video]");
           var rect = section ? section.getBoundingClientRect() : null;
-          var near = !rect || (rect.bottom > -80 && rect.top < (window.innerHeight || 800) + 240);
+          var near =
+            !rect ||
+            (rect.bottom > -80 &&
+              rect.top < (window.innerHeight || 800) + 240);
           if (near) {
             prepare(feature, { preload: "auto" });
             tasks.push(play(feature));
@@ -142,44 +144,38 @@
         }
         return Promise.all(tasks);
       },
-      whenReady: function () { return warmPromise || Promise.resolve(true); },
+      whenReady: function () { return Promise.resolve(true); },
     };
 
     window.__frontelagoHeroVideoPreload = Promise.resolve(null);
     window.__frontelagoBindHeroVideo = function () {
       window.__frontelagoVideo.bindHeroOnly();
+      startHero();
       return true;
     };
 
-    // Start soft warm ASAP (does not block welcome dismiss)
-    function beginWarm() {
-      // Only soft Range warm during welcome — full src bind on startHero
-      warm();
-      var hero = document.getElementById("hero_video");
-      if (hero) muteForAutoplay(hero);
+    function boot() {
+      window.__frontelagoBindHeroVideo();
     }
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", function () {
-        window.__frontelagoBindHeroVideo();
-        beginWarm();
-      });
+      document.addEventListener("DOMContentLoaded", boot);
     } else {
-      window.__frontelagoBindHeroVideo();
-      beginWarm();
+      boot();
     }
-
-    // Idle backup warm if DOMContentLoaded is slow
-    window.setTimeout(beginWarm, 120);
 
     window.addEventListener("frontelago:preloader-done", function () {
       startHero();
     }, { once: true });
 
     ["touchstart", "pointerdown", "scroll", "pageshow"].forEach(function (evt) {
-      window.addEventListener(evt, function () {
-        if (window.__frontelagoVideo) window.__frontelagoVideo.kickVisible();
-      }, { passive: true });
+      window.addEventListener(
+        evt,
+        function () {
+          if (window.__frontelagoVideo) window.__frontelagoVideo.kickVisible();
+        },
+        { passive: true }
+      );
     });
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible" && window.__frontelagoVideo) {
@@ -187,7 +183,6 @@
       }
     });
 
-    // Hard failsafe — never leave user on senape screen
     window.setTimeout(killWelcome, mobile ? 1600 : 2200);
   })();
 </script>
@@ -3895,7 +3890,26 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <video id="hero_video" class="loader_video" autoplay muted loop playsinline webkit-playsinline disablepictureinpicture poster="assets/hero-video-poster.jpg" preload="auto" controlslist="nodownload nofullscreen noremoteplayback noplaybackrate" x-webkit-airplay="deny" disableRemotePlayback></video>
 <script>
   (function () {
-    if (window.__frontelagoBindHeroVideo) window.__frontelagoBindHeroVideo();
+    var api = window.__frontelagoVideo;
+    var video = document.getElementById("hero_video");
+    if (api && api.startHero) api.startHero();
+    else if (window.__frontelagoBindHeroVideo) window.__frontelagoBindHeroVideo();
+    else if (video) {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.volume = 0;
+      video.playsInline = true;
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      var src = window.__frontelagoHeroVideoSrc;
+      if (src && !video.getAttribute("src")) {
+        video.setAttribute("src", src);
+        video.src = src;
+        try { video.load(); } catch (e) {}
+      }
+      var p = video.play();
+      if (p && p.catch) p.catch(function () {});
+    }
   })();
 </script>
 </div>
@@ -4412,15 +4426,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (api && api.kickVisible) api.kickVisible();
     }
 
-    // Only after welcome — do not re-bind src during preloader
+    // Start immediately — stills cover until playing
+    onReady();
     window.addEventListener("frontelago:preloader-done", onReady, { once: true });
-    // If welcome already gone
-    window.setTimeout(function () {
-      var wrap = document.querySelector(".preloader_wrap");
-      if (!wrap || wrap.classList.contains("is-done") || wrap.style.display === "none") {
-        onReady();
-      }
-    }, 1800);
+    window.setTimeout(onReady, 800);
+    window.setTimeout(onReady, 1800);
 
     document.addEventListener("touchstart", function () {
       if (api && api.kickVisible) api.kickVisible();

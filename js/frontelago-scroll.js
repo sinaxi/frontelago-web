@@ -577,18 +577,23 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function preloadHeroVideo() {
-    // Soft Range warm during welcome (non-blocking). Full play starts on dismiss.
+    // Bind + buffer on the real <video> element (no competing Range fetch)
     if (
       window.__frontelagoVideo &&
-      typeof window.__frontelagoVideo.warm === "function"
+      typeof window.__frontelagoVideo.startHero === "function"
     ) {
-      return window.__frontelagoVideo.warm().then(() => true).catch(() => true);
+      return window.__frontelagoVideo
+        .startHero()
+        .then(() => true)
+        .catch(() => true);
     }
+    const heroVideo = document.getElementById("hero_video");
+    if (heroVideo) return forceHeroVideoPlay(heroVideo).then(() => true);
     return Promise.resolve(true);
   }
 
   function preloadHeroMedia() {
-    // Kick soft video warm immediately while first still loads
+    // Start real media download immediately while first still loads
     preloadHeroVideo().catch(() => {});
 
     const firstStill = preloadImage(HERO_PRELOAD_IMAGES[0]);
@@ -2404,8 +2409,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const section =
           mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
-        const SLIDE_HOLD_MS = isCoarsePointer ? 1600 : 2000;
-        const TEXT_HOLD_MS = isCoarsePointer ? 1400 : 2000;
+        const SLIDE_HOLD_MS = isCoarsePointer ? 1200 : 1500;
+        const TEXT_HOLD_MS = isCoarsePointer ? 1000 : 1400;
 
         let switched = false;
         let copyRevealed = false;
@@ -2605,6 +2610,9 @@ document.addEventListener("DOMContentLoaded", function () {
           ensureHeroVideoReady();
           // Keep muted playback running UNDER the stills.
           // Never pause afterwards — iOS will block later play() calls.
+          if (window.__frontelagoVideo && window.__frontelagoVideo.startHero) {
+            window.__frontelagoVideo.startHero();
+          }
           forceHeroVideoPlay(video).then((ok) => {
             if (!ok && video.paused) {
               const p = video.play();
