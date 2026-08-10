@@ -1931,22 +1931,49 @@ document.addEventListener("DOMContentLoaded", function () {
       const tryPlay = (force = false) => {
         if (!force && !isNearViewport()) return;
         bindFeature();
+        // Sync mute+play for iOS gesture / Intersection path
+        video.muted = true;
+        video.defaultMuted = true;
+        video.volume = 0;
+        video.playsInline = true;
+        video.setAttribute("muted", "true");
+        video.setAttribute("playsinline", "true");
+        video.setAttribute("webkit-playsinline", "true");
+        let played = null;
+        try {
+          played = video.play();
+        } catch (_) {
+          played = null;
+        }
         const playPromise =
           api && typeof api.play === "function"
             ? api.play(video)
-            : (() => {
-                video.muted = true;
-                video.volume = 0;
-                const p = video.play();
-                if (p && typeof p.then === "function") {
-                  return p.then(() => !video.paused).catch(() => false);
-                }
-                return Promise.resolve(!video.paused);
-              })();
+            : Promise.resolve(played).then(() => !video.paused).catch(() => false);
         Promise.resolve(playPromise).then((ok) => {
           if (ok || !video.paused) markPlaying();
         });
       };
+
+      // Sync unlock on gesture (Low Power Mode)
+      const unlockFeature = () => {
+        if (!isNearViewport()) return;
+        bindFeature();
+        video.muted = true;
+        video.volume = 0;
+        video.playsInline = true;
+        try {
+          video.play();
+        } catch (_) {
+          /* ignore */
+        }
+        if (!video.paused) markPlaying();
+      };
+      ["touchstart", "pointerdown", "click"].forEach((evt) => {
+        window.addEventListener(evt, unlockFeature, {
+          capture: true,
+          passive: true,
+        });
+      });
 
       video.addEventListener("playing", markPlaying);
       video.addEventListener("loadeddata", () => tryPlay());
@@ -1959,13 +1986,14 @@ document.addEventListener("DOMContentLoaded", function () {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
                 tryPlay(true);
-              } else if (!video.paused) {
+              } else if (!mobile && !video.paused) {
+                // Never pause on mobile — iOS would block later autoplay
                 video.pause();
                 if (frame) frame.classList.remove("is-playing");
               }
             });
           },
-          { threshold: 0.12, rootMargin: "45% 0px 45% 0px" }
+          { threshold: 0.08, rootMargin: "55% 0px 55% 0px" }
         );
         io.observe(section);
       } else {
@@ -1979,6 +2007,9 @@ document.addEventListener("DOMContentLoaded", function () {
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") tryPlay();
       });
+      window.setInterval(() => {
+        if (isNearViewport() && video.paused) tryPlay(true);
+      }, 1800);
     }
 
     initializeFeatureVideo();
@@ -2418,7 +2449,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const activateImage = (index) => {
           imageItems.forEach((el, i) => {
-            el.classList.toggle("is-active", i === index);
+            const on = i === index;
+            el.classList.toggle("is-active", on);
+            if (on) {
+              const img = el.querySelector("img[data-src]");
+              if (img && !img.getAttribute("src")) {
+                const lazy = img.getAttribute("data-src");
+                if (lazy) {
+                  img.setAttribute("src", lazy);
+                  img.removeAttribute("data-src");
+                }
+              }
+            }
           });
         };
 
@@ -2504,13 +2546,19 @@ document.addEventListener("DOMContentLoaded", function () {
         const unlockFromUserGesture = () => {
           if (!video) return;
           ensureHeroVideoReady();
+          if (
+            window.__frontelagoVideo &&
+            typeof window.__frontelagoVideo.unlockAll === "function"
+          ) {
+            window.__frontelagoVideo.unlockAll();
+          }
           video.muted = true;
           video.defaultMuted = true;
           video.volume = 0;
           video.playsInline = true;
           try {
-            video.setAttribute("muted", "");
-            video.setAttribute("playsinline", "");
+            video.setAttribute("muted", "true");
+            video.setAttribute("playsinline", "true");
             video.setAttribute("webkit-playsinline", "true");
           } catch (_) {
             /* ignore */
@@ -2526,7 +2574,6 @@ document.addEventListener("DOMContentLoaded", function () {
           } catch (_) {
             p = null;
           }
-          // Never skip the stills on touch — only reveal once the sequence reached video
           if (switched && !video.paused) revealPlayingVideo();
           if (p && typeof p.then === "function") {
             p.then(() => {
