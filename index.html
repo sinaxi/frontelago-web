@@ -601,6 +601,19 @@
     line-height: 1.1 !important;
     text-transform: uppercase !important;
   }
+  /* "SPAZI ESCLUSIVI": centered on every viewport, 20% smaller on desktop */
+  .services_title.u-text-style-display {
+    text-align: center !important;
+    margin-left: 0 !important;
+  }
+  @media (min-width: 768px) {
+    .services_title.u-text-style-display,
+    .services_title.u-text-style-display:lang(it),
+    .services_title.u-text-style-display:lang(en),
+    .services_title.u-text-style-display:lang(de) {
+      font-size: calc(var(--_typography---font-size--display) * 0.8) !important;
+    }
+  }
   /* "SPAZI ESCLUSIVI" must never wrap on mobile: text is ~4.3em wide,
      so 22.8cqw of the inline-size container keeps it on one line */
   @media (max-width: 767px) {
