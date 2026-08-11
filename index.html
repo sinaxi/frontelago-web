@@ -1786,13 +1786,15 @@
     inset: 0;
     height: 100%;
     width: 100%;
-    /* Start fully masked from the left — cinematic wipe, not center iris */
-    clip-path: inset(0 0 0 100% round 0.75em);
-    will-change: clip-path, opacity;
+    /* Hidden until its turn — crossfade between slides */
+    opacity: 0;
+    border-radius: 0.75em;
+    overflow: hidden;
+    will-change: opacity;
   }
 
   .sticky-features_img-item.is-active {
-    clip-path: inset(0 round 0.75em);
+    opacity: 1;
   }
 
   .sticky-features_img {
@@ -4381,7 +4383,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 </script>
 
-<script src="js/frontelago-scroll.js"></script>
+<script src="js/frontelago-scroll.js?v=20260811"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {

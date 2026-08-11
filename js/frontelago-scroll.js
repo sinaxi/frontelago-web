@@ -1936,15 +1936,14 @@ document.addEventListener("DOMContentLoaded", function () {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // Cinematic L→R wipe + soft Ken Burns (not the center iris open)
+      // Crossfade between slides + soft Ken Burns drift
       const clipOpen = "inset(0 0 0 0 round 0.75em)";
-      const clipClosed = "inset(0 0 0 100% round 0.75em)";
 
       visuals.forEach((el, i) => {
         const img = el.querySelector(".sticky-features_img");
         gsap.set(el, {
-          clipPath: i === 0 ? clipOpen : clipClosed,
-          opacity: 1,
+          clipPath: clipOpen,
+          autoAlpha: i === 0 ? 1 : 0,
           zIndex: i + 1,
         });
         if (img) {
@@ -2003,11 +2002,11 @@ document.addEventListener("DOMContentLoaded", function () {
             at
           );
         } else {
-          // Incoming: wipe in from the left while settling from a mild drift
+          // Incoming: fade in over the previous slide while settling from a mild drift
           tl.fromTo(
             visuals[next],
-            { clipPath: clipClosed },
-            { clipPath: clipOpen, ease: "none", duration: 1 },
+            { autoAlpha: 0 },
+            { autoAlpha: 1, ease: "none", duration: 1 },
             at
           );
 
