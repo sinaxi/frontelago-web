@@ -2404,17 +2404,18 @@
     text-wrap: balance;
   }
 
+  /* Explicit two-line break on every viewport; nowrap prevents a third line */
   .sticky-features_br {
-    display: none;
+    display: block;
+  }
+
+  .sticky-features_title {
+    white-space: nowrap;
   }
 
   @media (min-width: 992px) {
     .sticky-features_text-item {
       max-width: min(38rem, 100%);
-    }
-
-    .sticky-features_br {
-      display: block;
     }
 
     .sticky-features_title--long {
@@ -2450,6 +2451,7 @@
 
     .sticky-features_title {
       font-size: clamp(2rem, 9vw, 3.25rem) !important;
+      line-height: 1.08 !important;
     }
   }
 
@@ -4207,15 +4209,15 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
           <div class="sticky-features_text-list">
             <div class="sticky-features_text-item is-active" data-sticky-feature-item="">
               <p class="sticky-features_eyebrow">ATTICO FRONTELAGO</p>
-              <h3 class="sticky-features_title u-text-style-h1">Ogni finestra un quadro.</h3>
+              <h3 class="sticky-features_title u-text-style-h1">Ogni finestra <br class="sticky-features_br" aria-hidden="true"/>un quadro.</h3>
             </div>
             <div class="sticky-features_text-item" data-sticky-feature-item="">
               <p class="sticky-features_eyebrow">ATTICO FRONTELAGO</p>
-              <h3 class="sticky-features_title u-text-style-h1">A un passo dall’acqua.</h3>
+              <h3 class="sticky-features_title u-text-style-h1">A un passo <br class="sticky-features_br" aria-hidden="true"/>dall’acqua.</h3>
             </div>
             <div class="sticky-features_text-item" data-sticky-feature-item="">
               <p class="sticky-features_eyebrow">ATTICO FRONTELAGO</p>
-              <h3 class="sticky-features_title u-text-style-h1 sticky-features_title--long">Un privilegio<br class="sticky-features_br" aria-hidden="true"/>sul lago</h3>
+              <h3 class="sticky-features_title u-text-style-h1 sticky-features_title--long">Un privilegio <br class="sticky-features_br" aria-hidden="true"/>sul lago.</h3>
             </div>
           </div>
         </div>
