@@ -720,7 +720,6 @@
     }
     .amenity-label {
       font-size: clamp(0.9375rem, 1.1vw, 1.1875rem);
-      max-width: 14ch;
     }
   }
   .amenity-label {
@@ -731,7 +730,9 @@
     text-transform: none;
     color: #ffffff;
     line-height: 1.25;
-    max-width: 12ch;
+    /* Labels always on a single line */
+    white-space: nowrap;
+    max-width: none;
   }
   .section_amenities .partner_line-hr,
   .section_amenities .partner_line-vertical {
