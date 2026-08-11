@@ -907,10 +907,14 @@
   }
   @media (max-width: 767px) {
     .section_hero .hero_stat_label.is-xl,
-    .section_hero .hero_stat_label.is-xl p,
+    .section_hero .hero_stat_label.is-xl p {
+      font-size: 132% !important;
+      line-height: 1.25 !important;
+    }
+    /* Single-line caption scales with screen width so it never clips */
     .section_hero .hero_stat_label.is-nowrap,
     .section_hero .hero_stat_label.is-nowrap p {
-      font-size: 132% !important;
+      font-size: min(132%, 4.6vw) !important;
       line-height: 1.25 !important;
     }
   }
