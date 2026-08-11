@@ -912,15 +912,13 @@
     margin-inline: auto;
   }
   @media (max-width: 767px) {
+    /* Both captions share the same size; vw scaling keeps the
+       single-line "6 posti disponibili + 1 culla" from clipping */
     .section_hero .hero_stat_label.is-xl,
-    .section_hero .hero_stat_label.is-xl p {
-      font-size: 132% !important;
-      line-height: 1.25 !important;
-    }
-    /* Single-line caption scales with screen width so it never clips */
+    .section_hero .hero_stat_label.is-xl p,
     .section_hero .hero_stat_label.is-nowrap,
     .section_hero .hero_stat_label.is-nowrap p {
-      font-size: min(132%, 4.6vw) !important;
+      font-size: min(170%, 6.2vw) !important;
       line-height: 1.25 !important;
     }
   }
