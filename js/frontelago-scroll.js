@@ -429,113 +429,36 @@ document.addEventListener("DOMContentLoaded", function () {
     return false;
   }
 
-  function configureHeroVideoElement(video, src) {
+  // iOS: the <video> tags own their <source> children — JS must never touch
+  // src or call load(), or Safari drops the native autoplay grant.
+  function configureHeroVideoElement(video) {
     if (!video) return;
-    const api = window.__frontelagoVideo;
-    if (api && typeof api.prepare === "function") {
-      api.prepare(video, { preload: "auto" });
-      if (!video.getAttribute("poster")) {
-        video.setAttribute("poster", "assets/hero-video-poster.jpg");
-      }
-      video.setAttribute("disablepictureinpicture", "");
-      video.setAttribute(
-        "controlslist",
-        "nodownload nofullscreen noremoteplayback"
-      );
-      video.setAttribute("x-webkit-airplay", "deny");
-      return;
-    }
-
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
-    video.autoplay = true;
-    video.loop = true;
     video.playsInline = true;
     video.controls = false;
     video.removeAttribute("controls");
-    if (!video.getAttribute("poster")) {
-      video.setAttribute("poster", "assets/hero-video-poster.jpg");
-    }
-    video.setAttribute("autoplay", "autoplay");
     video.setAttribute("muted", "muted");
     video.setAttribute("playsinline", "true");
     video.setAttribute("webkit-playsinline", "true");
-    video.setAttribute("loop", "loop");
-    video.setAttribute("disablepictureinpicture", "");
-    video.setAttribute("controlslist", "nodownload nofullscreen noremoteplayback");
-    video.setAttribute("x-webkit-airplay", "deny");
-    if ("disableRemotePlayback" in video) {
-      video.disableRemotePlayback = true;
-    }
-    video.preload = "auto";
-
-    const preferred = src || getHeroVideoSrc();
-    let alreadySet = false;
-    try {
-      const abs = new URL(preferred, window.location.href).href;
-      alreadySet =
-        (video.getAttribute("src") || "") === preferred ||
-        video.src === abs ||
-        video.currentSrc === abs;
-    } catch (_) {
-      alreadySet = (video.getAttribute("src") || "") === preferred;
-    }
-
-    // Always bind a file URL if missing; avoid resetting while actively playing
-    if (!alreadySet) {
-      const hadSrc = !!(video.getAttribute("src") || video.currentSrc);
-      if (!hadSrc || video.paused) {
-        video.setAttribute("src", preferred);
-        video.src = preferred;
-      }
-    }
   }
 
   function forceHeroVideoPlay(video) {
     if (!video) return Promise.resolve(false);
-    const api = window.__frontelagoVideo;
-    if (api && typeof api.play === "function") {
-      configureHeroVideoElement(video, getHeroVideoSrc());
-      return api.play(video).then((ok) => {
-        if (ok) return true;
-        // Retry after buffer events
-        return new Promise((resolve) => {
-          const retry = () => {
-            api.play(video).then((again) => resolve(!!again));
-          };
-          video.addEventListener("loadeddata", retry, { once: true });
-          video.addEventListener("canplay", retry, { once: true });
-          window.setTimeout(() => api.play(video).then((again) => resolve(!!again)), 450);
-        });
-      });
-    }
-
-    configureHeroVideoElement(video, getHeroVideoSrc());
-    video.muted = true;
-    video.defaultMuted = true;
-    video.volume = 0;
-    try {
-      video.setAttribute("muted", "muted");
-      video.playsInline = true;
-      video.setAttribute("playsinline", "true");
-      video.setAttribute("webkit-playsinline", "true");
-      video.setAttribute("autoplay", "autoplay");
-    } catch (_) {
-      /* ignore */
-    }
-    if (!video.getAttribute("src") && !video.currentSrc) {
-      const src = getHeroVideoSrc();
-      video.setAttribute("src", src);
-      video.src = src;
-    }
+    configureHeroVideoElement(video);
 
     const attemptPlay = () => {
       // Re-assert muted right before play — required for iOS/Safari autoplay
       video.muted = true;
       video.defaultMuted = true;
       video.volume = 0;
-      const play = video.play();
+      let play;
+      try {
+        play = video.play();
+      } catch (_) {
+        return Promise.resolve(false);
+      }
       if (play && typeof play.then === "function") {
         return play
           .then(() => !video.paused)
@@ -560,14 +483,6 @@ document.addEventListener("DOMContentLoaded", function () {
       };
       video.addEventListener("loadeddata", onReady, { once: true });
       video.addEventListener("canplay", onReady, { once: true });
-      try {
-        // Never call load() while already downloading — it aborts and restarts
-        if (video.networkState === 3) {
-          video.load();
-        }
-      } catch (_) {
-        /* ignore */
-      }
       attemptPlay().then((ok) => {
         if (ok) finish(true);
       });
@@ -1885,37 +1800,16 @@ document.addEventListener("DOMContentLoaded", function () {
           : "assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4");
 
       const bindFeature = () => {
-        if (api && typeof api.prepare === "function") {
-          api.prepare(video, { forceAutoPreload: true });
-        } else {
-          video.muted = true;
-          video.defaultMuted = true;
-          video.volume = 0;
-          video.autoplay = true;
-          video.loop = true;
-          video.playsInline = true;
-          video.preload = "auto";
-          video.controls = false;
-          video.removeAttribute("controls");
-          video.removeAttribute("poster");
-          video.setAttribute("muted", "");
-          video.setAttribute("playsinline", "");
-          video.setAttribute("webkit-playsinline", "");
-          video.setAttribute("autoplay", "");
-          video.setAttribute("loop", "");
-          video.setAttribute("preload", "auto");
-          if ("disableRemotePlayback" in video) {
-            video.disableRemotePlayback = true;
-          }
-          if ((video.getAttribute("src") || "") !== src) {
-            video.src = src;
-            try {
-              video.load();
-            } catch (_) {
-              /* ignore */
-            }
-          }
-        }
+        // Native <source> children own the src — JS never rebinds it (iOS)
+        video.muted = true;
+        video.defaultMuted = true;
+        video.volume = 0;
+        video.playsInline = true;
+        video.controls = false;
+        video.removeAttribute("controls");
+        video.setAttribute("muted", "");
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
       };
 
       // Desktop can bind early; mobile waits until near viewport (hero needs the pipe)
@@ -2515,19 +2409,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const ensureHeroVideoReady = () => {
           if (!video) return;
-          configureHeroVideoElement(video, getHeroVideoSrc());
-          video.muted = true;
-          video.defaultMuted = true;
-          video.volume = 0;
-          video.controls = false;
-          video.playsInline = true;
-          video.removeAttribute("controls");
-          video.setAttribute("muted", "true");
-          video.setAttribute("playsinline", "true");
-          video.setAttribute("webkit-playsinline", "true");
-          video.setAttribute("autoplay", "true");
-          video.preload = "auto";
-          video.setAttribute("preload", "auto");
+          configureHeroVideoElement(video);
           if (videoItem) videoItem.classList.add("is-video-bed");
         };
 
@@ -2566,22 +2448,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const unlockFromUserGesture = () => {
           if (!video) return;
           ensureHeroVideoReady();
-          video.muted = true;
-          video.defaultMuted = true;
-          video.volume = 0;
-          video.playsInline = true;
-          try {
-            video.setAttribute("muted", "true");
-            video.setAttribute("playsinline", "true");
-            video.setAttribute("webkit-playsinline", "true");
-          } catch (_) {
-            /* ignore */
-          }
-          if (!video.getAttribute("src") && !video.currentSrc) {
-            const src = getHeroVideoSrc();
-            video.setAttribute("src", src);
-            video.src = src;
-          }
           let p;
           try {
             p = video.play();

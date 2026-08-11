@@ -14,53 +14,34 @@
     window.__frontelagoHeroVideoSrc = src;
     window.__frontelagoIsMobileVideo = mobile;
 
+    // IMPORTANT (iOS): never touch video src or call load() from JS.
+    // The <video> tags carry native <source media> children + autoplay/muted/
+    // playsinline attributes — Safari autoplays those reliably on its own.
+    // JS only re-asserts muted and nudges play().
     function muteForAutoplay(video) {
       if (!video) return;
       try {
         video.muted = true;
         video.defaultMuted = true;
         video.volume = 0;
-        video.autoplay = true;
-        video.loop = true;
         video.playsInline = true;
         video.setAttribute("playsinline", "true");
         video.setAttribute("webkit-playsinline", "true");
         video.controls = false;
         video.removeAttribute("controls");
         video.setAttribute("muted", "true");
-        video.setAttribute("autoplay", "true");
-        video.setAttribute("loop", "true");
-        if ("disableRemotePlayback" in video) video.disableRemotePlayback = true;
       } catch (e) {}
     }
 
-    function prepare(video, opts) {
+    function prepare(video) {
       if (!video) return false;
-      opts = opts || {};
       muteForAutoplay(video);
-      video.preload = opts.preload || "auto";
-      video.setAttribute("preload", "auto");
-      var current = video.getAttribute("src") || "";
-      // Prefer explicit src for reliable iOS buffering
-      if (current !== src) {
-        // Clear <source> children so attribute src wins cleanly
-        try {
-          var sources = video.querySelectorAll("source");
-          for (var i = 0; i < sources.length; i++) sources[i].removeAttribute("src");
-        } catch (e) {}
-        video.setAttribute("src", src);
-        video.src = src;
-        try { video.load(); } catch (e) {}
-      }
       return true;
     }
 
     function play(video) {
       if (!video) return Promise.resolve(false);
       muteForAutoplay(video);
-      if (!video.getAttribute("src") && !video.currentSrc) {
-        prepare(video, { preload: "auto" });
-      }
       var p;
       try {
         p = video.play();
@@ -78,7 +59,6 @@
     function startHero() {
       var hero = document.getElementById("hero_video");
       if (!hero) return Promise.resolve(false);
-      prepare(hero, { preload: "auto" });
       return play(hero);
     }
 
@@ -88,15 +68,10 @@
       var feature = document.querySelector("[data-feature-video-el]");
       if (hero) {
         muteForAutoplay(hero);
-        if (!hero.getAttribute("src")) prepare(hero, { preload: "auto" });
         try { hero.play(); } catch (e) {}
       }
       if (feature) {
         muteForAutoplay(feature);
-        if ((feature.getAttribute("src") || "") !== src) {
-          feature.setAttribute("src", src);
-          feature.src = src;
-        }
         try { feature.play(); } catch (e) {}
       }
     }
@@ -126,17 +101,16 @@
       bindAll: function () {
         var hero = document.getElementById("hero_video");
         var feature = document.querySelector("[data-feature-video-el]");
-        if (hero) prepare(hero, { preload: "auto" });
-        if (feature && !mobile) prepare(feature, { preload: "auto" });
+        if (hero) prepare(hero);
+        if (feature) prepare(feature);
         return { hero: hero, feature: feature };
       },
       bindHeroOnly: function () {
         var hero = document.getElementById("hero_video");
-        if (hero) prepare(hero, { preload: "auto" });
+        if (hero) prepare(hero);
         return { hero: hero };
       },
       kickVisible: function () {
-        unlockAllVideos();
         var hero = document.getElementById("hero_video");
         var feature = document.querySelector("[data-feature-video-el]");
         var tasks = [];
@@ -148,10 +122,7 @@
             !rect ||
             (rect.bottom > -120 &&
               rect.top < (window.innerHeight || 800) + 320);
-          if (near || !mobile) {
-            prepare(feature, { preload: "auto" });
-            tasks.push(play(feature));
-          }
+          if (near || !mobile) tasks.push(play(feature));
         }
         return Promise.all(tasks);
       },
@@ -3933,26 +3904,13 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
 <video id="hero_video" class="loader_video" autoplay muted loop playsinline webkit-playsinline disablepictureinpicture poster="assets/hero-video-poster.jpg" preload="auto" controlslist="nodownload nofullscreen noremoteplayback noplaybackrate" x-webkit-airplay="deny" disableRemotePlayback><source data-hero-source media="(max-width: 767px)" src="assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4" type="video/mp4"/><source data-hero-source src="assets/attico-frontelago-pisogne-iseo-lake-brescia.mp4" type="video/mp4"/></video>
 <script>
   (function () {
-    var api = window.__frontelagoVideo;
     var video = document.getElementById("hero_video");
-    if (api && api.startHero) api.startHero();
-    else if (window.__frontelagoBindHeroVideo) window.__frontelagoBindHeroVideo();
-    else if (video) {
-      video.muted = true;
-      video.defaultMuted = true;
-      video.volume = 0;
-      video.playsInline = true;
-      video.setAttribute("muted", "");
-      video.setAttribute("playsinline", "");
-      var src = window.__frontelagoHeroVideoSrc;
-      if (src && !video.getAttribute("src")) {
-        video.setAttribute("src", src);
-        video.src = src;
-        try { video.load(); } catch (e) {}
-      }
-      var p = video.play();
-      if (p && p.catch) p.catch(function () {});
-    }
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    var p;
+    try { p = video.play(); } catch (e) {}
+    if (p && p.catch) p.catch(function () {});
   })();
 </script>
 </div>
@@ -4002,11 +3960,11 @@ body:has(.nav_component[data-wave-menu="closing"]) .float-dock__whatsapp {
       loop
       playsinline
       webkit-playsinline
-      preload="auto"
+      preload="none"
       controlslist="nodownload nofullscreen noremoteplayback"
       disablepictureinpicture
       x-webkit-airplay="deny"
-    ></video>
+    ><source media="(max-width: 767px)" src="assets/attico-frontelago-pisogne-iseo-lake-brescia-mobile.mp4" type="video/mp4"/><source src="assets/attico-frontelago-pisogne-iseo-lake-brescia.mp4" type="video/mp4"/></video>
     <div class="feature-video_cover" aria-hidden="true"></div>
 
     <div class="feature-video_edge feature-video_edge--top" aria-hidden="true">
