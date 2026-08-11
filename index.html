@@ -583,6 +583,7 @@
     width: 100% !important;
     text-align: center !important;
   }
+  /* Same typography as "SPAZI ESCLUSIVI" (services_title), white ink */
   .section_amenities .partners_title,
   .section_amenities .partners_title.u-text-style-display,
   .section_amenities .partners_title.u-text-style-display:lang(it),
@@ -594,12 +595,20 @@
     margin: 0 auto !important;
     margin-left: 0 !important;
     text-align: center !important;
-    text-wrap: balance !important;
-    font-size: clamp(2rem, 6.5vw, 6.5rem) !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.06em !important;
+    font-size: calc(var(--_typography---font-size--display) * 0.8) !important;
+    letter-spacing: normal !important;
     line-height: 1.1 !important;
     text-transform: uppercase !important;
+  }
+  @media (max-width: 767px) {
+    .section_amenities .partners_title,
+    .section_amenities .partners_title.u-text-style-display,
+    .section_amenities .partners_title.u-text-style-display:lang(it),
+    .section_amenities .partners_title.u-text-style-display:lang(en),
+    .section_amenities .partners_title.u-text-style-display:lang(de) {
+      font-size: 20.5cqw !important;
+      white-space: nowrap !important;
+    }
   }
   /* "SPAZI ESCLUSIVI": centered on every viewport, 20% smaller on desktop */
   .services_title.u-text-style-display {
@@ -615,13 +624,13 @@
     }
   }
   /* "SPAZI ESCLUSIVI" must never wrap on mobile: text is ~4.3em wide,
-     so 22.8cqw of the inline-size container keeps it on one line */
+     20.5cqw of the inline-size container keeps it on one line with margin */
   @media (max-width: 767px) {
     .services_title.u-text-style-display,
     .services_title.u-text-style-display:lang(it),
     .services_title.u-text-style-display:lang(en),
     .services_title.u-text-style-display:lang(de) {
-      font-size: 22.8cqw !important;
+      font-size: 20.5cqw !important;
       white-space: nowrap !important;
     }
   }
