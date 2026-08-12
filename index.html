@@ -661,6 +661,12 @@
       font-size: calc(var(--_typography---font-size--h2) * 0.75) !important;
     }
   }
+  /* Hide "Discover Rooms" CTA on mobile */
+  @media (max-width: 767px) {
+    .rooms-showcase_cta {
+      display: none !important;
+    }
+  }
   /* Gallery lightbox (Zona Living / Cucina / Bagno) */
   .gallery-lightbox {
     position: fixed;
@@ -4464,7 +4470,7 @@ window.FRONTELAGO_GALLERIES = {
   ]
 };
 </script>
-<script src="js/frontelago-scroll.js?v=20260812b"></script>
+<script src="js/frontelago-scroll.js?v=20260812c"></script>
 <script>
 (function () {
   var overlay = document.querySelector("[data-gallery-lightbox]");

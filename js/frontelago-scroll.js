@@ -1703,16 +1703,31 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
+      // Auto-advance every 5s while the section is visible; manual
+      // interactions restart the countdown so they don't feel overridden.
+      let autoTimer = null;
+      let sectionVisible = !("IntersectionObserver" in window);
+      function restartAutoplay() {
+        if (autoTimer) clearInterval(autoTimer);
+        autoTimer = setInterval(() => {
+          if (!sectionVisible || activeTab !== "rooms" || dragging) return;
+          index = index >= maxIndex() ? 0 : index + 1;
+          updateSlider();
+        }, 5000);
+      }
+
       if (prevBtn) {
         prevBtn.addEventListener("click", () => {
           index -= 1;
           updateSlider();
+          restartAutoplay();
         });
       }
       if (nextBtn) {
         nextBtn.addEventListener("click", () => {
           index += 1;
           updateSlider();
+          restartAutoplay();
         });
       }
 
@@ -1754,6 +1769,7 @@ document.addEventListener("DOMContentLoaded", function () {
             else if (dx > 40) index -= 1;
           }
           updateSlider();
+          restartAutoplay();
         };
         track.addEventListener("pointerup", endDrag);
         track.addEventListener("pointercancel", endDrag);
@@ -1764,7 +1780,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if ("IntersectionObserver" in window) {
         const io = new IntersectionObserver(
           (entries) => {
-            if (entries.some((e) => e.isIntersecting)) updateSlider(false);
+            sectionVisible = entries.some((e) => e.isIntersecting);
+            if (sectionVisible) updateSlider(false);
           },
           { threshold: 0.15 }
         );
@@ -1773,6 +1790,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       setTab("rooms");
       updateSlider(false);
+      restartAutoplay();
     }
 
     initializeRoomsShowcase();
