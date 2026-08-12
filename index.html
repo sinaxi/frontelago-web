@@ -661,6 +661,12 @@
       font-size: calc(var(--_typography---font-size--h2) * 0.75) !important;
     }
   }
+  /* Amenities grid: always two cards per row on mobile */
+  @media (max-width: 767px) {
+    .amenity-grid.u-grid-autofit {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+  }
   /* Hide "Discover Rooms" CTA on mobile */
   @media (max-width: 767px) {
     .rooms-showcase_cta {
