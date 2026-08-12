@@ -1500,10 +1500,10 @@
 
   @media (min-width: 992px) {
     .rooms-showcase_slider-wrap {
-      /* Match Hotel Royal: slider column overflows past the panel edge
-         so 30% slides resolve to ~430–465px card width */
-      flex: 0 1 auto;
-      width: 125%;
+      /* Con due sole camere lo slider resta dentro il pannello
+         e le card si dividono tutta la larghezza disponibile */
+      flex: 1 1 auto;
+      width: 100%;
       max-width: none;
       padding-bottom: 1.5rem;
     }
@@ -1539,7 +1539,7 @@
 
   @media (min-width: 992px) {
     .rooms-showcase_slide {
-      flex-basis: 30%;
+      flex-basis: 50%;
       padding-left: 2rem;
     }
   }
@@ -1548,7 +1548,7 @@
     display: flex;
     height: 100%;
     min-height: 400px;
-    max-width: 600px;
+    max-width: none;
     flex-direction: column;
     gap: 1.5rem;
     border-radius: 1.5rem;
@@ -4476,7 +4476,7 @@ window.FRONTELAGO_GALLERIES = {
   ]
 };
 </script>
-<script src="js/frontelago-scroll.js?v=20260812c"></script>
+<script src="js/frontelago-scroll.js?v=20260813a"></script>
 <script>
 (function () {
   var overlay = document.querySelector("[data-gallery-lightbox]");

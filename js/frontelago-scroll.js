@@ -1651,7 +1651,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       function maxIndex() {
         const w = window.innerWidth;
-        if (w >= 992) return Math.max(0, slides.length - 3);
+        if (w >= 992) return Math.max(0, slides.length - 2);
         if (w >= 768) return Math.max(0, slides.length - 1);
         return Math.max(0, slides.length - 1);
       }
