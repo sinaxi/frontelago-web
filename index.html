@@ -661,6 +661,13 @@
       font-size: calc(var(--_typography---font-size--h2) * 0.75) !important;
     }
   }
+  /* Mobile: tighter gap between "CONTESTO E DINTORNI" and the accordion */
+  @media (max-width: 767px) {
+    .workflow_header > .spacer_mobile:last-of-type .u-spacer {
+      height: 3rem !important;
+      min-height: 0 !important;
+    }
+  }
   /* Reviews: use the autoplay slider on every viewport instead of the
      scroll-pinned horizontal section */
   .clients_cms_wrap {
