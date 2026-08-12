@@ -661,25 +661,27 @@
       font-size: calc(var(--_typography---font-size--h2) * 0.75) !important;
     }
   }
-  /* Service cards (Zona Living / Cucina / Bagno): centered content */
-  .section_services .card_stack_content {
-    align-items: center !important;
-    text-align: center !important;
-  }
-  .section_services .card_stack_content .g_heading,
-  .section_services .card_stack_content .g_heading h2,
-  .section_services .card_stack_content .g_paragraph,
-  .section_services .card_stack_content .g_paragraph p {
-    text-align: center !important;
-  }
-  /* Il <p> ha un max-width (~30ch): senza margini auto resta ancorato a sinistra */
-  .section_services .card_stack_content .g_paragraph p {
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-  .section_services .card_button-wrapper {
-    align-items: center !important;
-    width: 100%;
+  /* Service cards (Zona Living / Cucina / Bagno): centered content, mobile only */
+  @media (max-width: 767px) {
+    .section_services .card_stack_content {
+      align-items: center !important;
+      text-align: center !important;
+    }
+    .section_services .card_stack_content .g_heading,
+    .section_services .card_stack_content .g_heading h2,
+    .section_services .card_stack_content .g_paragraph,
+    .section_services .card_stack_content .g_paragraph p {
+      text-align: center !important;
+    }
+    /* Il <p> ha un max-width (~30ch): senza margini auto resta ancorato a sinistra */
+    .section_services .card_stack_content .g_paragraph p {
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+    .section_services .card_button-wrapper {
+      align-items: center !important;
+      width: 100%;
+    }
   }
   /* Mobile: tighter gap between "CONTESTO E DINTORNI" and the accordion */
   @media (max-width: 767px) {
