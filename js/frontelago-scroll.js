@@ -2337,7 +2337,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const section =
           mediaRoot.closest(".section_loader") || mediaRoot.parentElement;
 
-        const SLIDE_HOLD_MS = isCoarsePointer ? 1400 : 1500;
+        const SLIDE_HOLD_MS = isCoarsePointer ? 2400 : 2500;
         const TEXT_HOLD_MS = isCoarsePointer ? 1100 : 1400;
 
         let switched = false;
