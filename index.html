@@ -654,6 +654,13 @@
       white-space: nowrap !important;
     }
   }
+  /* "Cosa dicono i nostri ospiti": smaller heading on desktop */
+  @media (min-width: 768px) {
+    .client_sticky .g_heading.u-text-style-h2,
+    .client_sticky .g_heading.u-text-style-h2 h2 {
+      font-size: calc(var(--_typography---font-size--h2) * 0.75) !important;
+    }
+  }
   /* Tighter gap between the title and the amenity blocks */
   .section_amenities .section_contain + .spacer_desktop .u-spacer,
   .section_amenities .section_contain + .spacer_desktop + .spacer_mobile .u-spacer {
@@ -4363,7 +4370,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 </script>
 
-<script src="js/frontelago-scroll.js?v=20260812"></script>
+<script src="js/frontelago-scroll.js?v=20260812b"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {

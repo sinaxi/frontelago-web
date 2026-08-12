@@ -3210,34 +3210,12 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Mobile: SplitText + pin + letters that reunite on scroll
-        const splitText = new SplitText(title, {
-          type: "chars, lines",
-          charsClass: "letter",
-          linesClass: "gravity-line",
-          reduceWhiteSpace: false,
-        });
-
+        // Mobile: pin the solid headline — no scattered letters
         ScrollTrigger.create({
           trigger: container,
           pin: title,
           start: "top 15%",
           end: "+=" + dist,
-        });
-
-        splitText.chars.forEach((letter) => {
-          const randomDistance = Math.random() * dist;
-
-          gsap.from(letter, {
-            y: randomDistance,
-            ease: "none",
-            scrollTrigger: {
-              trigger: shouldPin ? title : container,
-              start: "top 15%",
-              end: "+=" + randomDistance,
-              scrub: 1,
-            },
-          });
         });
       });
     }
