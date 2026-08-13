@@ -1505,10 +1505,13 @@
   @media (min-width: 992px) {
     .rooms-showcase_slider-wrap {
       /* Con due sole camere lo slider resta dentro il pannello
-         e le card si dividono tutta la larghezza disponibile */
+         e le card si dividono tutta la larghezza disponibile.
+         margin-right 0: stesso respiro dal bordo del pannello
+         che il testo ha a sinistra */
       flex: 1 1 auto;
       width: 100%;
       max-width: none;
+      margin-right: 0;
       padding-bottom: 1.5rem;
     }
   }
