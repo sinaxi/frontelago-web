@@ -665,10 +665,17 @@
     line-height: 0.9 !important;
     white-space: nowrap !important;
     max-width: none !important;
-    /* Pieno nero; il tratto color sfondo assottiglia leggermente i glifi
-       (Monologue non ha un peso light) */
     color: var(--_theme---text, #1a1815) !important;
-    -webkit-text-stroke: 0.016em var(--_theme---background, #f5efe0);
+  }
+  /* Peso ridotto del ~40% via erosione SVG (Monologue non ha un peso light):
+     niente alone perché il filtro agisce solo sui pixel del glifo */
+  .client_sticky .g_heading.u-text-style-h2 h2 {
+    filter: url(#thin-title-d);
+  }
+  @media (max-width: 767px) {
+    .client_sticky .g_heading.u-text-style-h2 h2 {
+      filter: url(#thin-title-m);
+    }
   }
   @media (min-width: 768px) {
     .client_sticky .g_heading.u-text-style-h2,
@@ -1492,7 +1499,7 @@
     margin: 0 0 2.5rem;
     color: #fff;
     font-size: clamp(1.5rem, 2.4vw, 2.25rem);
-    font-weight: 500;
+    font-weight: 300;
     line-height: 1.35;
   }
 
@@ -2778,7 +2785,11 @@
     localStorage.removeItem('colorThemes_publishDate');
   } catch (e) {}
 </script>
-</head><!--/$--><body class="clone-local"><div class="border-line is-left"></div><div class="border-line is-right"></div><div class="page_wrap"><div class="page_code_wrap u-theme-dark"><div class="page_code_base w-embed"><style>
+</head><!--/$--><body class="clone-local">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<filter id="thin-title-d"><feMorphology operator="erode" radius="5"/></filter>
+<filter id="thin-title-m"><feMorphology operator="erode" radius="2"/></filter>
+</defs></svg><div class="border-line is-left"></div><div class="border-line is-right"></div><div class="page_wrap"><div class="page_code_wrap u-theme-dark"><div class="page_code_base w-embed"><style>
 :root {
   --grid-breakout: [full-start] minmax(0, 1fr) [content-start] repeat(var(--site--column-count), minmax(0, var(--site--column-width))) [content-end] minmax(0, 1fr) [full-end];
   --grid-breakout-single: [full-start] minmax(0, 1fr) [content-start] minmax(0, var(--container--main)) [content-end] minmax(0, 1fr) [full-end];
