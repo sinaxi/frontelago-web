@@ -665,8 +665,10 @@
     line-height: 0.9 !important;
     white-space: nowrap !important;
     max-width: none !important;
-    color: transparent !important;
-    -webkit-text-stroke: 0.018em var(--_theme---text, #1a1815);
+    /* Pieno nero; il tratto color sfondo assottiglia leggermente i glifi
+       (Monologue non ha un peso light) */
+    color: var(--_theme---text, #1a1815) !important;
+    -webkit-text-stroke: 0.016em var(--_theme---background, #f5efe0);
   }
   @media (min-width: 768px) {
     .client_sticky .g_heading.u-text-style-h2,
@@ -683,7 +685,7 @@
   /* Le due righe COSA DICONO / I NOSTRI OSPITI più attaccate */
   .section_contain:has(.feedback_title) + .spacer_desktop .u-spacer,
   .section_contain:has(.feedback_title) + .spacer_desktop + .spacer_mobile .u-spacer {
-    height: 0.75rem !important;
+    height: 1.5rem !important;
     min-height: 0 !important;
   }
   /* "Bagno e doccia emozionale": esattamente due righe su desktop —
