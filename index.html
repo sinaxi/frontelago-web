@@ -733,6 +733,13 @@
   .clients_slider_code {
     display: block !important;
   }
+  /* Su desktop lo slider mobile porta con sé una seconda linea di chiusura:
+     teniamo solo quella desktop */
+  @media (min-width: 768px) {
+    .clients_line.is-bottom:not(.is-desktop) {
+      display: none !important;
+    }
+  }
   /* "Cosa dicono i nostri ospiti": break after "dicono" and tighter
      gap before the review cards, mobile only */
   .guests-title-br {
