@@ -2794,8 +2794,8 @@
 </script>
 </head><!--/$--><body class="clone-local">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-<filter id="thin-title-d"><feMorphology operator="erode" radius="4"/></filter>
-<filter id="thin-title-m"><feMorphology operator="erode" radius="1.5"/></filter>
+<filter id="thin-title-d"><feMorphology operator="erode" radius="4"/><feGaussianBlur stdDeviation="0.55"/><feComponentTransfer><feFuncA type="linear" slope="1.6" intercept="-0.1"/></feComponentTransfer></filter>
+<filter id="thin-title-m"><feMorphology operator="erode" radius="1.5"/><feGaussianBlur stdDeviation="0.4"/><feComponentTransfer><feFuncA type="linear" slope="1.6" intercept="-0.1"/></feComponentTransfer></filter>
 </defs></svg><div class="border-line is-left"></div><div class="border-line is-right"></div><div class="page_wrap"><div class="page_code_wrap u-theme-dark"><div class="page_code_base w-embed"><style>
 :root {
   --grid-breakout: [full-start] minmax(0, 1fr) [content-start] repeat(var(--site--column-count), minmax(0, var(--site--column-width))) [content-end] minmax(0, 1fr) [full-end];
