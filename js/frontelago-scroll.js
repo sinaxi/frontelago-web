@@ -3508,7 +3508,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const totalItemsCount = accordionHeaders.length;
       const sectionHeight = accordionContainer.getBoundingClientRect().height;
       const wrapperHeight = accordionWrapper.offsetHeight;
-      const headerHeightPx = !isMobile()
+      // Layout deciso dalla larghezza del viewport (il CSS usa la stessa
+      // soglia), non dallo user agent: sotto i 992px vale lo sticky mobile.
+      const isDesktopAccordion = window.matchMedia("(min-width: 992px)").matches;
+      const headerHeightPx = isDesktopAccordion
         ? `${wrapperHeight / totalItemsCount}px`
         : headerHeight;
       const sectionHeightPx = `${sectionHeight}px`;
@@ -3531,7 +3534,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const itemPosition = index + 1;
 
         header.style.setProperty("--item-position", itemPosition);
-        if (!isMobile()) {
+        if (isDesktopAccordion) {
           setTimeout(() => {
             header.style.position = "absolute";
           }, 1000);
