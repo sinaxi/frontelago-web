@@ -733,6 +733,17 @@
   .clients_slider_code {
     display: block !important;
   }
+  /* Mobile: le card recensione non devono avere l'altezza minima fissa di
+     Webflow (36rem), che lascia un grande vuoto tra il testo e il nome */
+  @media (max-width: 767px) {
+    .clients_slider_component .card_feedback_component {
+      min-height: 0 !important;
+      height: auto !important;
+    }
+    .clients_slider_cms_item.swiper-slide {
+      height: auto !important;
+    }
+  }
   /* Su desktop lo slider mobile porta con sé una seconda linea di chiusura:
      teniamo solo quella desktop */
   @media (min-width: 768px) {
