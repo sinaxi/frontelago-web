@@ -52,17 +52,46 @@ module.exports = async function handler(req, res) {
     lines.map(([k, v]) => k + ": " + v).join("\n") +
     "\n\nMessaggio:\n" +
     data.messaggio;
+
+  // Palette e stile della card del form nel footer del sito
+  const AVORIO = "#f5efe0";
+  const NERO = "#1a1815";
+  const SENAPE = "#c9971c";
+  const BORDO = "rgba(26, 24, 21, 0.14)";
+  const FONT = "Montserrat, system-ui, Arial, sans-serif";
+
+  const labelStyle =
+    "font-family:" + FONT + ";font-size:12px;font-weight:600;" +
+    "letter-spacing:0.08em;text-transform:uppercase;color:" + NERO + ";" +
+    "padding:0 0 6px 18px;";
+  const pillStyle =
+    "font-family:" + FONT + ";font-size:16px;line-height:1.4;color:" + NERO + ";" +
+    "background:" + AVORIO + ";border:1px solid " + BORDO + ";" +
+    "border-radius:999px;padding:13px 18px;";
+
+  const fieldRow = (label, value) =>
+    '<tr><td style="' + labelStyle + '">' + label + "</td></tr>" +
+    '<tr><td style="' + pillStyle + '">' + escapeHtml(value) + "</td></tr>" +
+    '<tr><td style="height:14px;line-height:14px;font-size:0;">&nbsp;</td></tr>';
+
   const html =
-    "<h2>Richiesta informazioni dal sito Frontelago</h2><table>" +
-    lines
-      .map(
-        ([k, v]) =>
-          "<tr><td><strong>" + k + "</strong></td><td>" + escapeHtml(v) + "</td></tr>"
-      )
-      .join("") +
-    "</table><p><strong>Messaggio:</strong></p><p>" +
+    '<body style="margin:0;padding:0;background:' + AVORIO + ';">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:' + AVORIO + ';padding:32px 16px;">' +
+    "<tr><td align=\"center\">" +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:28px;padding:32px 28px;">' +
+    "<tr><td>" +
+    '<p style="font-family:' + FONT + ';font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:' + SENAPE + ';margin:0 0 6px;">Frontelago</p>' +
+    '<h1 style="font-family:' + FONT + ';font-size:22px;font-weight:600;color:' + NERO + ';margin:0 0 24px;">Richiesta informazioni dal sito</h1>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' +
+    lines.map(([k, v]) => fieldRow(k, v)).join("") +
+    '<tr><td style="' + labelStyle + '">Messaggio</td></tr>' +
+    '<tr><td style="font-family:' + FONT + ';font-size:16px;line-height:1.5;color:' + NERO + ';background:' + AVORIO + ';border:1px solid ' + BORDO + ';border-radius:20px;padding:16px 18px;">' +
     escapeHtml(data.messaggio).replace(/\n/g, "<br>") +
-    "</p>";
+    "</td></tr>" +
+    "</table>" +
+    '<p style="font-family:' + FONT + ';font-size:12px;color:rgba(26,24,21,0.55);margin:24px 0 0;text-align:center;">Rispondi a questa email per scrivere direttamente all\u2019ospite.</p>' +
+    "</td></tr></table>" +
+    "</td></tr></table></body>";
 
   try {
     const response = await fetch(RESEND_ENDPOINT, {
