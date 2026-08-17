@@ -4713,4 +4713,44 @@ document.addEventListener("DOMContentLoaded", function () {
       if (heroEl && scene && heroEl.paused) kickHero();
     }, 1200);
   })();
+</script>
+<script>
+/* Prefetch delle foto sotto la piega: a pagina caricata (video incluso nel
+   conteggio del browser) scarica in sequenza, una alla volta, le immagini
+   lazy e quelle delle gallery, cosi' scorrendo sono gia' in cache invece di
+   comparire in ritardo. */
+(function () {
+  function warmImages() {
+    var urls = [];
+    function push(u) {
+      if (u && urls.indexOf(u) === -1) urls.push(u);
+    }
+    document.querySelectorAll("img[loading='lazy']").forEach(function (img) {
+      push(img.currentSrc || img.getAttribute("src"));
+    });
+    document.querySelectorAll("img[data-src]").forEach(function (img) {
+      push(img.getAttribute("data-src"));
+    });
+    var galleries = window.FRONTELAGO_GALLERIES || {};
+    Object.keys(galleries).forEach(function (key) {
+      (galleries[key] || []).forEach(push);
+    });
+    var i = 0;
+    (function next() {
+      if (i >= urls.length) return;
+      var im = new Image();
+      im.onload = im.onerror = function () {
+        setTimeout(next, 80);
+      };
+      im.src = urls[i++];
+    })();
+  }
+  if (document.readyState === "complete") {
+    setTimeout(warmImages, 1200);
+  } else {
+    window.addEventListener("load", function () {
+      setTimeout(warmImages, 1200);
+    }, { once: true });
+  }
+})();
 </script></body></html><!--/$-->
