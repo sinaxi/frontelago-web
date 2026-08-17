@@ -2737,44 +2737,16 @@
   }
 /* oben entfernt testweise -> height: 100svh; */
   
-  @media (min-width: 991px) {
-    .accordion_header {
-      width: 100%;
-      height: calc(var(--header-height));
-      top: calc(
-        max(100vh, var(--section-height)) -
-        (var(--total-items) - var(--item-position) + 1) * var(--header-height)
-        );
-      z-index: calc(10 + var(--item-position));
-    }
-
-    .workflow_header {
-      min-height: calc(
-        max(100vh, var(--section-height)) - var(--total-items) *
-        var(--header-height)
-        );
-    }
-    /* When inview - switch to sticky */
-    .section_workflow.inview .accordion_header {
-      position: sticky !important;
-      top: auto;
-      bottom: calc(
-        (var(--total-items) - var(--item-position)) * var(--header-height)
-        );
-    }
-  }
-
-  /* Mobile/tablet: ogni titolo si blocca in alto mentre la sua descrizione
-     scorre sotto; il titolo successivo lo copre arrivando (come su desktop). */
-  @media (max-width: 991px) {
-    .accordion_header {
-      width: 100%;
-      position: sticky !important;
-      height: calc(var(--header-height, 8rem));
-      top: 0;
-      bottom: auto;
-      z-index: calc(10 + var(--item-position, 1));
-    }
+  /* Accordion CONTESTO E DINTORNI (desktop e mobile): ogni titolo si blocca
+     in alto mentre la sua descrizione scorre sotto; il titolo successivo lo
+     copre arrivando. */
+  .accordion_header {
+    width: 100%;
+    position: sticky !important;
+    height: calc(var(--header-height, 8rem));
+    top: 0;
+    bottom: auto;
+    z-index: calc(10 + var(--item-position, 1));
   }
   /* Shorten the white "AND / We Go Viral / Then" scroll before the footer */
   .section_long-scroll.cc-light-pink {
@@ -4560,7 +4532,7 @@ window.FRONTELAGO_GALLERIES = {
   ]
 };
 </script>
-<script src="js/frontelago-scroll.js?v=20260817b"></script>
+<script src="js/frontelago-scroll.js?v=20260817c"></script>
 <script>
 (function () {
   var overlay = document.querySelector("[data-gallery-lightbox]");
