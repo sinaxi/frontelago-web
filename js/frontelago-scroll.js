@@ -556,7 +556,9 @@ document.addEventListener("DOMContentLoaded", function () {
       window.setTimeout(advance, 150);
     };
 
-    window.setTimeout(advance, 1000);
+    // Parte quasi subito: il preloader ora si chiude in fretta e con il
+    // vecchio ritardo di 1s si faceva in tempo a vedere solo "Benvenuto".
+    window.setTimeout(advance, 280);
     window.setTimeout(notifyMin, PRELOADER_MIN_MS);
   }
 
