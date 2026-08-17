@@ -83,11 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function bindInPageLinks() {
     const scroller = currentScroller;
-
-    if (!scroller || scroller === window) {
-      return;
-    }
-
     const anchors = document.querySelectorAll('a[href^="#"]');
 
     anchors.forEach((anchor) => {
@@ -112,26 +107,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
       anchor.dataset.anchorBound = "true";
 
+      // Nota: non aggiorniamo mai l'URL con l'hash. Un fragment persistente
+      // (es. #top, che punta alla sezione video) fa sì che iOS Safari
+      // ri-ancori la pagina a quell'elemento a ogni cambio di layout
+      // durante il caricamento, bloccando lo scroll dell'utente.
       anchor.addEventListener("click", (event) => {
         event.preventDefault();
 
-        const scrollerRect = scroller.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
-        const targetOffset = targetRect.top - scrollerRect.top + scroller.scrollTop;
+        if (scroller && scroller !== window) {
+          const scrollerRect = scroller.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
+          const targetOffset =
+            targetRect.top - scrollerRect.top + scroller.scrollTop;
 
-        if (typeof scroller.scrollTo === "function") {
-          scroller.scrollTo({
-            top: targetOffset,
-            behavior: "smooth",
-          });
+          if (typeof scroller.scrollTo === "function") {
+            scroller.scrollTo({
+              top: targetOffset,
+              behavior: "smooth",
+            });
+          } else {
+            scroller.scrollTop = targetOffset;
+          }
+        } else if (lenis && typeof lenis.scrollTo === "function") {
+          lenis.scrollTo(target);
         } else {
-          scroller.scrollTop = targetOffset;
-        }
-
-        if (history.pushState) {
-          history.pushState(null, "", href);
-        } else {
-          window.location.hash = href;
+          target.scrollIntoView({ behavior: "smooth" });
         }
       });
     });
